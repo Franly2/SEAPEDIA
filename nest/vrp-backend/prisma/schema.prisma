@@ -1,3 +1,423 @@
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+// // ==========================================
+// //        DOMAIN Logistik
+// // ==========================================
+
+// enum PackageStatus {
+//   PENDING   // Belum diapa-apain (Masih di gudang)
+//   ASSIGNED  // Sudah masuk ke rute (hasil clustering)
+//   DELIVERED // Sudah sampai
+//   FAILED    // Gagal kirim
+// }
+
+// enum RouteStatus {
+//   ACTIVE    // Sedang jalan
+//   COMPLETED // Selesai
+// }
+
+// enum VehicleType {
+//   MOBIL 
+//   MOTOR 
+// }
+
+// model DriverLocation {
+//   id          String   @id @default(uuid())
+//   userId      String   @unique
+//   user        User     @relation(fields: [userId], references: [id])
+//   lat         Float
+//   lng         Float
+//   lastUpdated DateTime @default(now())
+
+//   // NEW: Denormalisasi untuk RLS
+//   companyId   String
+//   company     Company  @relation(fields: [companyId], references: [id])
+// }
+
+// model Vehicle {
+//   id          String @id @default(uuid())
+//   userId      String @unique
+//   user        User   @relation(fields: [userId], references: [id])
+
+//   type        VehicleType @default(MOTOR)
+  
+//   plateNumber String      
+//   model       String      // Honda Beat dsb
+
+//   maxWeight   Float // kg, buat constraint clustering
+//   maxVolume   Float // liter, buat constraint clustering
+
+//   companyId   String
+//   company     Company  @relation(fields: [companyId], references: [id])
+
+//   // plateNumber "B 1234 ABC" boleh sama di perusahaan berbeda, tapi harus unik di dalam perusahaan yang sama
+//   @@unique([plateNumber, companyId]) 
+// }
+
+// model Package {
+//   id            String @id @default(uuid())
+//   recipientName String
+//   address       String @db.Text
+
+//   companyId     String
+//   company       Company @relation(fields: [companyId], references: [id])
+//   depotId       String? // berangkat dari mana
+//   depot         Depot?  @relation(fields: [depotId], references: [id])
+
+//   lat           Float?
+//   lng           Float?
+
+//   weight        Float // (Product.weightEst * quantity) 
+//   volume        Float // (Product.volumeEst * quantity)
+//   status        PackageStatus @default(PENDING)
+
+//   routeId       String?
+//   route         Route?  @relation(fields: [routeId], references: [id])
+
+//   orderIndex    Int? // Urutan pengiriman hasil GA (0, 1, 2...)
+//   deliveryShiftId String
+//   deliveryShift DeliveryShift @relation(fields: [deliveryShiftId], references: [id])
+
+//   createdAt     DateTime @default(now())
+//   updatedAt     DateTime @updatedAt
+
+//   refOrderId    String? // kasus katering : ID dari tabel Order katering
+//   metadata      Json?   // kasus katering : nama menu katering dalam bentuk JSON
+// }
+
+// model Route {
+//   id          String @id @default(uuid())
+
+//   driverId    String
+//   driver      User   @relation(fields: [driverId], references: [id])
+
+//   companyId   String
+//   company     Company @relation(fields: [companyId], references: [id])
+//   depotId     String?
+//   depot       Depot?  @relation(fields: [depotId], references: [id])
+
+//   status      RouteStatus @default(ACTIVE)
+//   packages    Package[]
+
+//   totalDistance Float?  // Estimasi jarak total dari OSRM (km)
+//   totalWeight   Float?
+//   totalVolume   Float?
+//   polyline      String? @db.Text // Garis jalan raya dari OSRM buat digambar di Map
+//   colorCode     String? // Warna cluster (Hex code, misal "#FF0000")
+
+//   date          DateTime @default(now())
+// }
+
+// // ==========================================
+// //        DOMAIN Transaksi (Katering, Farmasi)
+// // ==========================================
+
+// enum Role {
+//   OWNER
+//   ADMIN
+//   DRIVER
+//   CUSTOMER 
+// }
+
+// enum AccountStatus {
+//   PENDING
+//   ACCEPTED
+//   REJECTED
+//   SUSPENDED 
+// }
+
+// model User {
+//   id          String   @id @default(uuid())
+//   username    String
+//   password    String
+//   fullName    String
+//   phoneNumber String
+//   birthDate   DateTime
+//   role        Role     @default(DRIVER)
+//   status      AccountStatus @default(PENDING)
+
+//   cartItems   CartItem[]
+
+//   orders         Order[]
+//   driverLocation DriverLocation?
+//   vehicle        Vehicle? // 1 Driver punya 1 Kendaraan
+//   routes         Route[]  // 1 Driver bisa punya histori banyak rute
+//   addresses      Address[] 
+
+//   companyId     String
+//   company       Company        @relation(fields: [companyId], references: [id])
+//   depotId       String?        // Opsional: Owner tidak punya depotId, Admin/Driver punya.
+//   depot         Depot?         @relation(fields: [depotId], references: [id])
+//   subscriptions Subscription[]
+//   createdAt     DateTime       @default(now())
+//   updatedAt     DateTime       @updatedAt
+
+//   @@unique([username, companyId]) // username "budi" hanya boleh ada 1 di dalam company yang sama
+// }
+
+// model Address {
+//   id          String   @id @default(uuid())
+//   userId      String
+//   user        User     @relation(fields: [userId], references: [id])
+//   label       String   // "Rumah", "Kantor", dll
+//   addressLine String   @db.Text
+//   latitude    Float
+//   longitude   Float
+//   isMain      Boolean  @default(false)
+//   orders      Order[]  
+// }
+
+// enum ProductStatus {
+//   PENDING
+//   REJECTED
+//   AVAILABLE
+//   UNAVAILABLE
+//   DELETED
+// }
+
+// model Product {
+//   id             String          @id @default(uuid())
+//   name           String          // "Nasi Ayam" (Katering), "Paracetamol" (Farmasi)
+//   price          Int
+//   weightEst      Float
+//   volumeEst      Float
+//   isActive       Boolean         @default(true)
+//   isSubscription Boolean         @default(false)
+//   durationDays   Int?            // Misal: 30 (untuk langganan 30 hari)
+  
+//   companyId      String
+//   company        Company         @relation(fields: [companyId], references: [id])
+  
+//   schedules      ProductSchedule[]
+//   images         ProductImage[]
+
+//   status          ProductStatus @default(PENDING)
+//   // Relasi ke keranjang belanja 
+//   items           OrderItem[]
+//   subscriptions   Subscription[]
+//   cartItems       CartItem[]
+//   availableShifts DeliveryShift[]
+//   availableAt Depot[]
+  
+//   createdAt      DateTime @default(now())
+//   updatedAt      DateTime @updatedAt
+// }
+
+// model ProductImage {
+//   id        String  @id @default(uuid())
+//   url       String  // Tautan gambarnya (dari AWS S3/Cloudinary)
+//   isMain    Boolean @default(false) // Apakah ini foto cover depan?
+//   order     Int     @default(0) // Urutan foto (0, 1, 2, dst)
+
+//   productId String
+//   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+//   // NEW: Denormalisasi untuk RLS
+//   companyId String
+//   company   Company @relation(fields: [companyId], references: [id])
+
+//   createdAt DateTime @default(now())
+// }
+
+// enum OrderStatus {
+//   UNPAID
+//   PAID
+//   PREPARING
+//   COMPLETED
+//   FAILED
+// }
+
+// model Order {
+//   id              String @id @default(uuid())
+//   customerId      String
+//   customer        User   @relation(fields: [customerId], references: [id])
+
+//   companyId       String
+//   company         Company @relation(fields: [companyId], references: [id])
+//   depotId         String
+//   depot           Depot   @relation(fields: [depotId], references: [id])
+
+//   totalPrice      Int
+//   status          OrderStatus @default(UNPAID)
+
+//   trackingId      String? // kasus catering : Menyimpan ID Package dari mesin Logistik (cth: "PKG-001")
+  
+//   deliveryShiftId String
+//   deliveryShift   DeliveryShift @relation(fields: [deliveryShiftId], references: [id])
+//   addressId       String 
+//   address         Address? @relation(fields: [addressId], references: [id])
+//   items           OrderItem[]
+//   createdAt       DateTime @default(now())
+//   updatedAt       DateTime @updatedAt
+// }
+
+// model OrderItem {
+//   id         String @id @default(uuid())
+
+//   orderId    String
+//   order      Order  @relation(fields: [orderId], references: [id])
+
+//   productId  String
+//   product    Product @relation(fields: [productId], references: [id])
+
+//   quantity   Int
+//   priceAtBuy Int
+
+//   // NEW: Denormalisasi untuk RLS
+//   companyId  String
+//   company    Company @relation(fields: [companyId], references: [id])
+// }
+
+// model DeliveryShift {
+//   id        String  @id @default(uuid())
+//   name      String  // Misal: "Makan Siang", "Shift Pagi"
+//   startTime String  // Misal: "11:00"
+//   endTime   String  // Misal: "13:00"
+  
+//   companyId String
+//   company   Company @relation(fields: [companyId], references: [id])
+
+//   // Relasi
+//   products  Product[] // Produk apa saja yang bisa dikirim di jam ini
+//   orders    Order[]
+//   packages  Package[]
+// }
+
+// enum SubStatus {
+//   ACTIVE
+//   PAUSED
+//   EXPIRED
+// }
+
+// model Subscription {
+//   id         String  @id @default(uuid())
+//   customerId String
+//   customer   User    @relation(fields: [customerId], references: [id])
+//   productId  String
+//   product    Product @relation(fields: [productId], references: [id])
+//   companyId  String
+//   company    Company @relation(fields: [companyId], references: [id])
+
+//   startDate  DateTime  @default(now())
+//   endDate    DateTime  // Dihitung dari startDate + durationDays produk
+//   status     SubStatus @default(ACTIVE)
+
+//   createdAt  DateTime @default(now())
+//   updatedAt  DateTime @updatedAt
+// }
+
+// model ProductSchedule {
+//   id          String  @id @default(uuid())
+//   productId   String
+//   product     Product @relation(fields: [productId], references: [id])
+
+//   dayOfWeek   Int     // Angka penanda hari: 1 = Senin, 2 = Selasa, ... 7 = Minggu
+//   menuDetails String  @db.Text // Isi menu hari itu, misal: "Nasi Putih, Ayam Goreng, Es Teh"
+
+//   // NEW: Denormalisasi untuk RLS
+//   companyId   String
+//   company     Company @relation(fields: [companyId], references: [id])
+
+//   @@unique([productId, dayOfWeek]) // Mencegah Admin gak sengaja bikin 2 jadwal untuk hari Senin di paket yang sama
+// }
+
+// model CartItem {
+//   id         String  @id @default(uuid())
+//   customerId String
+//   customer   User    @relation(fields: [customerId], references: [id])
+//   productId  String
+//   product    Product @relation(fields: [productId], references: [id])
+
+//   quantity   Int     @default(1)
+
+//   // NEW: Denormalisasi untuk RLS
+//   companyId  String
+//   company    Company @relation(fields: [companyId], references: [id])
+
+//   createdAt  DateTime @default(now())
+//   updatedAt  DateTime @updatedAt
+
+//   @@unique([customerId, productId]) // Biar satu user gak punya 2 baris produk yang sama di keranjang
+// }
+
+// // ==========================================
+// //        DOMAIN Company (Katering, Farmasi)
+// // ==========================================
+// enum PlanTier {
+//   STARTER
+//   PRO
+//   ENTERPRISE
+// }
+
+// model Company {
+//   id              String  @id @default(uuid())
+//   slug            String  @unique // "katering-ibu-budi"
+//   name            String  // cth: "Katering Ibu Budi", "Apotek Sehat"
+//   industry        String? // cth: "F&B", "Healthcare", "Logistics"
+
+//   // --- UI/UX Branding ---
+//   logoUrl         String?
+//   colorPrimary    String? @default("#1976D2")
+//   colorSecondary  String? @default("#FFC107")
+//   colorTertiary   String? @default("#4CAF50")
+
+//   // --- SaaS Limits & Tiering ---
+//   tier            PlanTier @default(STARTER)
+//   maxDepots       Int      @default(1)
+//   maxDrivers      Int      @default(3)
+//   maxOrdersPerDay Int      @default(50)
+
+//   // --- Relasi ke Domain Logistik ---
+//   depots           Depot[]
+//   users            User[]
+//   packages         Package[]
+//   routes           Route[]
+//   driverLocations  DriverLocation[]  // NEW
+//   vehicles         Vehicle[]         // NEW
+
+//   // --- Relasi ke Domain Katering ---
+//   products         Product[]
+//   orders           Order[]
+//   subscriptions    Subscription[]
+//   deliveryShifts   DeliveryShift[]
+//   productImages    ProductImage[]    // NEW
+//   orderItems       OrderItem[]       // NEW
+//   productSchedules ProductSchedule[] // NEW
+//   cartItems        CartItem[]        // NEW
+
+//   createdAt        DateTime @default(now())
+//   updatedAt        DateTime @updatedAt
+// }
+
+// model Depot {
+//   id        String @id @default(uuid())
+//   name      String //  "Gudang Utama Mulyosari"
+//   lat       Float
+//   lng       Float
+//   address   String @db.Text
+
+//   companyId String
+//   company   Company @relation(fields: [companyId], references: [id])
+  
+//   products Product[]
+//   users     User[]
+//   orders    Order[]   // list order yang berangkat dari depot ini (opsional, bisa juga diambil dari rute)
+//   packages  Package[] // biar Depot tahu paket apa saja yang berangkat dari sana
+//   routes    Route[]   // rute ini mulai dari depot mana
+// }
+
+
+// 
+// 
+// 
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,407 +428,236 @@ datasource db {
 }
 
 // ==========================================
-//        DOMAIN Logistik
+// LEVEL 1: Authentication & Multi-Role
 // ==========================================
 
-enum PackageStatus {
-  PENDING   // Belum diapa-apain (Masih di gudang)
-  ASSIGNED  // Sudah masuk ke rute (hasil clustering)
-  DELIVERED // Sudah sampai
-  FAILED    // Gagal kirim
-}
-
-enum RouteStatus {
-  ACTIVE    // Sedang jalan
-  COMPLETED // Selesai
-}
-
-enum VehicleType {
-  MOBIL 
-  MOTOR 
-}
-
-model DriverLocation {
-  id          String   @id @default(uuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id])
-  lat         Float
-  lng         Float
-  lastUpdated DateTime @default(now())
-
-  // NEW: Denormalisasi untuk RLS
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id])
-}
-
-model Vehicle {
-  id          String @id @default(uuid())
-  userId      String @unique
-  user        User   @relation(fields: [userId], references: [id])
-
-  type        VehicleType @default(MOTOR)
-  
-  plateNumber String      
-  model       String      // Honda Beat dsb
-
-  maxWeight   Float // kg, buat constraint clustering
-  maxVolume   Float // liter, buat constraint clustering
-
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id])
-
-  // plateNumber "B 1234 ABC" boleh sama di perusahaan berbeda, tapi harus unik di dalam perusahaan yang sama
-  @@unique([plateNumber, companyId]) 
-}
-
-model Package {
-  id            String @id @default(uuid())
-  recipientName String
-  address       String @db.Text
-
-  companyId     String
-  company       Company @relation(fields: [companyId], references: [id])
-  depotId       String? // berangkat dari mana
-  depot         Depot?  @relation(fields: [depotId], references: [id])
-
-  lat           Float?
-  lng           Float?
-
-  weight        Float // (Product.weightEst * quantity) 
-  volume        Float // (Product.volumeEst * quantity)
-  status        PackageStatus @default(PENDING)
-
-  routeId       String?
-  route         Route?  @relation(fields: [routeId], references: [id])
-
-  orderIndex    Int? // Urutan pengiriman hasil GA (0, 1, 2...)
-  deliveryShiftId String
-  deliveryShift DeliveryShift @relation(fields: [deliveryShiftId], references: [id])
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  refOrderId    String? // kasus katering : ID dari tabel Order katering
-  metadata      Json?   // kasus katering : nama menu katering dalam bentuk JSON
-}
-
-model Route {
-  id          String @id @default(uuid())
-
-  driverId    String
-  driver      User   @relation(fields: [driverId], references: [id])
-
-  companyId   String
-  company     Company @relation(fields: [companyId], references: [id])
-  depotId     String?
-  depot       Depot?  @relation(fields: [depotId], references: [id])
-
-  status      RouteStatus @default(ACTIVE)
-  packages    Package[]
-
-  totalDistance Float?  // Estimasi jarak total dari OSRM (km)
-  totalWeight   Float?
-  totalVolume   Float?
-  polyline      String? @db.Text // Garis jalan raya dari OSRM buat digambar di Map
-  colorCode     String? // Warna cluster (Hex code, misal "#FF0000")
-
-  date          DateTime @default(now())
-}
-
-// ==========================================
-//        DOMAIN Transaksi (Katering, Farmasi)
-// ==========================================
-
+// Satu user bisa memiliki banyak role di dalam array
 enum Role {
-  OWNER
   ADMIN
+  SELLER
+  BUYER
   DRIVER
-  CUSTOMER 
-}
-
-enum AccountStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
-  SUSPENDED 
 }
 
 model User {
-  id          String   @id @default(uuid())
-  username    String
-  password    String
-  fullName    String
-  phoneNumber String
-  birthDate   DateTime
-  role        Role     @default(DRIVER)
-  status      AccountStatus @default(PENDING)
+  id           String   @id @default(uuid())
+  username     String   @unique
+  password     String
+  fullName     String?
+  roles        Role[]   @default([BUYER]) // PostgreSQL mendukung array enum
+  
+  // Relasi
+  store        Store?             // Sebagai Seller (1 User = 1 Toko)
+  addresses    Address[]          // Sebagai Buyer
+  cartItems    CartItem[]         // Sebagai Buyer
+  orders       Order[]            // Sebagai Buyer (Riwayat Belanja)
+  deliveryJobs DeliveryJob[]      // Sebagai Driver (Riwayat Pekerjaan)
+  wallet       WalletTransaction[]// Untuk pencatatan saldo Buyer / penghasilan Driver & Seller
 
-  cartItems   CartItem[]
-
-  orders         Order[]
-  driverLocation DriverLocation?
-  vehicle        Vehicle? // 1 Driver punya 1 Kendaraan
-  routes         Route[]  // 1 Driver bisa punya histori banyak rute
-  addresses      Address[] 
-
-  companyId     String
-  company       Company        @relation(fields: [companyId], references: [id])
-  depotId       String?        // Opsional: Owner tidak punya depotId, Admin/Driver punya.
-  depot         Depot?         @relation(fields: [depotId], references: [id])
-  subscriptions Subscription[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-
-  @@unique([username, companyId]) // username "budi" hanya boleh ada 1 di dalam company yang sama
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
+
+// Fitur Level 1: Public Application Review (Tanpa harus checkout)
+model AppReview {
+  id           String   @id @default(uuid())
+  reviewerName String   // Bisa diisi Guest atau ditarik dari User
+  rating       Int      // 1 sampai 5
+  comment      String   @db.Text
+  createdAt    DateTime @default(now())
+}
+
+
+// ==========================================
+// LEVEL 2: Seller Experience & Catalog
+// ==========================================
+
+model Store {
+  id          String    @id @default(uuid())
+  name        String    @unique // Nama toko harus unik
+  ownerId     String    @unique
+  owner       User      @relation(fields: [ownerId], references: [id])
+  
+  products    Product[]
+  orders      Order[]   // Pesanan yang masuk ke toko ini
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id          String    @id @default(uuid())
+  name        String
+  description String    @db.Text
+  price       Int
+  stock       Int       // Wajib untuk sistem checkout Level 3
+  
+  storeId     String
+  store       Store     @relation(fields: [storeId], references: [id])
+  
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+
+// ==========================================
+// LEVEL 3: Buyer Wallet, Cart & Checkout
+// ==========================================
 
 model Address {
   id          String   @id @default(uuid())
   userId      String
   user        User     @relation(fields: [userId], references: [id])
-  label       String   // "Rumah", "Kantor", dll
+  label       String   // "Rumah", "Kantor"
   addressLine String   @db.Text
-  latitude    Float
-  longitude   Float
-  isMain      Boolean  @default(false)
-  orders      Order[]  
+  orders      Order[]
 }
 
-enum ProductStatus {
-  PENDING
-  REJECTED
-  AVAILABLE
-  UNAVAILABLE
-  DELETED
+// Transaksi Saldo (Wallet) untuk Buyer, Seller, dan Driver
+enum TransactionType {
+  TOP_UP        // Buyer isi saldo
+  PAYMENT       // Buyer bayar pesanan
+  INCOME        // Seller terima uang masuk / Driver terima ongkos kirim
+  REFUND        // Pengembalian dana Overdue (Level 6)
+  REVERSAL      // Penarikan dana dari Seller jika Overdue (Level 6)
 }
 
-model Product {
-  id             String          @id @default(uuid())
-  name           String          // "Nasi Ayam" (Katering), "Paracetamol" (Farmasi)
-  price          Int
-  weightEst      Float
-  volumeEst      Float
-  isActive       Boolean         @default(true)
-  isSubscription Boolean         @default(false)
-  durationDays   Int?            // Misal: 30 (untuk langganan 30 hari)
-  
-  companyId      String
-  company        Company         @relation(fields: [companyId], references: [id])
-  
-  schedules      ProductSchedule[]
-  images         ProductImage[]
-
-  status          ProductStatus @default(PENDING)
-  // Relasi ke keranjang belanja 
-  items           OrderItem[]
-  subscriptions   Subscription[]
-  cartItems       CartItem[]
-  availableShifts DeliveryShift[]
-  availableAt Depot[]
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-}
-
-model ProductImage {
-  id        String  @id @default(uuid())
-  url       String  // Tautan gambarnya (dari AWS S3/Cloudinary)
-  isMain    Boolean @default(false) // Apakah ini foto cover depan?
-  order     Int     @default(0) // Urutan foto (0, 1, 2, dst)
-
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
-  // NEW: Denormalisasi untuk RLS
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
-
-  createdAt DateTime @default(now())
-}
-
-enum OrderStatus {
-  UNPAID
-  PAID
-  PREPARING
-  COMPLETED
-  FAILED
-}
-
-model Order {
-  id              String @id @default(uuid())
-  customerId      String
-  customer        User   @relation(fields: [customerId], references: [id])
-
-  companyId       String
-  company         Company @relation(fields: [companyId], references: [id])
-  depotId         String
-  depot           Depot   @relation(fields: [depotId], references: [id])
-
-  totalPrice      Int
-  status          OrderStatus @default(UNPAID)
-
-  trackingId      String? // kasus catering : Menyimpan ID Package dari mesin Logistik (cth: "PKG-001")
-  
-  deliveryShiftId String
-  deliveryShift   DeliveryShift @relation(fields: [deliveryShiftId], references: [id])
-  addressId       String 
-  address         Address? @relation(fields: [addressId], references: [id])
-  items           OrderItem[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
-
-model OrderItem {
-  id         String @id @default(uuid())
-
-  orderId    String
-  order      Order  @relation(fields: [orderId], references: [id])
-
-  productId  String
-  product    Product @relation(fields: [productId], references: [id])
-
-  quantity   Int
-  priceAtBuy Int
-
-  // NEW: Denormalisasi untuk RLS
-  companyId  String
-  company    Company @relation(fields: [companyId], references: [id])
-}
-
-model DeliveryShift {
-  id        String  @id @default(uuid())
-  name      String  // Misal: "Makan Siang", "Shift Pagi"
-  startTime String  // Misal: "11:00"
-  endTime   String  // Misal: "13:00"
-  
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
-
-  // Relasi
-  products  Product[] // Produk apa saja yang bisa dikirim di jam ini
-  orders    Order[]
-  packages  Package[]
-}
-
-enum SubStatus {
-  ACTIVE
-  PAUSED
-  EXPIRED
-}
-
-model Subscription {
-  id         String  @id @default(uuid())
-  customerId String
-  customer   User    @relation(fields: [customerId], references: [id])
-  productId  String
-  product    Product @relation(fields: [productId], references: [id])
-  companyId  String
-  company    Company @relation(fields: [companyId], references: [id])
-
-  startDate  DateTime  @default(now())
-  endDate    DateTime  // Dihitung dari startDate + durationDays produk
-  status     SubStatus @default(ACTIVE)
-
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model ProductSchedule {
-  id          String  @id @default(uuid())
-  productId   String
-  product     Product @relation(fields: [productId], references: [id])
-
-  dayOfWeek   Int     // Angka penanda hari: 1 = Senin, 2 = Selasa, ... 7 = Minggu
-  menuDetails String  @db.Text // Isi menu hari itu, misal: "Nasi Putih, Ayam Goreng, Es Teh"
-
-  // NEW: Denormalisasi untuk RLS
-  companyId   String
-  company     Company @relation(fields: [companyId], references: [id])
-
-  @@unique([productId, dayOfWeek]) // Mencegah Admin gak sengaja bikin 2 jadwal untuk hari Senin di paket yang sama
+model WalletTransaction {
+  id          String          @id @default(uuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id])
+  amount      Int
+  type        TransactionType
+  description String?         // "Pembayaran Order ODR-123", "Top Up", dll.
+  createdAt   DateTime        @default(now())
 }
 
 model CartItem {
-  id         String  @id @default(uuid())
-  customerId String
-  customer   User    @relation(fields: [customerId], references: [id])
-  productId  String
-  product    Product @relation(fields: [productId], references: [id])
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int      @default(1)
 
-  quantity   Int     @default(1)
-
-  // NEW: Denormalisasi untuk RLS
-  companyId  String
-  company    Company @relation(fields: [companyId], references: [id])
-
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([customerId, productId]) // Biar satu user gak punya 2 baris produk yang sama di keranjang
+  // Bantuan validasi Single-Store Checkout di backend
+  @@unique([userId, productId]) 
 }
+
 
 // ==========================================
-//        DOMAIN Company (Katering, Farmasi)
+// LEVEL 4 & 5: Order, Status History, & Delivery
 // ==========================================
-enum PlanTier {
-  STARTER
-  PRO
-  ENTERPRISE
+
+// Status Pesanan Wajib sesuai dokumen SEAPEDIA
+enum OrderStatus {
+  SEDANG_DIKEMAS    // 1. Setelah Buyer checkout sukses
+  MENUNGGU_PENGIRIM // 2. Setelah Seller klik "Proses"
+  SEDANG_DIKIRIM    // 3. Setelah Driver ambil pekerjaan
+  PESANAN_SELESAI   // 4. Setelah Driver konfirmasi sampai
+  DIKEMBALIKAN      // 5. Jika terjadi Overdue (Level 6)
 }
 
-model Company {
-  id              String  @id @default(uuid())
-  slug            String  @unique // "katering-ibu-budi"
-  name            String  // cth: "Katering Ibu Budi", "Apotek Sehat"
-  industry        String? // cth: "F&B", "Healthcare", "Logistics"
-
-  // --- UI/UX Branding ---
-  logoUrl         String?
-  colorPrimary    String? @default("#1976D2")
-  colorSecondary  String? @default("#FFC107")
-  colorTertiary   String? @default("#4CAF50")
-
-  // --- SaaS Limits & Tiering ---
-  tier            PlanTier @default(STARTER)
-  maxDepots       Int      @default(1)
-  maxDrivers      Int      @default(3)
-  maxOrdersPerDay Int      @default(50)
-
-  // --- Relasi ke Domain Logistik ---
-  depots           Depot[]
-  users            User[]
-  packages         Package[]
-  routes           Route[]
-  driverLocations  DriverLocation[]  // NEW
-  vehicles         Vehicle[]         // NEW
-
-  // --- Relasi ke Domain Katering ---
-  products         Product[]
-  orders           Order[]
-  subscriptions    Subscription[]
-  deliveryShifts   DeliveryShift[]
-  productImages    ProductImage[]    // NEW
-  orderItems       OrderItem[]       // NEW
-  productSchedules ProductSchedule[] // NEW
-  cartItems        CartItem[]        // NEW
-
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+enum DeliveryMethod {
+  INSTANT
+  NEXT_DAY
+  REGULAR
 }
 
-model Depot {
-  id        String @id @default(uuid())
-  name      String //  "Gudang Utama Mulyosari"
-  lat       Float
-  lng       Float
-  address   String @db.Text
+model Order {
+  id             String          @id @default(uuid())
+  buyerId        String
+  buyer          User            @relation(fields: [buyerId], references: [id])
+  storeId        String          // Ditambahkan agar mudah query pendapatan per toko
+  store          Store           @relation(fields: [storeId], references: [id])
+  addressId      String 
+  address        Address         @relation(fields: [addressId], references: [id])
 
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
+  // Komponen Finansial Checkout
+  subtotal       Int
+  discountAmount Int             @default(0)
+  deliveryFee    Int
+  ppnAmount      Int             // PPN 12%
+  finalTotal     Int
+
+  deliveryMethod DeliveryMethod
+  status         OrderStatus     @default(SEDANG_DIKEMAS)
+
+  // Penggunaan Diskon (Level 4)
+  voucherId      String?
+  voucher        Voucher?        @relation(fields: [voucherId], references: [id])
+  promoId        String?
+  promo          Promo?          @relation(fields: [promoId], references: [id])
+
+  items          OrderItem[]
+  statusHistory  OrderStatusHistory[]
+  deliveryJob    DeliveryJob?
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int
+  priceAtBuy  Int      // Merekam harga saat dibeli agar tidak berubah jika harga produk diubah Seller
+}
+
+// "Every order must store status history with timestamps"
+model OrderStatusHistory {
+  id          String       @id @default(uuid())
+  orderId     String
+  order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status      OrderStatus
+  createdAt   DateTime     @default(now())
+}
+
+// Workflow Driver (Level 5)
+model DeliveryJob {
+  id          String   @id @default(uuid())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id])
   
-  products Product[]
-  users     User[]
-  orders    Order[]   // list order yang berangkat dari depot ini (opsional, bisa juga diambil dari rute)
-  packages  Package[] // biar Depot tahu paket apa saja yang berangkat dari sana
-  routes    Route[]   // rute ini mulai dari depot mana
+  driverId    String?  // Kosong saat status "Menunggu Pengirim", terisi saat di-"Take"
+  driver      User?    @relation(fields: [driverId], references: [id])
+  
+  driverFee   Int      // Penghasilan yang akan masuk ke Wallet driver
+  
+  takenAt     DateTime?
+  completedAt DateTime?
+}
+
+
+// ==========================================
+// LEVEL 4 & 6: Discounts (Voucher & Promo)
+// ==========================================
+
+model Voucher {
+  id             String   @id @default(uuid())
+  code           String   @unique
+  discountValue  Int      // Bisa rupiah atau persentase, handle logikanya di backend
+  expiryDate     DateTime
+  usageQuota     Int      // Vouchers with no remaining usage cannot be used
+  
+  orders         Order[]  // Riwayat order yang memakai voucher ini
+  
+  createdAt      DateTime @default(now())
+}
+
+model Promo {
+  id             String   @id @default(uuid())
+  code           String   @unique
+  discountValue  Int      
+  expiryDate     DateTime // Promo hanya butuh expiry, tidak butuh quota
+  
+  orders         Order[]  // Riwayat order yang memakai promo ini
+  
+  createdAt      DateTime @default(now())
 }

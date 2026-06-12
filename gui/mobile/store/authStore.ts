@@ -3,44 +3,53 @@ import { create } from 'zustand';
 
 interface AuthState {
   token: string | null;
-  role: string | null;
+  roles: string[]; // Berubah menjadi array untuk multi-role
   username: string | null;
+  fullName: string | null; // Tambahan data dari backend
   isLoading: boolean;
   
-  login: (token: string, role: string, username: string) => Promise<void>;
+  login: (token: string, roles: string[], username: string, fullName: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   token: null,
-  role: null,
+  roles: [],
   username: null,
-  isLoading: true, // cek auth saat aplikasi pertama kali dibuka
+  fullName: null,
+  isLoading: true, // Menahan perpindahan layar sampai cek token selesai
 
-  login: async (token, role, username) => {
+  login: async (token, roles, username, fullName) => {
     await AsyncStorage.multiSet([
       ['userToken', token],
-      ['userRole', role],
+      ['userRoles', JSON.stringify(roles)], // Array diubah ke string agar bisa disimpan
       ['userName', username],
+      ['userFullName', fullName],
     ]);
-    set({ token, role, username });
+    set({ token, roles, username, fullName });
   },
 
   logout: async () => {
-    await AsyncStorage.multiRemove(['userToken', 'userRole', 'userName']);
-    set({ token: null, role: null, username: null });
+    await AsyncStorage.multiRemove(['userToken', 'userRoles', 'userName', 'userFullName']);
+    set({ token: null, roles: [], username: null, fullName: null });
   },
 
   checkAuth: async () => {
     try {
-      const [token, role, username] = await Promise.all([
+      const [token, rolesString, username, fullName] = await Promise.all([
         AsyncStorage.getItem('userToken'),
-        AsyncStorage.getItem('userRole'),
+        AsyncStorage.getItem('userRoles'),
         AsyncStorage.getItem('userName'),
+        AsyncStorage.getItem('userFullName'),
       ]);
-      set({ token, role, username, isLoading: false });
+
+      // Parse string JSON kembali menjadi array. Jika kosong, berikan array kosong []
+      const roles = rolesString ? JSON.parse(rolesString) : [];
+
+      set({ token, roles, username, fullName, isLoading: false });
     } catch (error) {
+      console.error('Gagal memuat sesi auth:', error);
       set({ isLoading: false });
     }
   },

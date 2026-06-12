@@ -1,10 +1,5 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable prettier/prettier */
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
@@ -22,17 +17,17 @@ export class PrismaService
     await this.$disconnect();
   }
 
-  async withTenant<T>(
-  companyId: string,
-  fn: (tx: PrismaClient) => Promise<T>,
-): Promise<T> {
-  return this.$transaction(async (tx: any) => { 
-    await tx.$executeRawUnsafe(
-      `SET LOCAL app.current_tenant_id = '${companyId}'`
-      //  untuk tes rls
-      // `SET LOCAL app.current_tenant_id = 'tes'`
-    );
-    return fn(tx);
-  });
-}
+//   async withTenant<T>(
+//   companyId: string,
+//   fn: (tx: PrismaClient) => Promise<T>,
+// ): Promise<T> {
+//   return this.$transaction(async (tx: any) => { 
+//     await tx.$executeRawUnsafe(
+//       `SET LOCAL app.current_tenant_id = '${companyId}'`
+//       //  untuk tes rls
+//       // `SET LOCAL app.current_tenant_id = 'tes'`
+//     );
+//     return fn(tx);
+//   });
+// }
 }

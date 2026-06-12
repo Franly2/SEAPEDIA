@@ -1,64 +1,32 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable prettier/prettier */
 /* eslint-disable prettier/prettier */
 /* eslint-disable prettier/prettier */
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from '../../prisma/prisma.service';
-import { AccountStatus, Prisma, PrismaClient, Role } from '@prisma/client';
-import { RegisterCustomerDto } from './dto/registerCustomer.dto';
+import { PrismaService } from 'prisma/prisma.service'; 
+import { Prisma, Role } from '@prisma/client';
 import { RegisterUserDto } from './dto/register.dto';
 
 export interface LoginResponse {
   access_token: string;
-  role: string;
+  roles: Role[]; 
   username: string;
-  companyId: string;
-  branding: {
-    logoUrl: string | null;
-    colorPrimary: string | null; 
-    colorSecondary: string | null;
-    colorTertiary: string | null;
-  };
+  fullName: string | null;
 }
 
 export interface RegisterResponse {
   status: string;
   message: string;
-}
-
-export interface meResponse {
-  id: string;
-  username: string;
-  fullName: string;
-  phoneNumber: string;
-  birthDate: Date;
-  role: Role;
-  company: {
-    id: string;
-    name: string;
-    slug: string;
-  };
-  depot: {
-    id: string;
-    name: string;
-    address: string;
-  } | null;
-  vehicle: {
-    id: string;
-    plateNumber: string;
-    model: string;
-    maxWeight: number;
-    maxVolume: number;
-  } | null;
+  userId: string;
 }
 
 @Injectable()
@@ -68,83 +36,32 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  private prismaAuth = new PrismaClient({
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL_AUTH,
-      },
-    },
-  });
-
-  async getBrandingBySlug(slug: string) {
-  const company = await this.prismaAuth.company.findUnique({
-    where: { slug },
-    select: {
-      name: true,
-      logoUrl: true,
-      colorPrimary: true,
-      colorSecondary: true,
-      colorTertiary: true,
-    },
-  });
-
-
-  if (!company) throw new NotFoundException('Perusahaan tidak terdaftar');
-
-  return { status: 'success', data: company };
-}
-
-  async registerUser(data: RegisterUserDto): Promise<{ status: string; message: string }> {
-    const { 
-      username, 
-      password, 
-      role, 
-      fullName, 
-      birthDate, 
-      phoneNumber,
-      companyId,
-      vehicleType,
-      plateNumber,
-      maxWeight, 
-      maxVolume,
-    } = data;
+  async register(data: RegisterUserDto): Promise<RegisterResponse> {
+    const { username, password, fullName } = data;
 
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
     try {
-      const vehicleData = role === 'DRIVER' ? {
-        create: {
-          plateNumber: plateNumber ?? "-",
-          model: vehicleType ?? "-",   
-          maxWeight: maxWeight ? Number(maxWeight) : 0, 
-          maxVolume: maxVolume ? Number(maxVolume) : 0,
-          companyId: companyId,
-        },
-      } : undefined;
-
-      await this.prisma.user.create({
+      const newUser = await this.prisma.user.create({
         data: {
           username,
           password: hashedPassword,
-          role: role,
           fullName,
-          phoneNumber,
-          birthDate: new Date(birthDate),
-          companyId,
-          ...(vehicleData && { vehicle: vehicleData }), // Gabungkan secara dinamis
+          roles: [Role.BUYER], // Default: Pendaftar baru selalu mulai sebagai BUYER
         },
       });
 
       return {
         status: 'success',
         message: 'Akun berhasil dibuat',
+        userId: newUser.id,
       };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          // Pesan error disesuaikan dengan arsitektur baru
-          throw new ConflictException('Username sudah terpakai di perusahaan ini');
+          // Username diset @unique secara global di skema baru
+          throw new ConflictException('Username sudah terpakai di SEAPEDIA');
         }
       }
       console.error('Registration Error:', error);
@@ -152,111 +69,38 @@ export class AuthService {
     }
   }
 
-    async login(companySlug: string, data: LoginUserDto,): Promise<LoginResponse> {
-      const { username, password } = data;
-      const company = await this.prismaAuth.company.findUnique({
-        where: { slug: companySlug },
-      });
+  async login(data: LoginUserDto): Promise<LoginResponse> {
+    const { username, password } = data;
 
-      if (!company) {
-        throw new UnauthorizedException('Perusahaan tidak ditemukan atau URL salah');
-      }
-      const user = await this.prismaAuth.user.findFirst({
-        where: { username, companyId: company.id },
-      });
+    // Cari user hanya berdasarkan username (tanpa mempedulikan perusahaan)
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+    });
 
-      if (!user) {
-        throw new UnauthorizedException('Username tidak terdaftar');
-      }
-
-      if(user.role !== 'OWNER') {
-        if (user.status === AccountStatus.PENDING) {
-          throw new ForbiddenException('Akun Anda masih menunggu persetujuan Owner.');
-        }
-
-        if (user.status === AccountStatus.REJECTED) {
-          throw new ForbiddenException('Maaf, pendaftaran akun Anda ditolak.');
-        }
-
-        if (user.status === AccountStatus.SUSPENDED) {
-          throw new ForbiddenException('Akun Anda telah dinonaktifkan. Silakan hubungi Admin.');
-        }
-      } 
-
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-
-      if (!isPasswordValid) {
-        throw new UnauthorizedException('Password salah');
-      }
-
-      const payload = {
-        sub: user.id,
-        username: user.username,
-        role: user.role,
-        companyId: user.companyId,
-      };
-
-      const token = await this.jwtService.signAsync(payload);
-
-      return {
-        access_token: token,
-        role: user.role,
-        username: user.username,
-        companyId: user.companyId,
-        branding: {
-          logoUrl: company.logoUrl,
-          colorPrimary: company.colorPrimary,
-          colorSecondary: company.colorSecondary,
-          colorTertiary: company.colorTertiary,
-        }
-      };
+    if (!user) {
+      throw new UnauthorizedException('Username tidak terdaftar');
     }
 
-    async registerCustomer(companySlug: string, data: RegisterCustomerDto): Promise<RegisterResponse> {
-      const { 
-        username, 
-        password, 
-        fullName, 
-        birthDate, 
-        phoneNumber,
-      } = data;
-    
-      const salt = await bcrypt.genSalt();
-      const hashedPassword = await bcrypt.hash(password, salt);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-      try {
-        const company = await this.prismaAuth.company.findUnique({
-          where: { slug: companySlug },
-        });
-        if (!company) {
-          throw new NotFoundException('Perusahaan tidak ditemukan');
-        }
-
-        await this.prismaAuth.user.create({
-          data: {
-            username,
-            password: hashedPassword,
-            role: Role.CUSTOMER,
-            fullName,
-            phoneNumber,
-            birthDate: new Date(birthDate),
-            companyId: company.id,
-            status: AccountStatus.ACCEPTED, // Langsung aktif karena ini customer
-          },
-        });
-
-        return {
-          status: 'success',
-          message: 'Akun customer berhasil dibuat',
-        };
-      } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-          if (error.code === 'P2002') {
-            throw new ConflictException('Username sudah terpakai di perusahaan ini');
-          }
-        }
-        console.error('Customer Registration Error:', error);
-        throw new InternalServerErrorException('Gagal mendaftar customer');
-      }
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Password salah');
     }
+
+    // Payload JWT sekarang membawa array 'roles'
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      roles: user.roles,
+    };
+
+    const token = await this.jwtService.signAsync(payload);
+
+    return {
+      access_token: token,
+      roles: user.roles,
+      username: user.username,
+      fullName: user.fullName,
+    };
+  }
 }

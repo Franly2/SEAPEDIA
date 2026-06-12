@@ -3,7 +3,7 @@
 import { Body, Controller, ForbiddenException, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CatalogService } from './catalog.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { AddProductDto } from 'src/catalog/dto/addProduct.dto';
+import { AddProductDto } from 'src/_catalog/dto/addProduct.dto';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { ProductStatus } from '@prisma/client';
 import { addShiftDto } from './dto/addShift.dto';

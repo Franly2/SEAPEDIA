@@ -1,64 +1,17 @@
 /* eslint-disable prettier/prettier */
-import { 
-  IsNotEmpty, 
-  IsString, 
-  IsEnum, 
-  IsOptional, 
-  IsDateString, 
-} from 'class-validator';
-import { Role } from '@prisma/client';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class RegisterUserDto {
-  @IsString()
   @IsNotEmpty()
-  username: string;
-
   @IsString()
+  username!: string;
+
   @IsNotEmpty()
-  password: string;
+  @IsString()
+  @MinLength(6)
+  password!: string;
 
-  @IsEnum(Role)
   @IsNotEmpty()
-  role: Role;
-
-
   @IsString()
-  @IsNotEmpty()
-  fullName: string;
-
-  @IsDateString() 
-  @IsNotEmpty()
-  birthDate: string;
-
-  @IsString()
-  @IsNotEmpty()
-  phoneNumber: string;
-
-  @IsString()
-  @IsOptional()
-  address?: string;
-
-  // @IsOptional()
-  // isAvailable?: boolean;
-
-  // buat kendaraan untuk role DRIVER
-  @IsString()
-  @IsOptional()
-  vehicleType?: string;
-
-  @IsString()
-  @IsOptional()
-  plateNumber?: string;
-
-  @IsOptional()
-  maxWeight?: number;
-
-  @IsOptional()
-  maxVolume?: number;
-
-
-  // company
-  @IsString()
-  @IsNotEmpty()
-  companyId: string;
+  fullName!: string;
 }

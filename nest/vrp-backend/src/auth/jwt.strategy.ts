@@ -12,17 +12,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'default_secret_key', 
+      secretOrKey: process.env.JWT_SECRET || 'SEAPEDIA_SUPER_SECRET_KEY_2026', 
     });
   }
 
   validate(payload: any) {
-    // Apapun yang di-return di sini, akan masuk ke object 'req.user'
+    // Mengembalikan data yang akan ditempel di 'req.user'
     return { 
       userId: payload.sub, 
       username: payload.username, 
-      role: payload.role,
-      companyId: payload.companyId 
+      roles: payload.roles, // Ini sekarang adalah Array: ['BUYER', 'SELLER']
     };
   }
 }

@@ -8,9 +8,9 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,               // menghapus field yang tidak ada di DTO
-      forbidNonWhitelisted: true,    // Tolak request jika ada field asing
-      transform: true,               // Otomatis ubah tipe data sesuai DTO
+      whitelist: true,              
+      forbidNonWhitelisted: true,  
+      transform: true,          
     }),
   );
 

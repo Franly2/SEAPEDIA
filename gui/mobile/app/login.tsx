@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useAuthStore } from '@/store/authStore'; // Import Zustand Store
+import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -18,8 +18,6 @@ import {
 export default function LoginScreen() {
   const api_address = process.env.EXPO_PUBLIC_API_IP_ADDRESS;
   const router = useRouter();
-  
-  // Panggil action 'login' dari store
   const { login } = useAuthStore(); 
 
   const primaryColor = '#1976D2'; 
@@ -30,6 +28,9 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false); 
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  
+  // State untuk menahan data jika user harus memilih role
+  const [pendingRoleData, setPendingRoleData] = useState<any>(null);
 
   async function handleLogin() {
     if (!username || !password) {
@@ -40,7 +41,6 @@ export default function LoginScreen() {
 
     setIsLoading(true);
     setErrorMessage('');
-    setSuccessMessage('');
     
     try {
       const response = await fetch(`http://${api_address}:3000/auth/login`, {
@@ -52,16 +52,15 @@ export default function LoginScreen() {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccessMessage('Selamat datang kembali!');
-        
-        // Simpan data ke memori HP menggunakan Zustand
-        login(data.access_token, data.roles, data.username, data.fullName);
-
-        // Beri jeda animasi 1,5 detik, lalu pindah ke Dasbor Utama
-        setTimeout(() => {
-          router.replace('/(tabs)'); 
-        }, 1500);
-
+        // Cek jumlah role
+        if (data.roles && data.roles.length > 1) {
+          // Tahan! Minta user memilih active role terlebih dahulu
+          setPendingRoleData(data);
+        } else {
+          // Hanya punya 1 role (atau tidak ada role, set fallback ke BUYER)
+          const defaultRole = data.roles?.[0] || 'BUYER';
+          executeFinalLogin(data, defaultRole);
+        }
       } else {
         setErrorMessage(data.message || 'Username atau password salah.');
       }
@@ -70,6 +69,53 @@ export default function LoginScreen() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  // Fungsi untuk mengeksekusi login final setelah peran dipilih/ditentukan
+  function executeFinalLogin(data: any, selectedRole: string) {
+    setSuccessMessage(`Masuk sebagai ${selectedRole}`);
+    login(data.access_token, data.roles, selectedRole, data.username, data.fullName);
+
+    setTimeout(() => {
+      router.replace('/(tabs)'); 
+    }, 1500);
+  }
+
+  function handleGuestAccess() {
+    router.replace('/(tabs)');
+  }
+
+  // --- KOMPONEN PEMILIHAN PERAN (ACTIVE ROLE) ---
+  if (pendingRoleData) {
+    return (
+      <ThemedView style={styles.container}>
+        <View style={[styles.scrollContainer, { alignItems: 'center' }]}>
+          <IconSymbol name="person.2.fill" size={64} color={primaryColor} />
+          <ThemedText style={[styles.title, { marginTop: 24, textAlign: 'center' }]}>Pilih Peran</ThemedText>
+          <ThemedText style={[styles.loginLinkText, { textAlign: 'center', marginBottom: 32 }]}>
+            Akun ini memiliki beberapa peran aktif. Silakan pilih peran yang ingin kamu gunakan di sesi ini.
+          </ThemedText>
+
+          {pendingRoleData.roles.map((role: string) => (
+            <TouchableOpacity 
+              key={role}
+              style={[styles.loginButton, { backgroundColor: primaryColor, width: '100%', marginBottom: 12 }]} 
+              onPress={() => executeFinalLogin(pendingRoleData, role)} 
+              activeOpacity={0.8}
+            >
+              <ThemedText style={styles.loginButtonText}>Masuk sebagai {role}</ThemedText>
+            </TouchableOpacity>
+          ))}
+
+          {successMessage ? (
+            <View style={[styles.successContainer, { width: '100%', marginTop: 20 }]}>
+              <ThemedText style={styles.successText}>{successMessage}</ThemedText>
+              <ActivityIndicator size="small" color="#15803D" style={{ marginTop: 8 }} />
+            </View>
+          ) : null}
+        </View>
+      </ThemedView>
+    );
   }
 
   return (
@@ -81,7 +127,6 @@ export default function LoginScreen() {
             <View style={styles.logoWrapper}>
               <IconSymbol name="bag.fill" size={48} color={primaryColor} />
             </View>
-
             <ThemedText style={styles.brandTitle}>SELAMAT DATANG DI</ThemedText>
             <ThemedText style={styles.title}>SEAPEDIA</ThemedText>
           </View>
@@ -96,7 +141,7 @@ export default function LoginScreen() {
                 placeholder="Masukkan username"
                 autoCapitalize="none"
                 placeholderTextColor="#A0A0A0"
-                editable={!successMessage}
+                editable={!successMessage && !isLoading}
               />
             </View>
 
@@ -109,7 +154,7 @@ export default function LoginScreen() {
                 placeholder="••••••••"
                 secureTextEntry
                 placeholderTextColor="#A0A0A0"
-                editable={!successMessage}
+                editable={!successMessage && !isLoading}
               />
             </View>
             
@@ -132,13 +177,15 @@ export default function LoginScreen() {
               </View>
             ) : (
               !successMessage && (
-                <TouchableOpacity 
-                  style={[styles.loginButton, { backgroundColor: primaryColor }]} 
-                  onPress={handleLogin} 
-                  activeOpacity={0.8}
-                >
-                  <ThemedText style={styles.loginButtonText}>Masuk</ThemedText>
-                </TouchableOpacity>
+                <View>
+                  <TouchableOpacity style={[styles.loginButton, { backgroundColor: primaryColor }]} onPress={handleLogin} activeOpacity={0.8}>
+                    <ThemedText style={styles.loginButtonText}>Masuk</ThemedText>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity style={styles.guestButton} onPress={handleGuestAccess} activeOpacity={0.7}>
+                    <ThemedText style={styles.guestButtonText}>Lanjutkan sebagai Tamu</ThemedText>
+                  </TouchableOpacity>
+                </View>
               )
             )}
 
@@ -153,7 +200,6 @@ export default function LoginScreen() {
           <View style={styles.footer}>
             <ThemedText style={styles.footerText}>© 2026 PT Karya Seapedia Nusantara</ThemedText>
           </View>
-
         </ScrollView>
       </KeyboardAvoidingView>
     </ThemedView>
@@ -174,9 +220,11 @@ const styles = StyleSheet.create({
   errorContainer: { backgroundColor: '#FFF5F5', padding: 12, borderRadius: 8, marginBottom: 20, borderLeftWidth: 4, borderLeftColor: '#FF7675' },
   errorText: { color: '#D63031', fontSize: 13, fontWeight: '600' },
   successContainer: { backgroundColor: '#F0FDF4', padding: 16, borderRadius: 8, marginBottom: 20, borderLeftWidth: 4, borderLeftColor: '#22C55E', alignItems: 'center' },
-  successText: { color: '#15803D', fontSize: 14, fontWeight: '700' },
+  successText: { color: '#15803D', fontSize: 14, fontWeight: '700', textAlign: 'center' },
   loginButton: { height: 54, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
   loginButtonText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  guestButton: { height: 50, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 12, borderWidth: 1, borderColor: '#DFE6E9', backgroundColor: 'transparent' },
+  guestButtonText: { color: '#636E72', fontSize: 14, fontWeight: '600' },
   loaderContainer: { height: 54, justifyContent: 'center', alignItems: 'center' },
   loginLinkContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
   loginLinkText: { fontSize: 13, color: '#636E72' },

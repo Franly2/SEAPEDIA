@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable prettier/prettier */
 /* eslint-disable prettier/prettier */
 /* eslint-disable prettier/prettier */
 /* eslint-disable prettier/prettier */
@@ -7,6 +7,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -101,6 +102,31 @@ export class AuthService {
       roles: user.roles,
       username: user.username,
       fullName: user.fullName,
+    };
+  }
+  async addRoleToUser(userId: string, newRole: Role) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('Pengguna tidak ditemukan.');
+    }
+
+    // Cek apakah peran sudah ada
+    if (user.roles.includes(newRole)) {
+      throw new ConflictException(`Anda sudah memiliki peran ${newRole}.`);
+    }
+
+    // Tambahkan peran baru ke dalam array yang sudah ada
+    const updatedRoles = [...user.roles, newRole];
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: { roles: updatedRoles },
+    });
+
+    return {
+      message: `Peran ${newRole} berhasil ditambahkan.`,
+      roles: updatedUser.roles,
     };
   }
 }

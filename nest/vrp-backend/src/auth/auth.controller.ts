@@ -50,3 +50,5 @@ export class AuthController {
     return result;
   }
 }
+
+export { JwtAuthGuard };

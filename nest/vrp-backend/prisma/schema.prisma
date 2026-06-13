@@ -454,6 +454,8 @@ model User {
   deliveryJobs DeliveryJob[]      // Sebagai Driver (Riwayat Pekerjaan)
   wallet       WalletTransaction[]// Untuk pencatatan saldo Buyer / penghasilan Driver & Seller
 
+  appReview    AppReview?
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -461,9 +463,14 @@ model User {
 // Fitur Level 1: Public Application Review (Tanpa harus checkout)
 model AppReview {
   id           String   @id @default(uuid())
-  reviewerName String   // Bisa diisi Guest atau ditarik dari User
+  reviewerName String   // Nama yang diinput di form
   rating       Int      // 1 sampai 5
   comment      String   @db.Text
+  
+  // Tambahan untuk mendeteksi user yang sudah login (Opsional)
+  userId       String?  @unique
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   createdAt    DateTime @default(now())
 }
 
@@ -491,6 +498,8 @@ model Product {
   description String    @db.Text
   price       Int
   stock       Int       // Wajib untuk sistem checkout Level 3
+  
+  imageUrl    String?
   
   storeId     String
   store       Store     @relation(fields: [storeId], references: [id])

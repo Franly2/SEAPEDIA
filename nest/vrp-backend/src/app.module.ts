@@ -14,10 +14,20 @@ import { AuthModule } from './auth/auth.module';
 // import { DepotModule } from './depot/depot.module';
 // import { HumanModule } from './human/human.module';
 // import { CatalogModule } from './_catalog/catalog.module';
+import { ReviewModule } from './review/review.module';
+import { ProductModule } from './product/product.module';
+import { StoreModule } from './store/store.module';
+import { UsersService } from './users/users.service';
+import { UsersController } from './users/users.controller';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [PrismaModule,
     AuthModule,
+    ReviewModule,
+    ProductModule,
+    StoreModule,
+    UsersModule,
     // VrpModule,
     // TenantModule,
     // SalesModule,
@@ -26,11 +36,13 @@ import { AuthModule } from './auth/auth.module';
     // CatalogModule,
     ],
   controllers: [
-    AppController, 
+    AppController,
+    UsersController, 
     // SalesController
   ],
   providers: [
-    AppService, 
+    AppService,
+    UsersService, 
     // SalesService
   ],
 })

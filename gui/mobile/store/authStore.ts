@@ -3,12 +3,13 @@ import { create } from 'zustand';
 
 interface AuthState {
   token: string | null;
-  roles: string[]; // Berubah menjadi array untuk multi-role
+  roles: string[];
+  activeRole: string | null; // <-- Properti baru untuk sesi saat ini
   username: string | null;
-  fullName: string | null; // Tambahan data dari backend
+  fullName: string | null;
   isLoading: boolean;
   
-  login: (token: string, roles: string[], username: string, fullName: string) => Promise<void>;
+  login: (token: string, roles: string[], activeRole: string, username: string, fullName: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -16,38 +17,40 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   token: null,
   roles: [],
+  activeRole: null,
   username: null,
   fullName: null,
-  isLoading: true, // Menahan perpindahan layar sampai cek token selesai
+  isLoading: true,
 
-  login: async (token, roles, username, fullName) => {
+  login: async (token, roles, activeRole, username, fullName) => {
     await AsyncStorage.multiSet([
       ['userToken', token],
-      ['userRoles', JSON.stringify(roles)], // Array diubah ke string agar bisa disimpan
+      ['userRoles', JSON.stringify(roles)],
+      ['userActiveRole', activeRole], // Simpan peran aktif ke memori
       ['userName', username],
       ['userFullName', fullName],
     ]);
-    set({ token, roles, username, fullName });
+    set({ token, roles, activeRole, username, fullName });
   },
 
   logout: async () => {
-    await AsyncStorage.multiRemove(['userToken', 'userRoles', 'userName', 'userFullName']);
-    set({ token: null, roles: [], username: null, fullName: null });
+    await AsyncStorage.multiRemove(['userToken', 'userRoles', 'userActiveRole', 'userName', 'userFullName']);
+    set({ token: null, roles: [], activeRole: null, username: null, fullName: null });
   },
 
   checkAuth: async () => {
     try {
-      const [token, rolesString, username, fullName] = await Promise.all([
+      const [token, rolesString, activeRole, username, fullName] = await Promise.all([
         AsyncStorage.getItem('userToken'),
         AsyncStorage.getItem('userRoles'),
+        AsyncStorage.getItem('userActiveRole'), 
         AsyncStorage.getItem('userName'),
         AsyncStorage.getItem('userFullName'),
       ]);
 
-      // Parse string JSON kembali menjadi array. Jika kosong, berikan array kosong []
       const roles = rolesString ? JSON.parse(rolesString) : [];
 
-      set({ token, roles, username, fullName, isLoading: false });
+      set({ token, roles, activeRole, username, fullName, isLoading: false });
     } catch (error) {
       console.error('Gagal memuat sesi auth:', error);
       set({ isLoading: false });

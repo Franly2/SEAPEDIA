@@ -1,67 +1,126 @@
+// Lokasi file: app/(tabs)/profile.tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
-  const { fullName, username, roles, logout } = useAuthStore();
+  const { fullName, username, activeRole, roles, logout } = useAuthStore();
   const router = useRouter();
 
-  const handleLogout = async () => {
-    const executeLogout = async () => {
-      await logout(); 
-      router.replace('/login'); 
-    };
-
+  const handleLogout = () => {
     if (Platform.OS === 'web') {
-      const confirmed = window.confirm("Apakah kamu yakin ingin keluar dari SEAPEDIA?");
-      if (confirmed) {
-        await executeLogout();
+      const confirm = window.confirm('Apakah kamu yakin ingin keluar?');
+      if (confirm) {
+        logout();
+        router.replace('/');
       }
-    } 
-    // Jika dibuka di perangkat mobile (Android / iOS)
-    else {
-      Alert.alert(
-        "Keluar Akun",
-        "Apakah kamu yakin ingin keluar dari SEAPEDIA?",
-        [
-          {
-            text: "Batal",
-            style: "cancel"
-          },
-          { 
-            text: "Keluar", 
-            style: "destructive",
-            onPress: executeLogout
-          }
-        ]
-      );
+    } else {
+      Alert.alert('Keluar', 'Apakah kamu yakin ingin keluar dari SEAPEDIA?', [
+        { text: 'Batal', style: 'cancel' },
+        { 
+          text: 'Keluar', 
+          style: 'destructive', 
+          onPress: () => {
+            logout();
+            router.replace('/');
+          } 
+        },
+      ]);
     }
   };
 
+  const formatRupiah = (number: number) => {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+  };
+
   return (
-    <View style={styles.container}>
-      {/* Header Profil */}
-      <View style={styles.header}>
-        <View style={styles.avatar}>
-          <IconSymbol name="person.fill" size={40} color="#FFF" />
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      
+      {/* 1. KARTU PROFIL UTAMA */}
+      <View style={styles.profileCard}>
+        <View style={styles.avatarContainer}>
+          <IconSymbol name="person.crop.circle.fill" size={80} color="#9CA3AF" />
         </View>
-        <View style={styles.userInfo}>
-          <Text style={styles.name}>{fullName}</Text>
-          <Text style={styles.username}>@{username}</Text>
+        <Text style={styles.fullName}>{fullName || 'Pengguna SEAPEDIA'}</Text>
+        <Text style={styles.username}>@{username || 'guest'}</Text>
+        
+        <View style={styles.roleBadge}>
+          <IconSymbol name="checkmark.shield.fill" size={14} color="#1D4ED8" />
+          <Text style={styles.roleText}>Peran Aktif: {activeRole || 'GUEST'}</Text>
         </View>
       </View>
 
-      {/* Menu Area */}
+      {/* 2. PLACEHOLDER FINANSIAL LINTAS PERAN (Syarat Level 1) */}
+      <Text style={styles.sectionTitle}>Ringkasan Finansial</Text>
+      <View style={styles.financialContainer}>
+        
+        {/* Saldo Buyer */}
+        <View style={styles.financialRow}>
+          <View style={styles.financialIconWrapper}>
+            <IconSymbol name="creditcard.fill" size={24} color="#10B981" />
+          </View>
+          <View style={styles.financialInfo}>
+            <Text style={styles.financialLabel}>Saldo Dompet (Buyer)</Text>
+            <Text style={styles.financialValue}>{formatRupiah(0)}</Text>
+          </View>
+          <TouchableOpacity 
+            style={styles.topupButton}
+            onPress={() => Platform.OS === 'web' ? window.alert('Top Up tersedia di Level 3') : Alert.alert('Info', 'Top Up tersedia di Level 3')}
+          >
+            <Text style={styles.topupButtonText}>Isi Saldo</Text>
+          </TouchableOpacity>
+        </View>
+        
+        <View style={styles.divider} />
+
+        {/* Pendapatan Seller */}
+        <View style={styles.financialRow}>
+          <View style={[styles.financialIconWrapper, { backgroundColor: '#FEF3C7' }]}>
+            <IconSymbol name="bag.fill" size={24} color="#D97706" />
+          </View>
+          <View style={styles.financialInfo}>
+            <Text style={styles.financialLabel}>Pendapatan Toko (Seller)</Text>
+            <Text style={styles.financialValue}>{formatRupiah(0)}</Text>
+          </View>
+        </View>
+
+        <View style={styles.divider} />
+
+        {/* Penghasilan Driver */}
+        <View style={styles.financialRow}>
+          <View style={[styles.financialIconWrapper, { backgroundColor: '#FEE2E2' }]}>
+            <IconSymbol name="car.fill" size={24} color="#E11D48" />
+          </View>
+          <View style={styles.financialInfo}>
+            <Text style={styles.financialLabel}>Penghasilan Kurir (Driver)</Text>
+            <Text style={styles.financialValue}>{formatRupiah(0)}</Text>
+          </View>
+        </View>
+
+      </View>
+
+      <Text style={styles.disclaimerText}>
+        *Fitur transaksi dan penarikan dana lintas peran akan dibuka secara bertahap pada pembaruan sistem berikutnya.
+      </Text>
+
+      {/* 3. MENU PENGATURAN & KELUAR */}
+      <Text style={styles.sectionTitle}>Pengaturan Akun</Text>
       <View style={styles.menuContainer}>
-        {/* Tombol Logout */}
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} activeOpacity={0.8}>
-          <IconSymbol name="rectangle.portrait.and.arrow.right.fill" size={20} color="#D63031" />
-          <Text style={styles.logoutText}>Keluar Akun</Text>
+        <TouchableOpacity style={styles.menuItem} disabled>
+          <IconSymbol name="gearshape.fill" size={22} color="#4B5563" />
+          <Text style={styles.menuText}>Pengaturan Profil</Text>
+          <IconSymbol name="chevron.right" size={20} color="#D1D5DB" />
+        </TouchableOpacity>
+        <View style={styles.divider} />
+        <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+          <IconSymbol name="rectangle.portrait.and.arrow.right" size={22} color="#DC2626" />
+          <Text style={[styles.menuText, { color: '#DC2626' }]}>Keluar Akun</Text>
         </TouchableOpacity>
       </View>
-    </View>
+
+    </ScrollView>
   );
 }
 
@@ -70,52 +129,151 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FAFAFA',
   },
-  header: {
-    backgroundColor: '#1976D2',
+  content: {
+    padding: 20,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 40,
+    width: '100%',
+    maxWidth: 600, // Menjaga UI tetap proporsional di Web/Desktop
+    alignSelf: 'center',
+  },
+  
+  // Gaya Profil Utama
+  profileCard: {
+    alignItems: 'center',
+    backgroundColor: '#FFF',
     padding: 24,
-    paddingTop: 60, 
-    flexDirection: 'row',
-    alignItems: 'center',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
+  avatarContainer: {
+    marginBottom: 12,
   },
-  userInfo: {
-    flex: 1,
-  },
-  name: {
+  fullName: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFF',
+    fontWeight: '800',
+    color: '#1F2937',
     marginBottom: 4,
   },
   username: {
     fontSize: 14,
-    color: '#E0F2FE',
+    color: '#6B7280',
+    marginBottom: 12,
   },
-  menuContainer: {
-    padding: 20,
-    marginTop: 10,
-  },
-  logoutButton: {
+  roleBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF5F5',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#FF7675',
+    backgroundColor: '#DBEAFE',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
-  logoutText: {
-    marginLeft: 12,
+  roleText: {
+    marginLeft: 6,
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#1D4ED8',
+  },
+
+  sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#D63031',
-  }
+    color: '#374151',
+    marginBottom: 12,
+    marginLeft: 4,
+  },
+
+  // Gaya Ringkasan Finansial
+  financialContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 16,
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  financialRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  financialIconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#D1FAE5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  financialInfo: {
+    flex: 1,
+  },
+  financialLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 4,
+    fontWeight: '500',
+  },
+  financialValue: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1F2937',
+  },
+  topupButton: {
+    backgroundColor: '#1D4ED8',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  topupButtonText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#F3F4F6',
+    marginVertical: 8,
+  },
+  disclaimerText: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    fontStyle: 'italic',
+    marginBottom: 24,
+    marginLeft: 4,
+  },
+
+  // Gaya Menu
+  menuContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 16,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  menuText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#374151',
+    marginLeft: 16,
+  },
 });

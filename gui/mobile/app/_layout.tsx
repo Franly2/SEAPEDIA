@@ -6,8 +6,6 @@ import { useAuthStore } from '../store/authStore';
 export default function RootLayout() {
   const router = useRouter();
   const pathname = usePathname();
-  
-  // 1. Ambil segments untuk mendeteksi struktur folder internal
   const segments = useSegments(); 
   
   const { token, isLoading: isAuthLoading, checkAuth } = useAuthStore();
@@ -19,20 +17,27 @@ export default function RootLayout() {
   useEffect(() => {
     if (isAuthLoading) return;
 
-    // 2. Cek apakah array segments mengandung folder '(tabs)'
-    // Jika user membuka /orders, segments nilainya adalah ['(tabs)', 'orders']
-    const isProtectedRoute = segments.includes('(tabs)');
+    // 1. Daftar segmen halaman yang WAJIB LOGIN (Ruang Privat)
+    const privatePages = ['orders', 'profile', 'checkout', 'dashboard'];
+    
+    // 2. Cek apakah pengguna sedang berada di salah satu halaman privat tersebut
+    // Jika di Beranda, segments = ['(tabs)', 'index'] -> bernilai FALSE (Boleh diakses Guest)
+    // Jika di Pesanan, segments = ['(tabs)', 'orders'] -> bernilai TRUE (Akan dicegat)
+    const isProtectedRoute = segments.some(segment => privatePages.includes(segment));
     
     const cleanPath = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
-    const isAuthRoute = cleanPath === '/' || cleanPath === '/login' || cleanPath === '/register';
+    
+    const isAuthRoute = cleanPath === '/login' || cleanPath === '/register';
 
     if (!token && isProtectedRoute) {
+      // Jika Guest mencoba buka Pesanan/Profil, tendang ke Login
       router.replace('/login');
     } 
     else if (token && isAuthRoute) {
+      // Jika sudah Login tapi iseng buka halaman Login lagi, kembalikan ke Beranda
       router.replace('/(tabs)');
     }
-  }, [token, isAuthLoading, segments, pathname, router]); // Tambahkan segments ke dependency
+  }, [token, isAuthLoading, segments, pathname, router]); 
 
   if (isAuthLoading) {
     return null; 

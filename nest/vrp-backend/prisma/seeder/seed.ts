@@ -114,6 +114,7 @@ async function main() {
         price: i * 50000,
         stock: 100,
         storeId: `22222222-2222-2222-2222-22222222222${i}`,
+        imageUrl: `https://picsum.photos/id/${10 + i}/400/400`,
       },
     });
   }

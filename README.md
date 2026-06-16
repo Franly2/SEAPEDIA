@@ -1,26 +1,24 @@
-# SEAPEDIA - Marketplace Logistik UMKM
+SEAPEDIA - Marketplace Logistik UMKM
 
-Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace logistik cerdas yang dirancang untuk mempertemukan Pembeli, Penjual, Driver, dan Admin dalam satu ekosistem yang terintegrasi. 
+Selamat datang di repositori resmi SEAPEDIA, platform marketplace logistik cerdas yang dirancang untuk mempertemukan Pembeli, Penjual, Driver, dan Admin dalam satu ekosistem yang terintegrasi.
+🚀 Tentang Proyek
 
-## 🚀 Tentang Proyek
+SEAPEDIA adalah solusi e-commerce terukur yang berfokus pada efisiensi logistik bagi UMKM. Aplikasi ini dibangun secara progresif untuk mendukung Multi-Role Authentication, di mana satu entitas pengguna dapat mengelola lebih dari satu peran (Buyer, Seller, Driver) dengan mengedepankan keamanan sesi, otorisasi data yang ketat, dan pengalaman pengguna yang mulus.
+🛠️ Stack Teknologi
 
-SEAPEDIA adalah solusi e-commerce terukur yang berfokus pada efisiensi logistik bagi UMKM. Aplikasi ini dibangun secara progresif untuk mendukung **Multi-Role Authentication**, di mana satu entitas pengguna dapat mengelola lebih dari satu peran (Buyer, Seller, Driver) dengan mengedepankan keamanan sesi, otorisasi data yang ketat, dan pengalaman pengguna yang mulus.
+    Front-End: React Native (Expo) dengan Expo Router, Zustand (State Management), dan TypeScript.
 
-## 🛠️ Stack Teknologi
+    Back-End: NestJS dengan Prisma ORM dan PostgreSQL.
 
-* **Front-End:** React Native (Expo) dengan Expo Router, Zustand (State Management), dan TypeScript.
-* **Back-End:** NestJS dengan Prisma ORM dan PostgreSQL.
-* **Architecture:** *Clean Architecture* dengan modularisasi *feature-based* dan penerapan prinsip *Zero-Trust* pada level API.
+    Architecture: Clean Architecture dengan modularisasi feature-based dan penerapan prinsip Zero-Trust pada level API.
 
----
+🏗️ Cara Menjalankan Aplikasi
+📱 Front-End (Expo)
 
-## 🏗️ Cara Menjalankan Aplikasi
+    Masuk ke direktori mobile:
+    Bash
 
-### 📱 Front-End (Expo)
-
-1. **Masuk ke direktori mobile:**
-   ```bash
-   cd gui/mobile
+    cd gui/mobile
 
     Install dependencies:
     Bash
@@ -79,11 +77,23 @@ Level 2: Building the Seller Experience
 
     [x] Integrated Public Catalog: Katalog publik langsung menarik data dinamis dari database produk penjual.
 
+Level 3: Buyer Wallet, Cart, and Checkout
+
+    [x] Buyer Wallet & Address: Sistem manajemen alamat pengiriman (CRUD) dan dompet digital pembeli yang dilengkapi simulasi top-up serta pencatatan riwayat buku besar (ledger) transaksi.
+
+    [x] Cart Management (Single-Store Rule): Sistem keranjang cerdas yang menolak pencampuran produk antar-toko (HTTP 409 Conflict) di level backend, dilengkapi dengan Alert konfirmasi pergantian toko di frontend.
+
+    [x] ACID Checkout Engine: Mesin transaksi database (Prisma $transaction) yang mengkalkulasi subtotal, ongkos kirim dinamis (Instant, Next Day, Regular), dan PPN 12% secara real-time. Memotong saldo dompet dan stok produk secara aman tanpa anomali data.
+
+    [x] Unified Order Interface: Satu halaman Orders yang beradaptasi secara cerdas: menampilkan "Riwayat Pesanan" bagi Pembeli, dan berubah wujud menjadi "Pesanan Masuk" bagi Penjual.
+
 🔑 Aturan Bisnis & Logika Inti
 
 Penting untuk dicatat bahwa SEAPEDIA mematuhi aturan bisnis yang ketat dalam penanganan transaksinya:
 
-    Single-Store Checkout: Untuk mencegah kerumitan pengiriman dan menjaga SLA logistik yang akurat, satu keranjang (cart) hanya boleh berisi produk dari satu toko. Jika pembeli mencoba menambahkan produk dari toko yang berbeda, sistem akan menolak dan meminta pembeli untuk menyelesaikan/mengosongkan keranjang sebelumnya.
+    Single-Store Checkout: Untuk mencegah kerumitan pengiriman dan menjaga SLA logistik yang akurat, satu keranjang (cart) hanya boleh berisi produk dari satu toko. Jika pembeli mencoba menambahkan produk dari toko yang berbeda, sistem akan menolak dan meminta pembeli untuk menyelesaikan atau mengosongkan keranjang sebelumnya.
+
+    Transactional Integrity: Proses checkout bersifat absolut. Jika di tengah proses stok ternyata habis atau saldo dompet tiba-tiba kurang, seluruh rangkaian transaksi dibatalkan (rollback) untuk mencegah uang hilang atau pesanan hantu.
 
     Role-Based Backend Authorization: Akses ke endpoint API tidak hanya mengecek validitas token JWT, tetapi juga secara aktif mencocokkan Active Role yang di-klaim dengan database untuk mencegah akses ilegal.
 

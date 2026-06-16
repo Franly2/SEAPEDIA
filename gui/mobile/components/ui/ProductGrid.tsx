@@ -1,3 +1,4 @@
+// Lokasi file: components/ui/ProductGrid.tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useRouter } from 'expo-router';
 import React from 'react';
@@ -15,7 +16,7 @@ export interface Product {
   price: number;
   stock: number;
   imageUrl: string | null;
-  store?: StoreInfo; // Ubah ini jadi opsional (?) karena dari /my-products tidak ada
+  store?: StoreInfo;
 }
 
 interface ProductGridProps {
@@ -25,8 +26,9 @@ interface ProductGridProps {
   refreshing?: boolean;
   ListHeaderComponent?: React.ReactElement;
   emptyMessage?: string;
-  // TAMBAHAN BARU:
   storeOverride?: { name: string };
+  // TAMBAHAN: Fungsi kustom ketika produk diklik
+  onProductPress?: (product: Product) => void;
 }
 
 export function ProductGrid({ 
@@ -36,7 +38,8 @@ export function ProductGrid({
   refreshing = false, 
   ListHeaderComponent,
   emptyMessage = "Belum ada produk.",
-  storeOverride // Ambil prop baru di sini
+  storeOverride,
+  onProductPress // Ambil prop ini
 }: ProductGridProps) {
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -61,15 +64,24 @@ export function ProductGrid({
   
   const cardWidth = getCardWidth();
 
+  const handlePress = (item: Product) => {
+    // Jika ada fungsi kustom yang dilempar dari parent, panggil fungsi tersebut.
+    // Jika tidak ada, jalankan navigasi bawaan (publik)
+    if (onProductPress) {
+      onProductPress(item);
+    } else {
+      router.push(`/product/${item.id}`);
+    }
+  };
+
   const renderProductItem = ({ item }: { item: Product }) => {
-    // LOGIKA CERDAS: Gunakan storeOverride jika ada, jika tidak, gunakan item.store
     const displayedStoreName = storeOverride?.name || item.store?.name || 'Toko Tidak Diketahui';
 
     return (
       <TouchableOpacity 
         style={[styles.productCard, { width: cardWidth }]}
         activeOpacity={0.7}
-        onPress={() => router.push(`/product/${item.id}`)}
+        onPress={() => handlePress(item)} // <-- Panggil fungsi yang dimodifikasi
       >
         <View style={styles.imageContainer}>
           {item.imageUrl ? (
@@ -94,7 +106,6 @@ export function ProductGrid({
 
   return (
     <FlatList
-      // ... (Bagian FlatList tidak ada yang berubah)
       key={numColumns} 
       data={products}
       keyExtractor={(item) => item.id}
@@ -121,7 +132,6 @@ export function ProductGrid({
   );
 }
 
-// ... (Bagian styles tidak ada yang berubah)
 const styles = StyleSheet.create({
   listContent: {
     paddingVertical: 20,

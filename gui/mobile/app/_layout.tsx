@@ -8,7 +8,7 @@ export default function RootLayout() {
   const pathname = usePathname();
   const segments = useSegments(); 
   
-  const { token, isLoading: isAuthLoading, checkAuth } = useAuthStore();
+  const { token, activeRole, isLoading: isAuthLoading, checkAuth } = useAuthStore();
 
   useEffect(() => { 
     checkAuth(); 
@@ -17,27 +17,51 @@ export default function RootLayout() {
   useEffect(() => {
     if (isAuthLoading) return;
 
-    // 1. Daftar segmen halaman yang WAJIB LOGIN (Ruang Privat)
-    const privatePages = ['orders', 'profile', 'checkout', 'dashboard'];
-    
-    // 2. Cek apakah pengguna sedang berada di salah satu halaman privat tersebut
-    // Jika di Beranda, segments = ['(tabs)', 'index'] -> bernilai FALSE (Boleh diakses Guest)
-    // Jika di Pesanan, segments = ['(tabs)', 'orders'] -> bernilai TRUE (Akan dicegat)
+    // === A. GUARD CLAUSE: STATUS LOGIN (GUEST VS USER) ===
+    const privatePages = ['orders', 'profile', 'checkout', 'dashboard', 'seller', 'add-product', 'edit-product', 'buyer'];
     const isProtectedRoute = segments.some(segment => privatePages.includes(segment));
     
     const cleanPath = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
-    
     const isAuthRoute = cleanPath === '/login' || cleanPath === '/register';
 
     if (!token && isProtectedRoute) {
-      // Jika Guest mencoba buka Pesanan/Profil, tendang ke Login
       router.replace('/login');
+      return;
     } 
     else if (token && isAuthRoute) {
-      // Jika sudah Login tapi iseng buka halaman Login lagi, kembalikan ke Beranda
       router.replace('/(tabs)');
+      return;
     }
-  }, [token, isAuthLoading, segments, pathname, router]); 
+
+    // === B. GUARD CLAUSE: ROLE-BASED ACCESS CONTROL (RBAC) ===
+    if (token && activeRole) {
+      
+      // Aturan ketat untuk SELLER
+      if (activeRole === 'SELLER') {
+        // PERUBAHAN: Hapus 'orders' dari sini
+        const sellerForbidden = ['index', 'cart', 'checkout', 'buyer'];
+        
+        const isForbiddenForSeller = segments.some(segment => sellerForbidden.includes(segment)) || pathname === '/';
+        
+        if (isForbiddenForSeller) {
+          router.replace('/seller');
+          return;
+        }
+      } 
+      
+      // Aturan ketat untuk BUYER / DRIVER
+      else if (activeRole === 'BUYER' || activeRole === 'DRIVER') {
+        const buyerForbidden = ['seller', 'add-product', 'edit-product'];
+        const isForbiddenForBuyer = segments.some(segment => buyerForbidden.includes(segment));
+        
+        if (isForbiddenForBuyer) {
+          router.replace('/(tabs)');
+          return;
+        }
+      }
+    }
+
+  }, [token, activeRole, isAuthLoading, segments, pathname, router]);
 
   if (isAuthLoading) {
     return null; 
@@ -56,6 +80,7 @@ export default function RootLayout() {
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
         <Stack.Screen name="(tabs)" /> 
+        <Stack.Screen name="seller" options={{ headerShown: false }} /> 
       </Stack>
     </>
   );

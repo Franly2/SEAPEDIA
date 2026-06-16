@@ -290,13 +290,11 @@ export default function SellerDashboardScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.pageWrapper}>
-        {/* Jika belum punya toko, hanya render header tanpa FlatList Grid */}
         {!store ? (
           <View style={{ paddingTop: 20 }}>
             {renderDashboardHeader()}
           </View>
         ) : (
-          /* Jika sudah punya toko, render ProductGrid dengan header Dasbor */
           <ProductGrid
             products={products}
             isLoading={isLoading}
@@ -304,7 +302,9 @@ export default function SellerDashboardScreen() {
             refreshing={isRefreshing}
             ListHeaderComponent={renderDashboardHeader()}
             emptyMessage="Toko kamu belum memiliki produk. Klik 'Tambah Produk' untuk mulai berjualan."
-            storeOverride={{ name: store.name }} // <-- INILAH KUNCINYA!
+            storeOverride={{ name: store.name }}
+            // TAMBAHAN BARU:
+            onProductPress={(product) => router.push(`/seller/edit-product/${product.id}`)}
           />
         )}
       </View>

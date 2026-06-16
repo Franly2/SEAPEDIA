@@ -52,7 +52,7 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      {/* 2. PLACEHOLDER FINANSIAL LINTAS PERAN (Syarat Level 1) */}
+      {/* 2. PLACEHOLDER FINANSIAL LINTAS PERAN */}
       <Text style={styles.sectionTitle}>Ringkasan Finansial</Text>
       <View style={styles.financialContainer}>
         
@@ -105,15 +105,45 @@ export default function ProfileScreen() {
         *Fitur transaksi dan penarikan dana lintas peran akan dibuka secara bertahap pada pembaruan sistem berikutnya.
       </Text>
 
-      {/* 3. MENU PENGATURAN & KELUAR */}
+      {/* 3. MENU PENGATURAN (KHUSUS BUYER & UMUM) */}
       <Text style={styles.sectionTitle}>Pengaturan Akun</Text>
       <View style={styles.menuContainer}>
+        
+        {/* Fitur Level 3: Muncul hanya jika role = BUYER */}
+        {activeRole === 'BUYER' && (
+          <>
+            <TouchableOpacity 
+              style={styles.menuItem} 
+              onPress={() => router.push('/buyer/wallet')} // Arahkan ke rute wallet (belum dibuat)
+            >
+              <IconSymbol name="creditcard.fill" size={22} color="#10B981" />
+              <Text style={styles.menuText}>Dompet Pembeli (Top Up & Riwayat)</Text>
+              <IconSymbol name="chevron.right" size={20} color="#D1D5DB" />
+            </TouchableOpacity>
+            
+            <View style={styles.divider} />
+
+            <TouchableOpacity 
+              style={styles.menuItem} 
+              onPress={() => router.push('/buyer/address')} // Arahkan ke rute address (belum dibuat)
+            >
+              <IconSymbol name="map.fill" size={22} color="#3B82F6" />
+              <Text style={styles.menuText}>Daftar Alamat Pengiriman</Text>
+              <IconSymbol name="chevron.right" size={20} color="#D1D5DB" />
+            </TouchableOpacity>
+
+            <View style={styles.divider} />
+          </>
+        )}
+
         <TouchableOpacity style={styles.menuItem} disabled>
           <IconSymbol name="gearshape.fill" size={22} color="#4B5563" />
           <Text style={styles.menuText}>Pengaturan Profil</Text>
           <IconSymbol name="chevron.right" size={20} color="#D1D5DB" />
         </TouchableOpacity>
+        
         <View style={styles.divider} />
+        
         <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
           <IconSymbol name="rectangle.portrait.and.arrow.right" size={22} color="#DC2626" />
           <Text style={[styles.menuText, { color: '#DC2626' }]}>Keluar Akun</Text>
@@ -125,6 +155,7 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+  // Gaya tetap sama persis dengan yang Anda kirimkan
   container: {
     flex: 1,
     backgroundColor: '#FAFAFA',
@@ -134,11 +165,9 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: 40,
     width: '100%',
-    maxWidth: 600, // Menjaga UI tetap proporsional di Web/Desktop
+    maxWidth: 600, 
     alignSelf: 'center',
   },
-  
-  // Gaya Profil Utama
   profileCard: {
     alignItems: 'center',
     backgroundColor: '#FFF',
@@ -181,7 +210,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1D4ED8',
   },
-
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -189,8 +217,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     marginLeft: 4,
   },
-
-  // Gaya Ringkasan Finansial
   financialContainer: {
     backgroundColor: '#FFF',
     borderRadius: 16,
@@ -255,8 +281,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     marginLeft: 4,
   },
-
-  // Gaya Menu
   menuContainer: {
     backgroundColor: '#FFF',
     borderRadius: 16,

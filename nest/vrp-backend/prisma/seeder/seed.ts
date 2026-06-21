@@ -5,14 +5,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable prettier/prettier */
-  /* eslint-disable prettier/prettier */
-  /* eslint-disable prettier/prettier */
+/* eslint-disable prettier/prettier */
+/* eslint-disable prettier/prettier */
 import { PrismaClient, Role, OrderStatus, DeliveryMethod, TransactionType } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
-
 const prisma = new PrismaClient();
-
 
 async function main() {
   console.log('Menghapus data lama...');
@@ -30,11 +28,10 @@ async function main() {
   await prisma.promo.deleteMany();
   await prisma.appReview.deleteMany();
 
-  console.log('Mulai seeding 5...');
+  console.log('Mulai seeding data SEAPEDIA...');
 
   const salt = await bcrypt.genSalt(10);
   const DEFAULT_PASSWORD_HASH = await bcrypt.hash('password123', salt);
-
 
   // 1. AppReview (5 data)
   for (let i = 1; i <= 5; i++) {
@@ -47,26 +44,36 @@ async function main() {
     });
   }
 
-  // 2. Voucher & Promo (Masing-masing 5 data)
-  for (let i = 1; i <= 5; i++) {
-    await prisma.voucher.create({
-      data: {
-        id: `55555555-5555-5555-5555-55555555555${i}`,
-        code: `VOUCHER${i}00`,
-        discountValue: i * 10000,
-        usageQuota: 10,
-        expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // 1 tahun dari sekarang
-      },
-    });
+  // ==========================================
+  // 2. MODIFIKASI LEVEL 4: VOUCHER & PROMO
+  // ==========================================
+  const nextYear = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+  const lastYear = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
 
-    await prisma.promo.create({
-      data: {
-        id: `66666666-6666-6666-6666-66666666666${i}`,
-        code: `PROMO${i}00`,
-        discountValue: i * 5000,
-        expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-      },
-    });
+  // --- VOUCHER ---
+  const vouchers = [
+    { id: '55555555-5555-5555-5555-555555555551', code: 'VOUCHER_AKTIF', discountValue: 10000, usageQuota: 100, expiryDate: nextYear },
+    { id: '55555555-5555-5555-5555-555555555552', code: 'VOUCHER_HABIS', discountValue: 15000, usageQuota: 0, expiryDate: nextYear }, // Kuota habis (Simulasi Gagal)
+    { id: '55555555-5555-5555-5555-555555555553', code: 'VOUCHER_KADALUARSA', discountValue: 20000, usageQuota: 50, expiryDate: lastYear }, // Expired (Simulasi Gagal)
+    { id: '55555555-5555-5555-5555-555555555554', code: 'VOUCHER_CEPEK', discountValue: 100000, usageQuota: 5, expiryDate: nextYear },
+    { id: '55555555-5555-5555-5555-555555555555', code: 'VOUCHER_GOCENG', discountValue: 5000, usageQuota: 500, expiryDate: nextYear },
+  ];
+
+  for (const v of vouchers) {
+    await prisma.voucher.create({ data: v });
+  }
+
+  // --- PROMO ---
+  const promos = [
+    { id: '66666666-6666-6666-6666-666666666661', code: 'PROMO_AKTIF', discountValue: 5000, expiryDate: nextYear },
+    { id: '66666666-6666-6666-6666-666666666662', code: 'PROMO_KADALUARSA', discountValue: 10000, expiryDate: lastYear }, // Expired (Simulasi Gagal)
+    { id: '66666666-6666-6666-6666-666666666663', code: 'PROMO_ONKIR', discountValue: 15000, expiryDate: nextYear },
+    { id: '66666666-6666-6666-6666-666666666664', code: 'PROMO_MERDEKA', discountValue: 17000, expiryDate: nextYear },
+    { id: '66666666-6666-6666-6666-666666666665', code: 'PROMO_TAHUNBARU', discountValue: 25000, expiryDate: nextYear },
+  ];
+
+  for (const p of promos) {
+    await prisma.promo.create({ data: p });
   }
 
   // 3. User (5 data multi-role agar bisa jadi Buyer, Seller, dan Driver)
@@ -79,6 +86,7 @@ async function main() {
         password: DEFAULT_PASSWORD_HASH,
         fullName: `Akun Tester ${i}`,
         roles: [Role.BUYER, Role.SELLER, Role.DRIVER, Role.ADMIN], // Diberikan semua role untuk mempermudah tes
+        walletBalance: 500000, // Menambahkan inisiasi default di level skema baru
       },
     });
     users.push(user);
@@ -200,7 +208,7 @@ async function main() {
     });
   }
 
-  console.log('Seeding selesai! 5 data berhasil disuntikkan ke seluruh tabel.');
+  console.log('Seeding selesai! Data berhasil disuntikkan ke seluruh tabel.');
 }
 
 main()

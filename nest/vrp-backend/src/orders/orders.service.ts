@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service'; 
 import { CheckoutDto } from './dto/checkout.dto';
 import { OrderStatus, DeliveryMethod, TransactionType } from '@prisma/client';
@@ -12,7 +12,6 @@ export class OrdersService {
   // 1. FUNGSI RAKSASA: PROSES CHECKOUT
   // =====================================
   async checkout(buyerId: string, dto: CheckoutDto) {
-    // 1. Ambil seluruh isi keranjang
     const cartItems = await this.prisma.cartItem.findMany({
       where: { userId: buyerId },
       include: { product: true },
@@ -22,62 +21,73 @@ export class OrdersService {
       throw new BadRequestException('Keranjang belanjamu kosong.');
     }
 
-    // Karena aturan Single-Store, ID toko cukup diambil dari item pertama
     const storeId = cartItems[0].product.storeId;
-
-    // 2. Kalkulasi Keuangan
     const subtotal = cartItems.reduce((acc, item) => acc + (item.quantity * item.product.price), 0);
     
-    // Tarif Ongkir Dummy berdasarkan Enum
     let deliveryFee = 0;
     if (dto.deliveryMethod === DeliveryMethod.INSTANT) deliveryFee = 20000;
     else if (dto.deliveryMethod === DeliveryMethod.NEXT_DAY) deliveryFee = 15000;
-    else deliveryFee = 10000; // REGULAR
+    else deliveryFee = 10000; 
 
-    // PPN 12% sesuai regulasi soal (Subtotal + Ongkir)
-    const ppnAmount = Math.round((subtotal + deliveryFee) * 0.12);
-    const finalTotal = subtotal + deliveryFee + ppnAmount;
-
-    // 3. MULAI TRANSAKSI DATABASE (ACID compliant)
     return this.prisma.$transaction(async (prisma) => {
-      
-      // === PERBAIKAN: GUARD CLAUSE UNTUK USER ===
       const user = await prisma.user.findUnique({ where: { id: buyerId } });
-      if (!user) {
-        throw new NotFoundException('Data pengguna tidak ditemukan.');
+      if (!user) throw new NotFoundException('Data pengguna tidak ditemukan.');
+
+      let discountAmount = 0;
+      const now = new Date();
+
+      if (dto.voucherId) {
+        const voucher = await prisma.voucher.findUnique({ where: { id: dto.voucherId } });
+        if (!voucher || voucher.expiryDate < now || voucher.usageQuota <= 0) {
+          throw new BadRequestException('Voucher tidak valid, kedaluwarsa, atau kuota habis.');
+        }
+        discountAmount += voucher.discountValue;
+        
+        await prisma.voucher.update({
+          where: { id: dto.voucherId },
+          data: { usageQuota: { decrement: 1 } }
+        });
       }
-      
+
+      if (dto.promoId) {
+        const promo = await prisma.promo.findUnique({ where: { id: dto.promoId } });
+        if (!promo || promo.expiryDate < now) {
+          throw new BadRequestException('Promo tidak valid atau kedaluwarsa.');
+        }
+        discountAmount += promo.discountValue;
+      }
+
+      const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
+      const dpp = subtotalAfterDiscount + deliveryFee; 
+      const ppnAmount = Math.round(dpp * 0.12);
+      const finalTotal = dpp + ppnAmount;
+
       if (user.walletBalance < finalTotal) {
         throw new BadRequestException(`Saldo tidak mencukupi. Total tagihan: Rp ${finalTotal}`);
       }
 
-      // === PERBAIKAN: GUARD CLAUSE UNTUK PRODUCT ===
-      // Cek Stok Real-time (menghindari selisih waktu saat checkout)
       for (const item of cartItems) {
         const product = await prisma.product.findUnique({ where: { id: item.productId } });
-        
-        if (!product) {
-          throw new NotFoundException(`Produk dengan ID ${item.productId} sudah tidak tersedia atau dihapus.`);
-        }
-
+        if (!product) throw new NotFoundException(`Produk ${item.productId} tidak tersedia.`);
         if (product.stock < item.quantity) {
           throw new BadRequestException(`Stok ${product.name} tidak mencukupi (sisa ${product.stock}).`);
         }
       }
 
-      // Potong Saldo Dompet
       await prisma.user.update({
         where: { id: buyerId },
         data: { walletBalance: { decrement: finalTotal } },
       });
 
-      // Buat Pesanan, Item Pesanan, & Riwayat Status secara bersamaan (Nested Writes)
       const order = await prisma.order.create({
         data: {
           buyerId,
           storeId,
           addressId: dto.addressId,
           subtotal,
+          discountAmount, 
+          voucherId: dto.voucherId || null, 
+          promoId: dto.promoId || null,     
           deliveryFee,
           ppnAmount,
           finalTotal,
@@ -87,7 +97,7 @@ export class OrdersService {
             create: cartItems.map((item) => ({
               productId: item.productId,
               quantity: item.quantity,
-              priceAtBuy: item.product.price, // Harga terkunci!
+              priceAtBuy: item.product.price, 
             })),
           },
           statusHistory: {
@@ -96,7 +106,6 @@ export class OrdersService {
         },
       });
 
-      // Catat Buku Besar (Ledger Wallet)
       await prisma.walletTransaction.create({
         data: {
           userId: buyerId,
@@ -106,7 +115,6 @@ export class OrdersService {
         },
       });
 
-      // Potong Stok Produk
       for (const item of cartItems) {
         await prisma.product.update({
           where: { id: item.productId },
@@ -114,13 +122,15 @@ export class OrdersService {
         });
       }
 
-      // Kosongkan Keranjang
       await prisma.cartItem.deleteMany({ where: { userId: buyerId } });
 
-      return { message: 'Checkout berhasil!', orderId: order.id };
+      return { message: 'Checkout berhasil!', orderId: order.id, finalTotal };
     });
   }
 
+  // =====================================
+  // 2. RIWAYAT PESANAN PEMBELI (BUYER)
+  // =====================================
   // =====================================
   // 2. RIWAYAT PESANAN PEMBELI (BUYER)
   // =====================================
@@ -129,6 +139,7 @@ export class OrdersService {
       where: { buyerId },
       include: {
         store: { select: { name: true } },
+        address: true, 
         items: { include: { product: { select: { name: true, imageUrl: true } } } },
       },
       orderBy: { createdAt: 'desc' },
@@ -151,5 +162,56 @@ export class OrdersService {
       },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  // =====================================
+  // 4. SELLER: PROSES PESANAN MASUK
+  // =====================================
+  async processOrder(sellerId: string, orderId: string) {
+    // 1. Cari pesanan dan sertakan data toko untuk mengecek kepemilikan
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { store: true },
+    });
+
+    // 2. Validasi Keamanan & Status
+    if (!order) throw new NotFoundException('Pesanan tidak ditemukan.');
+    if (order.store.ownerId !== sellerId) {
+      throw new ForbiddenException('Akses ditolak. Anda bukan pemilik toko ini.');
+    }
+    if (order.status !== OrderStatus.SEDANG_DIKEMAS) {
+      throw new BadRequestException('Pesanan ini sudah diproses atau dibatalkan.');
+    }
+
+    // 3. Perbarui Status dan Catat Riwayat Waktu (Nested Writes)
+    return this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status: OrderStatus.MENUNGGU_PENGIRIM,
+        statusHistory: {
+          create: { status: OrderStatus.MENUNGGU_PENGIRIM },
+        },
+      },
+    });
+  }
+  // =====================================
+  // 5. LAPORAN FINANSIAL (LEVEL 4)
+  // =====================================
+  async getBuyerReport(buyerId: string) {
+    const orders = await this.prisma.order.findMany({ where: { buyerId } });
+    
+    const totalPengeluaran = orders.reduce((sum, order) => sum + order.finalTotal, 0);
+    return { totalOrders: orders.length, totalPengeluaran };
+  }
+
+  async getSellerReport(sellerId: string) {
+    const store = await this.prisma.store.findUnique({ where: { ownerId: sellerId } });
+    if (!store) return { totalOrders: 0, totalPendapatan: 0 };
+
+    const orders = await this.prisma.order.findMany({ where: { storeId: store.id } });
+    
+    // Logika Bisnis: Pendapatan toko = subtotal (harga murni barang). PPN dan Ongkir bukan hak toko.
+    const totalPendapatan = orders.reduce((sum, order) => sum + order.subtotal, 0);
+    return { totalOrders: orders.length, totalPendapatan };
   }
 }

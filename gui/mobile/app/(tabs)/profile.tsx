@@ -1,13 +1,49 @@
 // Lokasi file: app/(tabs)/profile.tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
-import { useRouter } from 'expo-router';
-import React from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
-  const { fullName, username, activeRole, roles, logout } = useAuthStore();
+  const { fullName, username, activeRole, token, logout } = useAuthStore();
   const router = useRouter();
+  const api_address = process.env.EXPO_PUBLIC_API_IP_ADDRESS;
+
+  // State untuk Laporan Finansial (Level 4)
+  const [isLoading, setIsLoading] = useState(true);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [buyerExpense, setBuyerExpense] = useState(0);
+  const [sellerIncome, setSellerIncome] = useState(0);
+
+  // Ambil data setiap kali layar Profil difokuskan
+  useFocusEffect(
+    useCallback(() => {
+      const fetchFinancialReports = async () => {
+        if (!token) return;
+        setIsLoading(true);
+        try {
+          // Fetch secara paralel agar lebih cepat
+          const [walletRes, buyerRes, sellerRes] = await Promise.all([
+            fetch(`http://${api_address}:3000/wallet`, { headers: { Authorization: `Bearer ${token}` } }),
+            fetch(`http://${api_address}:3000/orders/report/buyer`, { headers: { Authorization: `Bearer ${token}` } }),
+            fetch(`http://${api_address}:3000/orders/report/seller`, { headers: { Authorization: `Bearer ${token}` } }),
+          ]);
+
+          if (walletRes.ok) setWalletBalance((await walletRes.json()).balance);
+          if (buyerRes.ok) setBuyerExpense((await buyerRes.json()).totalPengeluaran);
+          if (sellerRes.ok) setSellerIncome((await sellerRes.json()).totalPendapatan);
+          
+        } catch (error) {
+          console.error("Gagal memuat laporan finansial", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchFinancialReports();
+    }, [token])
+  );
 
   const handleLogout = () => {
     if (Platform.OS === 'web') {
@@ -52,69 +88,72 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      {/* 2. PLACEHOLDER FINANSIAL LINTAS PERAN */}
-      <Text style={styles.sectionTitle}>Ringkasan Finansial</Text>
+      {/* 2. LAPORAN FINANSIAL DINAMIS (Level 4) */}
+      <View style={styles.sectionHeaderRow}>
+         <Text style={styles.sectionTitle}>Ringkasan Finansial</Text>
+         {isLoading && <ActivityIndicator size="small" color="#1D4ED8" />}
+      </View>
+      
       <View style={styles.financialContainer}>
         
-        {/* Saldo Buyer */}
+        {/* Saldo Dompet Aktif */}
         <View style={styles.financialRow}>
           <View style={styles.financialIconWrapper}>
             <IconSymbol name="creditcard.fill" size={24} color="#10B981" />
           </View>
           <View style={styles.financialInfo}>
-            <Text style={styles.financialLabel}>Saldo Dompet (Buyer)</Text>
-            <Text style={styles.financialValue}>{formatRupiah(0)}</Text>
+            <Text style={styles.financialLabel}>Saldo Dompet (Wallet)</Text>
+            <Text style={styles.financialValue}>{formatRupiah(walletBalance)}</Text>
           </View>
           <TouchableOpacity 
             style={styles.topupButton}
-            onPress={() => Platform.OS === 'web' ? window.alert('Top Up tersedia di Level 3') : Alert.alert('Info', 'Top Up tersedia di Level 3')}
+            onPress={() => activeRole === 'BUYER' ? router.push('/buyer/wallet') : Alert.alert('Info', 'Harap ganti peran aktif ke BUYER untuk top-up.')}
           >
-            <Text style={styles.topupButtonText}>Isi Saldo</Text>
+            <Text style={styles.topupButtonText}>Top Up</Text>
           </TouchableOpacity>
         </View>
         
         <View style={styles.divider} />
 
-        {/* Pendapatan Seller */}
+        {/* Total Pengeluaran Pembeli */}
         <View style={styles.financialRow}>
-          <View style={[styles.financialIconWrapper, { backgroundColor: '#FEF3C7' }]}>
-            <IconSymbol name="bag.fill" size={24} color="#D97706" />
+          <View style={[styles.financialIconWrapper, { backgroundColor: '#FEE2E2' }]}>
+            <IconSymbol name="arrow.up.right" size={24} color="#DC2626" />
           </View>
           <View style={styles.financialInfo}>
-            <Text style={styles.financialLabel}>Pendapatan Toko (Seller)</Text>
-            <Text style={styles.financialValue}>{formatRupiah(0)}</Text>
+            <Text style={styles.financialLabel}>Pengeluaran Belanja (Buyer)</Text>
+            <Text style={[styles.financialValue, { color: '#DC2626' }]}>{formatRupiah(buyerExpense)}</Text>
           </View>
         </View>
 
         <View style={styles.divider} />
 
-        {/* Penghasilan Driver */}
+        {/* Total Pendapatan Kotor Penjual */}
         <View style={styles.financialRow}>
-          <View style={[styles.financialIconWrapper, { backgroundColor: '#FEE2E2' }]}>
-            <IconSymbol name="car.fill" size={24} color="#E11D48" />
+          <View style={[styles.financialIconWrapper, { backgroundColor: '#FEF3C7' }]}>
+            <IconSymbol name="bag.fill" size={24} color="#D97706" />
           </View>
           <View style={styles.financialInfo}>
-            <Text style={styles.financialLabel}>Penghasilan Kurir (Driver)</Text>
-            <Text style={styles.financialValue}>{formatRupiah(0)}</Text>
+            <Text style={styles.financialLabel}>Pendapatan Kotor (Seller)</Text>
+            <Text style={[styles.financialValue, { color: '#D97706' }]}>{formatRupiah(sellerIncome)}</Text>
           </View>
         </View>
 
       </View>
 
       <Text style={styles.disclaimerText}>
-        *Fitur transaksi dan penarikan dana lintas peran akan dibuka secara bertahap pada pembaruan sistem berikutnya.
+        *Angka di atas dihitung otomatis berdasarkan riwayat transaksi yang sah dan mengikat di seluruh peran Anda.
       </Text>
 
       {/* 3. MENU PENGATURAN (KHUSUS BUYER & UMUM) */}
       <Text style={styles.sectionTitle}>Pengaturan Akun</Text>
       <View style={styles.menuContainer}>
         
-        {/* Fitur Level 3: Muncul hanya jika role = BUYER */}
         {activeRole === 'BUYER' && (
           <>
             <TouchableOpacity 
               style={styles.menuItem} 
-              onPress={() => router.push('/buyer/wallet')} // Arahkan ke rute wallet (belum dibuat)
+              onPress={() => router.push('/buyer/wallet')}
             >
               <IconSymbol name="creditcard.fill" size={22} color="#10B981" />
               <Text style={styles.menuText}>Dompet Pembeli (Top Up & Riwayat)</Text>
@@ -125,7 +164,7 @@ export default function ProfileScreen() {
 
             <TouchableOpacity 
               style={styles.menuItem} 
-              onPress={() => router.push('/buyer/address')} // Arahkan ke rute address (belum dibuat)
+              onPress={() => router.push('/buyer/address')}
             >
               <IconSymbol name="map.fill" size={22} color="#3B82F6" />
               <Text style={styles.menuText}>Daftar Alamat Pengiriman</Text>
@@ -135,14 +174,6 @@ export default function ProfileScreen() {
             <View style={styles.divider} />
           </>
         )}
-
-        <TouchableOpacity style={styles.menuItem} disabled>
-          <IconSymbol name="gearshape.fill" size={22} color="#4B5563" />
-          <Text style={styles.menuText}>Pengaturan Profil</Text>
-          <IconSymbol name="chevron.right" size={20} color="#D1D5DB" />
-        </TouchableOpacity>
-        
-        <View style={styles.divider} />
         
         <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
           <IconSymbol name="rectangle.portrait.and.arrow.right" size={22} color="#DC2626" />
@@ -155,7 +186,6 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  // Gaya tetap sama persis dengan yang Anda kirimkan
   container: {
     flex: 1,
     backgroundColor: '#FAFAFA',
@@ -210,12 +240,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1D4ED8',
   },
+  sectionHeaderRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    marginBottom: 12, 
+    marginLeft: 4, 
+    marginRight: 4 
+  },
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#374151',
-    marginBottom: 12,
-    marginLeft: 4,
   },
   financialContainer: {
     backgroundColor: '#FFF',

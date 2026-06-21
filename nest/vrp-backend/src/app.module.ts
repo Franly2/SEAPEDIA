@@ -16,6 +16,7 @@ import { WalletModule } from './wallet/wallet.module';
 import { AddressModule } from './address/address.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
+import { DiscountModule } from './discount/discount.module';
 
 @Module({
   imports: [PrismaModule,
@@ -28,6 +29,7 @@ import { OrdersModule } from './orders/orders.module';
     AddressModule,
     CartModule,
     OrdersModule,
+    DiscountModule,
     ],
   controllers: [
     AppController,

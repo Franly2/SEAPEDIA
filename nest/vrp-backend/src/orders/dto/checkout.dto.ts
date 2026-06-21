@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { IsNotEmpty, IsString, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsString, IsEnum, IsOptional } from 'class-validator';
 import { DeliveryMethod } from '@prisma/client';
 
 export class CheckoutDto {
@@ -9,4 +9,12 @@ export class CheckoutDto {
 
   @IsEnum(DeliveryMethod, { message: 'Metode pengiriman tidak valid.' })
   deliveryMethod!: DeliveryMethod;
+
+  @IsOptional()
+  @IsString()
+  voucherId?: string;
+
+  @IsOptional()
+  @IsString()
+  promoId?: string;
 }

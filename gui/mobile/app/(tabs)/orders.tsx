@@ -3,7 +3,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, FlatList, Platform, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function OrdersScreen() {
   const { token, activeRole } = useAuthStore();
@@ -11,41 +11,75 @@ export default function OrdersScreen() {
   
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null); 
+  
+  // State BARU untuk melacak kartu pesanan mana yang sedang dibuka (Expand)
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
+  const fetchOrders = async () => {
+    if (!token || (activeRole !== 'BUYER' && activeRole !== 'SELLER')) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const endpoint = activeRole === 'BUYER' ? 'my-orders' : 'store-orders';
+      const res = await fetch(`http://${api_address}:3000/orders/${endpoint}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        setOrders(await res.json());
+      }
+    } catch (e) {
+      console.error(e);
+    } finally { 
+      setIsLoading(false); 
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
-      const fetchOrders = async () => {
-        // Hentikan proses jika peran bukan BUYER atau SELLER
-        if (!token || (activeRole !== 'BUYER' && activeRole !== 'SELLER')) {
-          setIsLoading(false);
-          return;
-        }
-
-        try {
-          // Tentukan endpoint berdasarkan peran aktif
-          const endpoint = activeRole === 'BUYER' ? 'my-orders' : 'store-orders';
-          
-          const res = await fetch(`http://${api_address}:3000/orders/${endpoint}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          
-          if (res.ok) {
-            setOrders(await res.json());
-          }
-        } catch (e) {
-          console.error(e);
-        } finally { 
-          setIsLoading(false); 
-        }
-      };
-      
+      setIsLoading(true);
       fetchOrders();
-    }, [activeRole, token]) // Pastikan dependency array mutakhir
+    }, [activeRole, token]) 
   );
+
+  const showAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') window.alert(`${title}\n${message}`);
+    else Alert.alert(title, message);
+  };
+
+  const handleProcessOrder = async (orderId: string) => {
+    setProcessingId(orderId);
+    try {
+      const res = await fetch(`http://${api_address}:3000/orders/${orderId}/process`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      
+      if (res.ok) {
+        showAlert('Sukses', 'Pesanan diproses! Status berubah menjadi Menunggu Pengirim.');
+        fetchOrders(); 
+      } else {
+        showAlert('Gagal', data.message || 'Tidak dapat memproses pesanan.');
+      }
+    } catch (e) {
+      showAlert('Error', 'Kesalahan jaringan saat memproses pesanan.');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const toggleExpand = (id: string) => {
+    // Jika kartu yang diklik sudah terbuka, tutup. Jika beda, buka kartu tersebut.
+    setExpandedOrderId(prev => prev === id ? null : id);
+  };
 
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(num);
 
-  // GUARD CLAUSE: Tolak jika bukan BUYER dan bukan SELLER
   if (!token || (activeRole !== 'BUYER' && activeRole !== 'SELLER')) {
     return (
       <View style={[styles.container, styles.center]}>
@@ -63,7 +97,6 @@ export default function OrdersScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        {/* Ubah judul halaman berdasarkan peran */}
         <Text style={styles.headerTitle}>
           {isBuyer ? 'Riwayat Pesanan' : 'Pesanan Masuk'}
         </Text>
@@ -78,52 +111,119 @@ export default function OrdersScreen() {
             <Text style={{ color: '#9CA3AF' }}>Belum ada pesanan.</Text>
           </View>
         }
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              
-              {/* Tampilkan Nama Toko (untuk Pembeli) atau Nama Pembeli (untuk Penjual) */}
-              <Text style={styles.entityName}>
-                <IconSymbol 
-                  name={isBuyer ? "building.2.fill" : "person.fill"} 
-                  size={14} 
-                  color="#4B5563" 
-                /> 
-                {' '}
-                {isBuyer ? item.store?.name : (item.buyer?.fullName || item.buyer?.username)}
-              </Text>
-              
-              <View style={styles.statusBadge}>
-                <Text style={styles.statusText}>{item.status.replace(/_/g, ' ')}</Text>
+        renderItem={({ item }) => {
+          const isExpanded = expandedOrderId === item.id;
+
+          return (
+            // Gunakan TouchableOpacity agar seluruh kartu bisa diklik
+            <TouchableOpacity 
+              activeOpacity={0.9} 
+              onPress={() => toggleExpand(item.id)} 
+              style={[styles.card, isExpanded && { borderColor: '#3B82F6', borderWidth: 1.5 }]}
+            >
+              <View style={styles.cardHeader}>
+                <Text style={styles.entityName}>
+                  <IconSymbol 
+                    name={isBuyer ? "building.2.fill" : "person.fill"} 
+                    size={14} 
+                    color="#4B5563" 
+                  /> 
+                  {' '}
+                  {isBuyer ? item.store?.name : (item.buyer?.fullName || item.buyer?.username)}
+                </Text>
+                
+                <View style={styles.statusContainer}>
+                  <View style={styles.statusBadge}>
+                    <Text style={styles.statusText}>{item.status.replace(/_/g, ' ')}</Text>
+                  </View>
+                  {/* Ikon panah indikator buka/tutup */}
+                  <IconSymbol name={isExpanded ? "chevron.up" : "chevron.down"} size={16} color="#9CA3AF" />
+                </View>
               </View>
-            </View>
 
-            <View style={styles.divider} />
-            
-            {/* Tampilkan item yang dibeli */}
-            {item.items.map((orderItem: any) => (
-              <Text key={orderItem.id} style={styles.itemName}>
-                • {orderItem.quantity}x {orderItem.product.name}
-              </Text>
-            ))}
+              <View style={styles.divider} />
+              
+              {/* Tampilan Produk Ringkas */}
+              {item.items.map((orderItem: any) => (
+                <Text key={orderItem.id} style={styles.itemName}>
+                  • {orderItem.quantity}x {orderItem.product.name}
+                </Text>
+              ))}
 
-            {/* Khusus Penjual, tampilkan metode pengiriman agar mereka tahu */}
-            {!isBuyer && (
-              <Text style={styles.deliveryMethodText}>
-                Metode Pengiriman: <Text style={{ fontWeight: 'bold' }}>{item.deliveryMethod.replace('_', ' ')}</Text>
-              </Text>
-            )}
+              {/* === KONTEN DETAIL YANG BISA DIBUKA/TUTUP (ACCORDION) === */}
+              {isExpanded && (
+                <View style={styles.expandedContainer}>
+                  <View style={styles.divider} />
+                  
+                  {/* Info Pengiriman (Penting untuk Penjual) */}
+                  <Text style={styles.detailTitle}>Informasi Pengiriman</Text>
+                  <View style={styles.detailBox}>
+                    <Text style={styles.detailLabel}>Penerima:</Text>
+                    <Text style={styles.detailValue}>{item.buyer?.fullName || item.buyer?.username || 'GUEST'}</Text>
 
-            <View style={styles.divider} />
-            
-            <View style={styles.cardFooter}>
-              <Text style={styles.totalLabel}>
-                {isBuyer ? 'Total Belanja:' : 'Pendapatan Kotor:'}
-              </Text>
-              <Text style={styles.totalValue}>{formatRupiah(item.finalTotal)}</Text>
-            </View>
-          </View>
-        )}
+                    <Text style={styles.detailLabel}>Alamat Tujuan ({item.address?.label}):</Text>
+                    <Text style={styles.detailValue}>{item.address?.addressLine || 'Alamat tidak ditemukan'}</Text>
+
+                    <Text style={styles.detailLabel}>Metode Pengiriman:</Text>
+                    <Text style={styles.detailValue}>{item.deliveryMethod.replace('_', ' ')}</Text>
+                  </View>
+
+                  {/* Rincian Finansial (Sesuai Aturan Level 4) */}
+                  <Text style={styles.detailTitle}>Rincian Pembayaran</Text>
+                  <View style={styles.detailBox}>
+                    <View style={styles.breakdownRow}>
+                      <Text style={styles.breakdownLabel}>Subtotal Produk</Text>
+                      <Text style={styles.breakdownValue}>{formatRupiah(item.subtotal)}</Text>
+                    </View>
+                    {item.discountAmount > 0 && (
+                      <View style={styles.breakdownRow}>
+                        <Text style={styles.breakdownLabelDiscount}>Diskon (Voucher/Promo)</Text>
+                        <Text style={styles.breakdownValueDiscount}>-{formatRupiah(item.discountAmount)}</Text>
+                      </View>
+                    )}
+                    <View style={styles.breakdownRow}>
+                      <Text style={styles.breakdownLabel}>Ongkos Kirim</Text>
+                      <Text style={styles.breakdownValue}>{formatRupiah(item.deliveryFee)}</Text>
+                    </View>
+                    <View style={styles.breakdownRow}>
+                      <Text style={styles.breakdownLabel}>PPN (12%)</Text>
+                      <Text style={styles.breakdownValue}>{formatRupiah(item.ppnAmount)}</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+              {/* === AKHIR KONTEN DETAIL === */}
+
+              <View style={styles.divider} />
+              
+              <View style={styles.cardFooter}>
+                <Text style={styles.totalLabel}>
+                  {isBuyer ? 'Total Belanja:' : 'Pendapatan Kotor:'}
+                </Text>
+                <Text style={styles.totalValue}>{formatRupiah(item.finalTotal)}</Text>
+              </View>
+
+              {/* TOMBOL AKSI SELLER */}
+              {!isBuyer && item.status === 'SEDANG_DIKEMAS' && (
+                <TouchableOpacity 
+                  style={[styles.processButton, processingId === item.id && { opacity: 0.7 }]}
+                  // Gunakan stopPropagation atau bungkus di dalam function agar klik tombol tidak memicu toggle buka/tutup kartu
+                  onPress={(e) => {
+                    e.stopPropagation(); 
+                    handleProcessOrder(item.id);
+                  }}
+                  disabled={processingId === item.id}
+                >
+                  {processingId === item.id ? (
+                    <ActivityIndicator size="small" color="#FFF" />
+                  ) : (
+                    <Text style={styles.processButtonText}>Proses Pesanan (Siap Dikirim)</Text>
+                  )}
+                </TouchableOpacity>
+              )}
+            </TouchableOpacity>
+          );
+        }}
       />
     </View>
   );
@@ -136,15 +236,36 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
   errorTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 16 }, 
   list: { padding: 20, maxWidth: 600, alignSelf: 'center', width: '100%' },
+  
   card: { backgroundColor: '#FFF', borderRadius: 12, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#E5E7EB' }, 
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   entityName: { fontSize: 14, fontWeight: 'bold', color: '#374151' }, 
-  statusBadge: { backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }, 
+  
+  statusContainer: { flexDirection: 'row', alignItems: 'center' },
+  statusBadge: { backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, marginRight: 8 }, 
   statusText: { fontSize: 10, fontWeight: 'bold', color: '#D97706' },
+  
   divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 12 }, 
   itemName: { fontSize: 13, color: '#4B5563', marginBottom: 4 },
-  deliveryMethodText: { fontSize: 12, color: '#6B7280', marginTop: 8, fontStyle: 'italic' },
+  
+  // GAYA BARU UNTUK DETAIL PESANAN
+  expandedContainer: { marginTop: 4 },
+  detailTitle: { fontSize: 13, fontWeight: 'bold', color: '#374151', marginBottom: 8 },
+  detailBox: { backgroundColor: '#F9FAFB', padding: 12, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: '#F3F4F6' },
+  detailLabel: { fontSize: 11, color: '#6B7280', marginBottom: 2 },
+  detailValue: { fontSize: 13, color: '#1F2937', fontWeight: '500', marginBottom: 8 },
+  
+  // GAYA RINCIAN BIAYA
+  breakdownRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+  breakdownLabel: { fontSize: 12, color: '#6B7280' },
+  breakdownValue: { fontSize: 12, color: '#374151', fontWeight: '500' },
+  breakdownLabelDiscount: { fontSize: 12, color: '#059669' },
+  breakdownValueDiscount: { fontSize: 12, color: '#059669', fontWeight: 'bold' },
+
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, 
   totalLabel: { fontSize: 13, color: '#6B7280' }, 
-  totalValue: { fontSize: 16, fontWeight: '900', color: '#E11D48' }
+  totalValue: { fontSize: 16, fontWeight: '900', color: '#E11D48' },
+  
+  processButton: { backgroundColor: '#10B981', paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginTop: 16 },
+  processButtonText: { color: '#FFF', fontWeight: 'bold', fontSize: 14 }
 });

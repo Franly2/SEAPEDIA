@@ -1,110 +1,129 @@
-SEAPEDIA - Marketplace Logistik UMKM
+# SEAPEDIA - Marketplace Logistik UMKM
 
-Selamat datang di repositori resmi SEAPEDIA, platform marketplace logistik cerdas yang dirancang untuk mempertemukan Pembeli, Penjual, Driver, dan Admin dalam satu ekosistem yang terintegrasi.
-🚀 Tentang Proyek
+Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace logistik cerdas yang dirancang untuk mempertemukan Pembeli, Penjual, Driver, dan Admin dalam satu ekosistem yang terintegrasi.
 
-SEAPEDIA adalah solusi e-commerce terukur yang berfokus pada efisiensi logistik bagi UMKM. Aplikasi ini dibangun secara progresif untuk mendukung Multi-Role Authentication, di mana satu entitas pengguna dapat mengelola lebih dari satu peran (Buyer, Seller, Driver) dengan mengedepankan keamanan sesi, otorisasi data yang ketat, dan pengalaman pengguna yang mulus.
-🛠️ Stack Teknologi
+## 🚀 Tentang Proyek
 
-    Front-End: React Native (Expo) dengan Expo Router, Zustand (State Management), dan TypeScript.
+SEAPEDIA adalah solusi e-commerce terukur yang berfokus pada efisiensi logistik bagi UMKM. Aplikasi ini dibangun secara progresif untuk mendukung **Multi-Role Authentication**, di mana satu entitas pengguna dapat mengelola lebih dari satu peran (Buyer, Seller, Driver) dengan mengedepankan keamanan sesi, otorisasi data yang ketat, dan pengalaman pengguna yang mulus.
 
-    Back-End: NestJS dengan Prisma ORM dan PostgreSQL.
+## 🛠️ Stack Teknologi
 
-    Architecture: Clean Architecture dengan modularisasi feature-based dan penerapan prinsip Zero-Trust pada level API.
+* **Front-End:** React Native (Expo) dengan Expo Router, Zustand (State Management), dan TypeScript.
+* **Back-End:** NestJS dengan Prisma ORM dan PostgreSQL.
+* **Architecture:** *Clean Architecture* dengan modularisasi *feature-based* dan penerapan prinsip *Zero-Trust* pada level API.
 
-🏗️ Cara Menjalankan Aplikasi
-📱 Front-End (Expo)
+---
 
-    Masuk ke direktori mobile:
-    Bash
+## 🏗️ Cara Menjalankan Aplikasi
 
-    cd gui/mobile
+### 📱 Front-End (Expo)
 
-    Install dependencies:
-    Bash
+1. Masuk ke direktori mobile:
+```bash
+cd gui/mobile
 
-    npm install
+```
 
-    Run development server:
-    Bash
 
-    npx expo start -c
+2. Install dependencies:
+```bash
+npm install
 
-⚙️ Back-End (NestJS)
+```
 
-    Masuk ke direktori backend:
-    Bash
 
-    cd backend
+3. Run development server:
+```bash
+npx expo start -c
 
-    Install dependencies:
-    Bash
+```
 
-    npm install --legacy-peer-deps
 
-    Setup Database (Prisma):
-    Bash
 
-    npx prisma db push --force-reset
-    npx prisma generate
-    npx prisma db seed
+### ⚙️ Back-End (NestJS)
 
-    Run Server:
-    Bash
+1. Masuk ke direktori backend:
+```bash
+cd backend
 
-    npm run start:dev
+```
 
-📋 Fitur Utama & Progres Pengembangan
-Level 1: Public Marketplace & Role Awareness
 
-    [x] Public Marketplace: Katalog produk dan detail baca-saja (read-only) dapat diakses oleh pengunjung (Guest) tanpa harus login.
+2. Install dependencies:
+```bash
+npm install --legacy-peer-deps
 
-    [x] Secure Auth: Pendaftaran dan proses login menggunakan JWT, dengan enkripsi password menggunakan bcrypt.
+```
 
-    [x] Multi-Role Aware: Sistem mendukung identitas tunggal yang dapat memiliki multi-peran (Seller, Buyer, Driver).
 
-    [x] Active Role Selection: Memaksa pengguna memilih active role untuk membatasi otorisasi navigasi.
+3. Setup Database (Prisma):
+```bash
+npx prisma db push --force-reset
+npx prisma generate
+npx prisma db seed
 
-    [x] Public Reviews: Pengguna dapat memberikan ulasan pengalaman aplikasi (dilengkapi dengan filter pencegahan XSS).
+```
 
-Level 2: Building the Seller Experience
 
-    [x] Store Management: Penjual dapat membuka dan mengubah profil toko. Sistem memastikan validasi keunikan nama toko di seluruh platform.
+4. Run Server:
+```bash
+npm run start:dev
 
-    [x] Product CRUD (Seller): Antarmuka dan API khusus bagi penjual untuk menambah, melihat, mengedit, dan menghapus produk di etalase mereka.
+```
 
-    [x] Strict Ownership Authorization: Proteksi berlapis di backend (Guard Clauses) untuk memastikan Penjual hanya dapat mengubah atau menghapus produk dari tokonya sendiri.
 
-    [x] Integrated Public Catalog: Katalog publik langsung menarik data dinamis dari database produk penjual.
 
-Level 3: Buyer Wallet, Cart, and Checkout
+---
 
-    [x] Buyer Wallet & Address: Sistem manajemen alamat pengiriman (CRUD) dan dompet digital pembeli yang dilengkapi simulasi top-up serta pencatatan riwayat buku besar (ledger) transaksi.
+## 📋 Fitur Utama & Progres Pengembangan
 
-    [x] Cart Management (Single-Store Rule): Sistem keranjang cerdas yang menolak pencampuran produk antar-toko (HTTP 409 Conflict) di level backend, dilengkapi dengan Alert konfirmasi pergantian toko di frontend.
+### Level 1: Public Marketplace & Role Awareness
 
-    [x] ACID Checkout Engine: Mesin transaksi database (Prisma $transaction) yang mengkalkulasi subtotal, ongkos kirim dinamis (Instant, Next Day, Regular), dan PPN 12% secara real-time. Memotong saldo dompet dan stok produk secara aman tanpa anomali data.
+* **[x] Public Marketplace:** Katalog produk dan detail baca-saja (read-only) dapat diakses oleh pengunjung (Guest) tanpa harus login.
+* **[x] Secure Auth:** Pendaftaran dan proses login menggunakan JWT, dengan enkripsi password menggunakan bcrypt.
+* **[x] Multi-Role Aware:** Sistem mendukung identitas tunggal yang dapat memiliki multi-peran (Seller, Buyer, Driver).
+* **[x] Active Role Selection:** Memaksa pengguna memilih active role untuk membatasi otorisasi navigasi.
+* **[x] Public Reviews:** Pengguna dapat memberikan ulasan pengalaman aplikasi (dilengkapi dengan filter pencegahan XSS).
 
-    [x] Unified Order Interface: Satu halaman Orders yang beradaptasi secara cerdas: menampilkan "Riwayat Pesanan" bagi Pembeli, dan berubah wujud menjadi "Pesanan Masuk" bagi Penjual.
+### Level 2: Building the Seller Experience
 
-🔑 Aturan Bisnis & Logika Inti
+* **[x] Store Management:** Penjual dapat membuka dan mengubah profil toko. Sistem memastikan validasi keunikan nama toko di seluruh platform.
+* **[x] Product CRUD (Seller):** Antarmuka dan API khusus bagi penjual untuk menambah, melihat, mengedit, dan menghapus produk di etalase mereka.
+* **[x] Strict Ownership Authorization:** Proteksi berlapis di backend (Guard Clauses) untuk memastikan Penjual hanya dapat mengubah atau menghapus produk dari tokonya sendiri.
+* **[x] Integrated Public Catalog:** Katalog publik langsung menarik data dinamis dari database produk penjual.
+
+### Level 3: Buyer Wallet, Cart, and Checkout
+
+* **[x] Buyer Wallet & Address:** Sistem manajemen alamat pengiriman (CRUD) dan dompet digital pembeli yang dilengkapi simulasi top-up serta pencatatan riwayat buku besar (ledger) transaksi.
+* **[x] Cart Management (Single-Store Rule):** Sistem keranjang cerdas yang menolak pencampuran produk antar-toko (HTTP 409 Conflict) di level backend, dilengkapi dengan Alert konfirmasi pergantian toko di frontend.
+* **[x] ACID Checkout Engine:** Mesin transaksi database (Prisma `$transaction`) yang mengkalkulasi subtotal, ongkos kirim dinamis (Instant, Next Day, Regular), dan PPN 12% secara real-time. Memotong saldo dompet dan stok produk secara aman tanpa anomali data.
+* **[x] Unified Order Interface:** Satu halaman Orders yang beradaptasi secara cerdas: menampilkan "Riwayat Pesanan" bagi Pembeli, dan berubah wujud menjadi "Pesanan Masuk" bagi Penjual.
+
+### Level 4: Discounts and Seller Order Processing
+
+* **[x] Smart Discount System:** Dukungan untuk `Voucher` (berbasis kuota & tenggat waktu) dan `Promo` (berbasis tenggat waktu). Terdapat API validasi yang memotong harga secara *real-time* saat *checkout*.
+* **[x] Order Fulfillment (Seller Action):** Fitur otorisasi khusus penjual untuk memproses pesanan masuk, memajukan status pesanan dari `SEDANG_DIKEMAS` menjadi `MENUNGGU_PENGIRIM` yang disertai pencatatan riwayat waktu (*timestamp*).
+* **[x] Financial Reports & Dashboard:** API analitik finansial yang menghitung total pengeluaran pembeli (Buyer Expense) dan pendapatan kotor penjual (Seller Gross Income), disajikan secara dinamis di halaman Profil.
+* **[x] Expandable Order Details (Accordion UI):** Implementasi antarmuka dinamis pada riwayat pesanan yang memungkinkan pengguna melihat rincian komprehensif tanpa berpindah halaman (meliputi detail alamat, subtotal, potongan diskon, ongkos kirim, dan PPN 12%).
+
+---
+
+## 🔑 Aturan Bisnis & Logika Inti
 
 Penting untuk dicatat bahwa SEAPEDIA mematuhi aturan bisnis yang ketat dalam penanganan transaksinya:
 
-    Single-Store Checkout: Untuk mencegah kerumitan pengiriman dan menjaga SLA logistik yang akurat, satu keranjang (cart) hanya boleh berisi produk dari satu toko. Jika pembeli mencoba menambahkan produk dari toko yang berbeda, sistem akan menolak dan meminta pembeli untuk menyelesaikan atau mengosongkan keranjang sebelumnya.
+* **Single-Store Checkout:** Untuk mencegah kerumitan pengiriman dan menjaga SLA logistik yang akurat, satu keranjang (cart) hanya boleh berisi produk dari **satu toko**. Jika pembeli mencoba menambahkan produk dari toko yang berbeda, sistem akan menolak dan meminta pembeli untuk menyelesaikan atau mengosongkan keranjang sebelumnya.
+* **Tax & Discount Calculation Rule:** Kalkulasi diskon (Voucher/Promo) akan memotong `Subtotal` terlebih dahulu. PPN 12% kemudian dihitung secara akurat dari Dasar Pengenaan Pajak (DPP), yang rumusnya adalah: `(Subtotal - Diskon) + Ongkos Kirim`. Pemotongan kuota diskon dikunci secara atomik untuk mencegah *race condition*.
+* **Transactional Integrity:** Proses checkout bersifat absolut. Jika di tengah proses stok ternyata habis atau saldo dompet tiba-tiba kurang, seluruh rangkaian transaksi dibatalkan (rollback) untuk mencegah uang hilang atau pesanan hantu.
+* **Role-Based Backend Authorization:** Akses ke endpoint API tidak hanya mengecek validitas token JWT, tetapi juga secara aktif mencocokkan Active Role yang di-klaim dengan database untuk mencegah akses ilegal.
+* **Guest Browsing:** Halaman publik dirancang aman dari interaksi transaksional. Fungsi checkout dan manajemen toko dinonaktifkan secara otomatis hingga pengguna masuk dengan peran yang sesuai.
 
-    Transactional Integrity: Proses checkout bersifat absolut. Jika di tengah proses stok ternyata habis atau saldo dompet tiba-tiba kurang, seluruh rangkaian transaksi dibatalkan (rollback) untuk mencegah uang hilang atau pesanan hantu.
+---
 
-    Role-Based Backend Authorization: Akses ke endpoint API tidak hanya mengecek validitas token JWT, tetapi juga secara aktif mencocokkan Active Role yang di-klaim dengan database untuk mencegah akses ilegal.
+## ✒️ Author
 
-    Guest Browsing: Halaman publik dirancang aman dari interaksi transaksional. Fungsi checkout dan manajemen toko dinonaktifkan secara otomatis hingga pengguna masuk dengan peran yang sesuai.
-
-✒️ Author
-
-    Nama: Franly Budi Pramana
-
-    Email: franlybudipramana588@gmail.com
-
-    Universitas: Universitas Surabaya (Ubaya)
+* **Nama:** Franly Budi Pramana
+* **Email:** franlybudipramana588@gmail.com
+* **Universitas:** Universitas Surabaya (Ubaya)
 
 Proyek ini dikembangkan secara bertahap sebagai bagian dari tantangan pengembangan perangkat lunak COMPFEST 2026.

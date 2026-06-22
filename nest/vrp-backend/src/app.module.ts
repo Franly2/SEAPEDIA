@@ -17,6 +17,7 @@ import { AddressModule } from './address/address.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { DiscountModule } from './discount/discount.module';
+import { DeliveryModule } from './delivery/delivery.module';
 
 @Module({
   imports: [PrismaModule,
@@ -30,6 +31,7 @@ import { DiscountModule } from './discount/discount.module';
     CartModule,
     OrdersModule,
     DiscountModule,
+    DeliveryModule,
     ],
   controllers: [
     AppController,

@@ -1,4 +1,4 @@
-# SEAPEDIA - Marketplace
+# SEAPEDIA - Marketplace Logistik UMKM
 
 Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace logistik cerdas yang dirancang untuk mempertemukan Pembeli, Penjual, Driver, dan Admin dalam satu ekosistem yang terintegrasi.
 
@@ -19,7 +19,6 @@ SEAPEDIA adalah solusi e-commerce terukur yang berfokus pada efisiensi logistik 
 ### 📱 Front-End (Expo)
 
 1. Masuk ke direktori mobile:
-
 ```bash
 cd gui/mobile
 
@@ -110,6 +109,13 @@ npm run start:dev
 * **[x] Race-Condition Safe Job Taking:** API `POST /take` yang dikunci menggunakan `Prisma $transaction` untuk memastikan sebuah pesanan `MENUNGGU_PENGIRIM` hanya bisa diambil oleh SATU kurir. Mencegah duplikasi data tugas di tengah konkurensi.
 * **[x] Delivery Completion & Earning Payout:** Sistem konfirmasi penyelesaian otomatis yang memajukan pesanan menjadi `PESANAN_SELESAI`, sekaligus mencairkan ongkos kirim ke dalam Saldo Dompet kurir yang disertai rekam jejak (*ledger*).
 
+### Level 6: Admin Monitoring and Overdue Handling
+
+* **[x] Admin Monitoring Dashboard:** Pusat kendali untuk memantau metrik agregasi platform secara *real-time*, meliputi total pengguna, toko, pesanan aktif, pengiriman, hingga angka pesanan yang berstatus *overdue*.
+* **[x] Discount Management UI:** Antarmuka khusus Administrator untuk menghasilkan (*generate*) *Voucher* dan *Promo* dengan validasi DTO ketat.
+* **[x] Time Travel Simulation:** *Endpoint* khusus untuk mensimulasikan pergeseran waktu (memundurkan umur pesanan) guna mendemonstrasikan proses SLA secara instan tanpa memanipulasi waktu server.
+* **[x] ACID Overdue & Auto-Refund Engine:** Mesin logistik yang mengeksekusi pembatalan pesanan yang melanggar SLA. Mengotomatisasi pengembalian dana ke dompet pembeli, penyesuaian riwayat pengeluaran, serta pemulihan stok barang di dalam satu transaksi database yang kebal *double-refund*.
+
 ---
 
 ## 🔑 Aturan Bisnis & Logika Inti
@@ -120,6 +126,7 @@ Penting untuk dicatat bahwa SEAPEDIA mematuhi aturan bisnis yang ketat dalam pen
 * **Tax & Discount Calculation Rule:** Kalkulasi diskon (Voucher/Promo) akan memotong `Subtotal` terlebih dahulu. PPN 12% kemudian dihitung secara akurat dari Dasar Pengenaan Pajak (DPP), yang rumusnya adalah: `(Subtotal - Diskon) + Ongkos Kirim`. Pemotongan kuota diskon dikunci secara atomik untuk mencegah *race condition*.
 * **Transactional Integrity:** Proses checkout bersifat absolut. Jika di tengah proses stok ternyata habis atau saldo dompet tiba-tiba kurang, seluruh rangkaian transaksi dibatalkan (rollback) untuk mencegah uang hilang atau pesanan hantu.
 * **Driver Job Concurrency:** Sebuah pengiriman hanya bisa dieksekusi oleh satu Kurir. Transaksi pengambilan paket di-lock di level database untuk mencegah *race condition* apabila ada dua kurir mengeklik pesanan yang sama di milidetik yang berbarengan.
+* **Overdue SLA & Auto-Refund Policy:** Batas waktu pengiriman diatur berdasarkan metode yang dipilih (Instant: 24 Jam, Next Day: 48 Jam, Regular: 72 Jam). Jika pesanan melewati SLA dan belum diambil kurir, sistem dapat membatalkan pesanan (status: `DIKEMBALIKAN`). Saldo dikembalikan secara utuh ke dompet pembeli, pengeluaran pembeli disesuaikan, pendapatan penjual dihapus, dan stok direstorasi secara atomik.
 * **Role-Based Backend Authorization:** Akses ke endpoint API tidak hanya mengecek validitas token JWT, tetapi juga secara aktif mencocokkan Active Role yang di-klaim dengan database untuk mencegah akses ilegal.
 * **Guest Browsing:** Halaman publik dirancang aman dari interaksi transaksional. Fungsi checkout dan manajemen toko dinonaktifkan secara otomatis hingga pengguna masuk dengan peran yang sesuai.
 
@@ -132,3 +139,7 @@ Penting untuk dicatat bahwa SEAPEDIA mematuhi aturan bisnis yang ketat dalam pen
 * **Universitas:** Universitas Surabaya (Ubaya)
 
 Proyek ini dikembangkan secara bertahap sebagai bagian dari tantangan pengembangan perangkat lunak COMPFEST 2026.
+
+```
+
+```

@@ -198,7 +198,15 @@ export class OrdersService {
   // 5. LAPORAN FINANSIAL (LEVEL 4)
   // =====================================
   async getBuyerReport(buyerId: string) {
-    const orders = await this.prisma.order.findMany({ where: { buyerId } });
+    // Ambil pesanan milik buyer, kecualikan yang berstatus DIKEMBALIKAN
+    const orders = await this.prisma.order.findMany({ 
+      where: { 
+        buyerId: buyerId,
+        status: {
+          not: OrderStatus.DIKEMBALIKAN
+        }
+      } 
+    });
     
     const totalPengeluaran = orders.reduce((sum, order) => sum + order.finalTotal, 0);
     return { totalOrders: orders.length, totalPengeluaran };

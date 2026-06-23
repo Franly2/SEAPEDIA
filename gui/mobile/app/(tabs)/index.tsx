@@ -32,7 +32,7 @@ export default function HomeScreen() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch(`http://${api_address}:3000/products`);
+      const response = await fetch(`${api_address}/products`);
       if (response.ok) {
         const data = await response.json();
         setProducts(data);
@@ -59,7 +59,7 @@ export default function HomeScreen() {
           return;
         }
         try {
-          const response = await fetch(`http://${api_address}:3000/reviews/user/${userId}`);
+          const response = await fetch(`${api_address}/reviews/user/${userId}`);
           if (response.ok) {
             const data = await response.json();
             setHasReviewed(!!data.hasReviewed);

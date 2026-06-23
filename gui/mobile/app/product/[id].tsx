@@ -32,7 +32,7 @@ export default function ProductDetailScreen() {
   useEffect(() => {
     const fetchProductDetail = async () => {
       try {
-        const response = await fetch(`http://${api_address}:3000/products/${id}`);
+        const response = await fetch(`${api_address}/products/${id}`);
         if (response.ok) {
           const data = await response.json();
           setProduct(data);
@@ -72,7 +72,7 @@ export default function ProductDetailScreen() {
     setIsAddingToCart(true);
 
     try {
-      const response = await fetch(`http://${api_address}:3000/cart`, {
+      const response = await fetch(`${api_address}/cart`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export default function ProductDetailScreen() {
       else if (response.status === 409 && data.code === 'SINGLE_STORE_VIOLATION') {
         const clearAndAdd = async () => {
           setIsAddingToCart(true);
-          await fetch(`http://${api_address}:3000/cart/clear`, {
+          await fetch(`${api_address}/cart/clear`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` }
           });

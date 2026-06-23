@@ -33,7 +33,7 @@ export default function EditProductScreen() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`http://${api_address}:3000/products/${id}`);
+        const response = await fetch(`${api_address}/products/${id}`);
         if (response.ok) {
           const data = await response.json();
           setFormData({
@@ -79,7 +79,7 @@ export default function EditProductScreen() {
         imageUrl: formData.imageUrl.trim() || null,
       };
 
-      const response = await fetch(`http://${api_address}:3000/products/${id}`, {
+      const response = await fetch(`${api_address}/products/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export default function EditProductScreen() {
     const confirmDelete = async () => {
       setIsDeleting(true);
       try {
-        const response = await fetch(`http://${api_address}:3000/products/${id}`, {
+        const response = await fetch(`${api_address}/products/${id}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },
         });

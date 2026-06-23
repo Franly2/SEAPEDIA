@@ -21,9 +21,9 @@ export default function ProfileScreen() {
         setIsLoading(true);
         try {
           const [walletRes, buyerRes, sellerRes] = await Promise.all([
-            fetch(`http://${api_address}:3000/wallet`, { headers: { Authorization: `Bearer ${token}` } }),
-            fetch(`http://${api_address}:3000/orders/report/buyer`, { headers: { Authorization: `Bearer ${token}` } }),
-            fetch(`http://${api_address}:3000/orders/report/seller`, { headers: { Authorization: `Bearer ${token}` } }),
+            fetch(`${api_address}/wallet`, { headers: { Authorization: `Bearer ${token}` } }),
+            fetch(`${api_address}/orders/report/buyer`, { headers: { Authorization: `Bearer ${token}` } }),
+            fetch(`${api_address}/orders/report/seller`, { headers: { Authorization: `Bearer ${token}` } }),
           ]);
 
           if (walletRes.ok) setWalletBalance((await walletRes.json()).balance);

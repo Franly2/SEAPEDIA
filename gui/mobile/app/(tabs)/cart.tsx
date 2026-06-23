@@ -15,7 +15,7 @@ export default function CartScreen() {
   const fetchCart = async () => {
     if (!token) return;
     try {
-      const res = await fetch(`http://${api_address}:3000/cart`, {
+      const res = await fetch(`${api_address}/cart`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -39,7 +39,7 @@ export default function CartScreen() {
   const updateQuantity = async (itemId: string, newQty: number) => {
     if (newQty < 1) return removeItem(itemId);
     try {
-      const res = await fetch(`http://${api_address}:3000/cart/${itemId}`, {
+      const res = await fetch(`${api_address}/cart/${itemId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ quantity: newQty })
@@ -54,7 +54,7 @@ export default function CartScreen() {
 
   const removeItem = async (itemId: string) => {
     try {
-      const res = await fetch(`http://${api_address}:3000/cart/${itemId}`, {
+      const res = await fetch(`${api_address}/cart/${itemId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

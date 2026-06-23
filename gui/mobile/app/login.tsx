@@ -43,7 +43,7 @@ export default function LoginScreen() {
     setErrorMessage('');
     
     try {
-      const response = await fetch(`http://${api_address}:3000/auth/login`, {
+      const response = await fetch(`${api_address}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -73,7 +73,7 @@ export default function LoginScreen() {
     setErrorMessage('');
 
     try {
-      const response = await fetch(`http://${api_address}:3000/auth/switch-role`, {
+      const response = await fetch(`${api_address}/auth/switch-role`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

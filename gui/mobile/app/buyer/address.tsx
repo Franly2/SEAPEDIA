@@ -33,7 +33,7 @@ export default function AddressScreen() {
 
   const fetchAddresses = async () => {
     try {
-      const response = await fetch(`http://${api_address}:3000/addresses`, {
+      const response = await fetch(`${api_address}/addresses`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -70,7 +70,7 @@ export default function AddressScreen() {
 
     setIsSaving(true);
     const method = editId ? 'PUT' : 'POST';
-    const url = editId ? `http://${api_address}:3000/addresses/${editId}` : `http://${api_address}:3000/addresses`;
+    const url = editId ? `${api_address}/addresses/${editId}` : `${api_address}/addresses`;
 
     try {
       const response = await fetch(url, {
@@ -100,7 +100,7 @@ export default function AddressScreen() {
   const handleDelete = (id: string) => {
     const confirmDelete = async () => {
       try {
-        const response = await fetch(`http://${api_address}:3000/addresses/${id}`, {
+        const response = await fetch(`${api_address}/addresses/${id}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },
         });

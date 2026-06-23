@@ -29,7 +29,7 @@ export default function AdminScreen() {
   const fetchStats = async () => {
     if (!token || activeRole !== 'ADMIN') return;
     try {
-      const res = await fetch(`http://${api_address}:3000/admin/dashboard`, {
+      const res = await fetch(`${api_address}/admin/dashboard`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setStats(await res.json());
@@ -50,7 +50,7 @@ export default function AdminScreen() {
   const handleSimulateDay = async () => {
     setIsSimulating(true);
     try {
-      const res = await fetch(`http://${api_address}:3000/admin/simulate-day`, {
+      const res = await fetch(`${api_address}/admin/simulate-day`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -71,7 +71,7 @@ export default function AdminScreen() {
   const handleTriggerOverdue = async () => {
     setIsRefunding(true);
     try {
-      const res = await fetch(`http://${api_address}:3000/admin/trigger-overdue`, {
+      const res = await fetch(`${api_address}/admin/trigger-overdue`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -116,7 +116,7 @@ export default function AdminScreen() {
     }
 
     try {
-      const res = await fetch(`http://${api_address}:3000/admin/${endpoint}`, {
+      const res = await fetch(`${api_address}/admin/${endpoint}`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

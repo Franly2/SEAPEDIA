@@ -22,11 +22,11 @@ export default function DriverScreen() {
 
     try {
       let url = '';
-      if (activeTab === 'AVAILABLE') url = `http://${api_address}:3000/delivery/available`;
-      else if (activeTab === 'ACTIVE') url = `http://${api_address}:3000/delivery/my-jobs?status=ACTIVE`;
+      if (activeTab === 'AVAILABLE') url = `${api_address}/delivery/available`;
+      else if (activeTab === 'ACTIVE') url = `${api_address}/delivery/my-jobs?status=ACTIVE`;
       else if (activeTab === 'HISTORY') {
-        url = `http://${api_address}:3000/delivery/my-jobs?status=COMPLETED`;
-        const earnRes = await fetch(`http://${api_address}:3000/delivery/earnings`, {
+        url = `${api_address}/delivery/my-jobs?status=COMPLETED`;
+        const earnRes = await fetch(`${api_address}/delivery/earnings`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (earnRes.ok) setEarnings(await earnRes.json());
@@ -55,7 +55,7 @@ export default function DriverScreen() {
   const handleTakeJob = async (orderId: string) => {
     setProcessingId(orderId);
     try {
-      const res = await fetch(`http://${api_address}:3000/delivery/${orderId}/take`, {
+      const res = await fetch(`${api_address}/delivery/${orderId}/take`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -76,7 +76,7 @@ export default function DriverScreen() {
   const handleCompleteJob = async (orderId: string) => {
     setProcessingId(orderId);
     try {
-      const res = await fetch(`http://${api_address}:3000/delivery/${orderId}/complete`, {
+      const res = await fetch(`${api_address}/delivery/${orderId}/complete`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });

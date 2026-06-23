@@ -42,7 +42,7 @@ export default function WalletScreen() {
 
   const fetchWalletData = async () => {
     try {
-      const response = await fetch(`http://${api_address}:3000/wallet`, {
+      const response = await fetch(`http://${api_address}/wallet`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -70,7 +70,7 @@ export default function WalletScreen() {
 
     setIsToppingUp(true);
     try {
-      const response = await fetch(`http://${api_address}:3000/wallet/topup`, {
+      const response = await fetch(`http://${api_address}/wallet/topup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

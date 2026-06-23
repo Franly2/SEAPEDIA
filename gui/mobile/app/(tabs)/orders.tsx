@@ -22,7 +22,7 @@ export default function OrdersScreen() {
 
     try {
       const endpoint = activeRole === 'BUYER' ? 'my-orders' : 'store-orders';
-      const res = await fetch(`http://${api_address}:3000/orders/${endpoint}`, {
+      const res = await fetch(`${api_address}/orders/${endpoint}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -51,7 +51,7 @@ export default function OrdersScreen() {
   const handleProcessOrder = async (orderId: string) => {
     setProcessingId(orderId);
     try {
-      const res = await fetch(`http://${api_address}:3000/orders/${orderId}/process`, {
+      const res = await fetch(`${api_address}/orders/${orderId}/process`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` }
       });

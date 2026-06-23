@@ -54,7 +54,7 @@ export default function ReviewsScreen() {
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch(`http://${api_address}:3000/reviews`);
+      const response = await fetch(`${api_address}/reviews`);
       if (response.ok) {
         const data: Review[] = await response.json();
         
@@ -78,7 +78,7 @@ export default function ReviewsScreen() {
 
   const checkUserReviewStatus = async () => {
     try {
-      const response = await fetch(`http://${api_address}:3000/reviews/user/${userId}`);
+      const response = await fetch(`${api_address}:3000/reviews/user/${userId}`);
       if (response.ok) {
         const data = await response.json();
         if (data.hasReviewed) {
@@ -110,7 +110,7 @@ export default function ReviewsScreen() {
         payload.userId = userId;
       }
 
-      const response = await fetch(`http://${api_address}:3000/reviews`, {
+      const response = await fetch(`${api_address}:3000/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

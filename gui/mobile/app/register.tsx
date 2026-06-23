@@ -45,7 +45,7 @@ export default function RegisterScreen() {
     setSuccessMessage('');
     
     try {
-      const response = await fetch(`http://${api_address}:3000/auth/register`, {
+      const response = await fetch(`${api_address}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

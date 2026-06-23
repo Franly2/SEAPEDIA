@@ -32,7 +32,7 @@ export default function SellerDashboardScreen() {
   const fetchMyStoreAndProducts = async () => {
     if (!token) return;
     try {
-      const storeRes = await fetch(`http://${api_address}:3000/stores/my-store`, {
+      const storeRes = await fetch(`${api_address}/stores/my-store`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -41,7 +41,7 @@ export default function SellerDashboardScreen() {
         setStore(storeData);
         setEditStoreName(storeData.name);
 
-        const prodRes = await fetch(`http://${api_address}:3000/products/my-products`, {
+        const prodRes = await fetch(`${api_address}/products/my-products`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -79,7 +79,7 @@ export default function SellerDashboardScreen() {
   const handleUpgradeToSeller = async () => {
     setIsUpgrading(true);
     try {
-      const response = await fetch(`http://${api_address}:3000/users/upgrade-role`, {
+      const response = await fetch(`${api_address}/users/upgrade-role`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,7 +107,7 @@ export default function SellerDashboardScreen() {
       return showAlert('Validasi Gagal', 'Nama toko minimal 3 karakter.');
     }
     try {
-      const response = await fetch(`http://${api_address}:3000/stores`, {
+      const response = await fetch(`${api_address}/stores`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: newStoreName.trim() }),
@@ -130,7 +130,7 @@ export default function SellerDashboardScreen() {
       return showAlert('Validasi Gagal', 'Nama toko minimal 3 karakter.');
     }
     try {
-      const response = await fetch(`http://${api_address}:3000/stores/my-store`, {
+      const response = await fetch(`${api_address}/stores/my-store`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: editStoreName.trim() }),

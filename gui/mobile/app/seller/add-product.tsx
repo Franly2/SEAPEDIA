@@ -55,7 +55,7 @@ export default function AddProductScreen() {
         payload.imageUrl = formData.imageUrl.trim();
       }
 
-      const response = await fetch(`http://${api_address}:3000/products`, {
+      const response = await fetch(`${api_address}/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -116,6 +116,15 @@ npm run start:dev
 * **[x] Time Travel Simulation:** *Endpoint* khusus untuk mensimulasikan pergeseran waktu (memundurkan umur pesanan) guna mendemonstrasikan proses SLA secara instan tanpa memanipulasi waktu server.
 * **[x] ACID Overdue & Auto-Refund Engine:** Mesin logistik yang mengeksekusi pembatalan pesanan yang melanggar SLA. Mengotomatisasi pengembalian dana ke dompet pembeli, penyesuaian riwayat pengeluaran, serta pemulihan stok barang di dalam satu transaksi database yang kebal *double-refund*.
 
+### Level 7: Security Hardening and Finalization
+
+* **[x] SQLi & XSS Prevention:** Pengamanan interaksi database menggunakan metode *safe-query* (Prisma ORM) untuk mencegah SQL Injection. Seluruh input dari pengguna, terutama form *checkout* dan *public reviews*, disanitasi secara ketat untuk mencegah eksekusi *script* berbahaya (XSS).
+* **[x] Strict DTO & Input Validation:** Implementasi validasi data di level API untuk menolak input yang tidak valid atau berbahaya (seperti anomali harga, stok, atau tipe data) dengan mengembalikan pesan *error* yang jelas dan terstruktur.
+* **[x] RBAC & Session Hardening:** Penegakan aturan otorisasi berbasis *Zero-Trust* di sisi *backend*. Sistem tidak mempercayai *role* hanya dari rute UI, melainkan memverifikasi kepemilikan token, batas kedaluwarsa sesi, dan *active role* pengguna untuk mencegah akses lintas entitas (misal: Penjual tidak dapat memodifikasi produk penjual lain).
+* **[x] Comprehensive API Documentation:** Penyediaan dokumentasi API interaktif dan terstandarisasi menggunakan Swagger/OpenAPI untuk memetakan seluruh *endpoint*, format *request*, dan respons sistem.
+* **[x] Ready-to-Test Demo Environment:** Implementasi *database seeder* yang komprehensif untuk menghasilkan akun demo (Admin, Seller, Buyer, Driver) dan data awal secara otomatis.
+* **[x] End-to-End Testing Guide:** Pendokumentasian aturan bisnis secara mendetail (aturan *single-store checkout*, kombinasi diskon, kalkulasi PPN 12%, pendapatan kurir, simulasi *time-travel* SLA) beserta panduan pengujian alur e-commerce yang utuh.
+
 ---
 
 ## 🔑 Aturan Bisnis & Logika Inti
@@ -139,7 +148,5 @@ Penting untuk dicatat bahwa SEAPEDIA mematuhi aturan bisnis yang ketat dalam pen
 * **Universitas:** Universitas Surabaya (Ubaya)
 
 Proyek ini dikembangkan secara bertahap sebagai bagian dari tantangan pengembangan perangkat lunak COMPFEST 2026.
-
-```
 
 ```

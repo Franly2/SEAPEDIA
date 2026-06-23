@@ -9,8 +9,18 @@ SEAPEDIA adalah solusi e-commerce terukur yang berfokus pada efisiensi logistik 
 ## 🛠️ Stack Teknologi
 
 * **Front-End:** React Native (Expo) dengan Expo Router, Zustand (State Management), dan TypeScript.
-* **Back-End:** NestJS dengan Prisma ORM dan PostgreSQL.
+* **Back-End:** NestJS dengan Prisma ORM.
+* **Database:** PostgreSQL.
 * **Architecture:** *Clean Architecture* dengan modularisasi *feature-based* dan penerapan prinsip *Zero-Trust* pada level API.
+
+---
+
+## ☁️ Cloud Deployment & Infrastructure
+
+Sistem backend dan database SEAPEDIA telah di-*deploy* ke lingkungan *cloud production* untuk memastikan aksesibilitas, skalabilitas, dan performa yang optimal di dunia nyata:
+
+* **Database (Neon):** Menggunakan infrastruktur PostgreSQL berbasis *serverless* dari **Neon DB**. Memastikan koneksi database yang cepat, aman, dan efisien dengan integrasi *Connection Pooling*.
+* **Backend API (Railway):** Server NestJS berjalan secara *live* di **Railway**. Proses *deployment* terintegrasi secara langsung menggunakan CI/CD dari repositori GitHub, lengkap dengan injeksi *Environment Variables* dan proteksi CORS yang ketat.
 
 ---
 
@@ -31,26 +41,37 @@ npm install
 
 ```
 
-3. Run development server:
+3. Konfigurasi Environment:
+Buat file `.env` dan arahkan variabel ke server Railway (Production) atau IP lokal Anda (Development).
+
+```env
+# ENV PRODUCTION (RAILWAY)
+EXPO_PUBLIC_API_IP_ADDRESS=[https://seapedia-production.up.railway.app](https://seapedia-production.up.railway.app)
+
+```
+
+4. Run development server (gunakan `-c` untuk *clear cache* jika baru mengubah `.env`):
 
 ```bash
 npx expo start -c
 
 ```
 
-### ⚙️ Back-End (NestJS)
+### ⚙️ Back-End (NestJS) - *Untuk Development Lokal*
+
+*Catatan: Langkah ini hanya diperlukan jika Anda ingin menjalankan server backend secara lokal. Untuk penggunaan normal, aplikasi mobile sudah otomatis terhubung ke server Railway.*
 
 1. Masuk ke direktori backend:
 
 ```bash
-cd backend
+cd nest/vrp-backend
 
 ```
 
 2. Install dependencies:
 
 ```bash
-npm install --legacy-peer-deps
+npm install
 
 ```
 

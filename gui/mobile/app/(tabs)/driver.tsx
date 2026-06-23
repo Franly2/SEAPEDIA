@@ -26,7 +26,6 @@ export default function DriverScreen() {
       else if (activeTab === 'ACTIVE') url = `http://${api_address}:3000/delivery/my-jobs?status=ACTIVE`;
       else if (activeTab === 'HISTORY') {
         url = `http://${api_address}:3000/delivery/my-jobs?status=COMPLETED`;
-        // Fetch pendapatan secara berbarengan jika di tab History
         const earnRes = await fetch(`http://${api_address}:3000/delivery/earnings`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -113,7 +112,6 @@ export default function DriverScreen() {
         <Text style={styles.headerTitle}>Dasbor Kurir</Text>
       </View>
 
-      {/* SEGMENTED CONTROL (TABS) */}
       <View style={styles.tabContainer}>
         {[
           { key: 'AVAILABLE', label: 'Bursa Pekerjaan' },
@@ -130,7 +128,6 @@ export default function DriverScreen() {
         ))}
       </View>
 
-      {/* BANNER PENDAPATAN (Hanya muncul di Tab History) */}
       {activeTab === 'HISTORY' && (
         <View style={styles.earningsBanner}>
           <IconSymbol name="banknote.fill" size={32} color="#D97706" />
@@ -147,7 +144,6 @@ export default function DriverScreen() {
       ) : (
         <FlatList
           data={jobs}
-          // Gunakan index sebagai fallback key agar tidak error jika id bentrok
           keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
           contentContainerStyle={styles.list}
           ListEmptyComponent={
@@ -156,14 +152,10 @@ export default function DriverScreen() {
             </View>
           }
           renderItem={({ item }) => {
-            // SOLUSI ANTI-CRASH: Cek langsung struktur datanya!
-            // Jika ada objek 'order', berarti ini data dari tab Tugas Aktif/Riwayat (DeliveryJob).
-            // Jika tidak ada, berarti ini data dari tab Bursa Pekerjaan (Order).
             const isDeliveryJob = !!item.order; 
             const orderData = isDeliveryJob ? item.order : item;
             const fee = isDeliveryJob ? item.driverFee : item.deliveryFee;
 
-            // Guard Clause pengaman ganda: Jika data tidak valid sesaat saat loading, jangan render (hindari crash)
             if (!orderData || !orderData.deliveryMethod) return null;
 
             return (
@@ -171,7 +163,6 @@ export default function DriverScreen() {
                 <View style={styles.cardHeader}>
                   <Text style={styles.storeName}>🏪 {orderData.store?.name || 'Toko'}</Text>
                   <View style={styles.badge}>
-                    {/* Gunakan optional chaining (?.) untuk keamanan ekstra */}
                     <Text style={styles.badgeText}>{orderData.deliveryMethod?.replace(/_/g, ' ') || 'REGULAR'}</Text>
                   </View>
                 </View>
@@ -189,7 +180,6 @@ export default function DriverScreen() {
                   <Text style={styles.feeValue}>{formatRupiah(fee || 0)}</Text>
                 </View>
 
-                {/* TOMBOL AKSI BERDASARKAN TAB */}
                 {activeTab === 'AVAILABLE' && (
                   <TouchableOpacity
                     style={[styles.actionButton, { backgroundColor: '#3B82F6' }]}

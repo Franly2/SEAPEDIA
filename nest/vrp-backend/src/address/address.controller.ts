@@ -1,14 +1,17 @@
 /* eslint-disable prettier/prettier */
-// src/address/address.controller.ts
 import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards } from '@nestjs/common';
 import { AddressService } from './address.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { GetUser } from '../auth/get-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard'; 
+import { Roles } from '../auth/decorators/roles.decorator'; 
+import { Role } from '@prisma/client'; 
+import { GetUser } from '../auth/decorators/get-user.decorator';
 
 @Controller('addresses')
-@UseGuards(JwtAuthGuard) // Wajib login
+@UseGuards(JwtAuthGuard, RolesGuard) 
+@Roles(Role.BUYER)
 export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 

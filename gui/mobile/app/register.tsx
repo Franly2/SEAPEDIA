@@ -18,7 +18,6 @@ export default function RegisterScreen() {
   const api_address = process.env.EXPO_PUBLIC_API_IP_ADDRESS;
   const router = useRouter();
 
-  // Karena ini Marketplace, warna branding bisa kamu set statis untuk aplikasi utama
   const primaryColor = '#1976D2'; 
 
   const [fullName, setFullName] = useState('');
@@ -30,7 +29,6 @@ export default function RegisterScreen() {
   const [successMessage, setSuccessMessage] = useState('');
 
   async function handleRegister() {
-    // Validasi input disesuaikan dengan DTO backend terbaru (tanpa nomor telepon & tanggal lahir)
     if (!fullName || !username || !password) {
       setErrorMessage('Semua kolom harus diisi.');
       setSuccessMessage('');
@@ -65,13 +63,11 @@ export default function RegisterScreen() {
         setUsername('');
         setPassword('');
 
-        // Beri jeda 2 detik agar pesan sukses terbaca, lalu pindah ke halaman login utama
         setTimeout(() => {
-          router.replace('/'); // Menuju ke halaman root/login
+          router.replace('/'); 
         }, 2500);
 
       } else {
-        // Menangani pesan error array dari class-validator NestJS
         const errorText = Array.isArray(data.message) ? data.message[0] : data.message;
         setErrorMessage(errorText || 'Gagal mendaftar akun.');
       }
@@ -135,14 +131,12 @@ export default function RegisterScreen() {
               />
             </View>
             
-            {/* Box Error */}
             {errorMessage ? (
               <View style={styles.errorContainer}>
                 <ThemedText style={styles.errorText}>{errorMessage}</ThemedText>
               </View>
             ) : null}
 
-            {/* Box Sukses */}
             {successMessage ? (
               <View style={styles.successContainer}>
                 <ThemedText style={styles.successText}>{successMessage}</ThemedText>

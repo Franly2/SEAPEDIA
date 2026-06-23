@@ -1,4 +1,3 @@
-// Lokasi file: app/seller/edit-product/[id].tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -31,7 +30,6 @@ export default function EditProductScreen() {
     }
   };
 
-  // 1. Fetch data produk untuk mengisi form awal
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -59,7 +57,6 @@ export default function EditProductScreen() {
     if (id) fetchProduct();
   }, [id]);
 
-  // 2. Fungsi untuk Menyimpan Perubahan (PUT)
   const handleUpdateProduct = async () => {
     if (!formData.name.trim() || !formData.description.trim() || !formData.price || !formData.stock) {
       return showAlert('Validasi Gagal', 'Nama, deskripsi, harga, dan stok wajib diisi.');
@@ -105,7 +102,6 @@ export default function EditProductScreen() {
     }
   };
 
-  // 3. Fungsi untuk Menghapus Produk (DELETE)
   const handleDeleteProduct = () => {
     const confirmDelete = async () => {
       setIsDeleting(true);
@@ -155,7 +151,6 @@ export default function EditProductScreen() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Produk</Text>
         
-        {/* Tombol Delete di Pojok Kanan Atas */}
         <TouchableOpacity 
           style={styles.deleteButtonHeader} 
           onPress={handleDeleteProduct}

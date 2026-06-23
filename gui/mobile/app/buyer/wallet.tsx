@@ -82,7 +82,7 @@ export default function WalletScreen() {
       if (response.ok) {
         showAlert('Sukses', `Berhasil mengisi saldo sebesar ${formatRupiah(amountInt)}`);
         setTopupAmount('');
-        fetchWalletData(); // Refresh data saldo dan riwayat
+        fetchWalletData(); 
       } else {
         const err = await response.json();
         showAlert('Gagal', err.message || 'Terjadi kesalahan saat top-up.');
@@ -104,7 +104,6 @@ export default function WalletScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <IconSymbol name="chevron.left" size={24} color="#1F2937" />
@@ -113,7 +112,6 @@ export default function WalletScreen() {
         <View style={{ width: 40 }} />
       </View>
 
-      {/* KARTU SALDO & TOP UP */}
       <View style={styles.card}>
         <Text style={styles.cardSubtitle}>Total Saldo Tersedia</Text>
         <Text style={styles.balanceText}>{formatRupiah(balance)}</Text>
@@ -139,7 +137,6 @@ export default function WalletScreen() {
         </View>
       </View>
 
-      {/* RIWAYAT TRANSAKSI */}
       <Text style={styles.sectionTitle}>Riwayat Transaksi</Text>
       {history.length === 0 ? (
         <View style={styles.emptyBox}>

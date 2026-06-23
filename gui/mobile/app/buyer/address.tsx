@@ -1,4 +1,3 @@
-// Lokasi file: app/buyer/address.tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'expo-router';
@@ -20,7 +19,6 @@ export default function AddressScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
   
-  // State untuk Form
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ label: '', addressLine: '' });
@@ -63,7 +61,6 @@ export default function AddressScreen() {
     setFormData({ label: addr.label, addressLine: addr.addressLine });
     setEditId(addr.id);
     setIsFormVisible(true);
-    // Jika ada form yang di bawah, Anda mungkin ingin menambahkan fungsi untuk scroll ke atas di sini
   };
 
   const handleSave = async () => {
@@ -110,7 +107,6 @@ export default function AddressScreen() {
 
         if (response.ok) {
           showAlert('Sukses', 'Alamat dihapus.');
-          // Jika yang dihapus sedang di-edit, tutup form-nya
           if (editId === id) {
              resetForm();
           }
@@ -143,7 +139,6 @@ export default function AddressScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <IconSymbol name="chevron.left" size={24} color="#1F2937" />
@@ -152,12 +147,10 @@ export default function AddressScreen() {
         <View style={{ width: 40 }} />
       </View>
 
-      {/* FORMULIR (Ditampilkan jika isFormVisible = true) */}
       {isFormVisible ? (
         <View style={styles.card}>
           <View style={styles.cardHeaderRow}>
             <Text style={styles.cardTitle}>{editId ? 'Edit Alamat' : 'Tambah Alamat Baru'}</Text>
-            {/* Tombol hapus pindah ke atas form jika sedang mode edit, agar lebih intuitif */}
             {editId && (
               <TouchableOpacity onPress={() => handleDelete(editId)} style={styles.deleteFormBtn}>
                  <IconSymbol name="trash.fill" size={16} color="#DC2626" />
@@ -204,7 +197,6 @@ export default function AddressScreen() {
         </TouchableOpacity>
       )}
 
-      {/* DAFTAR ALAMAT */}
       <View style={styles.listContainer}>
         <Text style={styles.listSectionTitle}>Daftar Alamat Tersimpan</Text>
         {addresses.length === 0 && !isFormVisible ? (
@@ -214,7 +206,6 @@ export default function AddressScreen() {
           </View>
         ) : (
           addresses.map((addr) => (
-            // PERUBAHAN: View diubah menjadi TouchableOpacity agar seluruh kartu bisa diklik
             <TouchableOpacity 
               key={addr.id} 
               style={[styles.addressCard, editId === addr.id && styles.addressCardActive]} 
@@ -226,14 +217,9 @@ export default function AddressScreen() {
                   <Text style={styles.labelText}>{addr.label}</Text>
                 </View>
                 
-                {/* Ikon pensil dihapus, diganti indikasi panah untuk menunjukkan kartu bisa diklik.
-                    Tombol hapus kita pertahankan, tetapi kita beri e.stopPropagation() (jika didukung)
-                    atau cara React Native biasa agar klik hapus tidak memicu edit */}
                 <View style={styles.actionIcons}>
                   <TouchableOpacity 
                     onPress={(e) => {
-                      // Ini penting agar saat ngeklik tong sampah, kartu tidak ikut ter-klik (Edit)
-                      // Karena ini React Native biasa, kita panggil API Delete langsung
                       handleDelete(addr.id);
                     }} 
                     style={styles.iconButton}

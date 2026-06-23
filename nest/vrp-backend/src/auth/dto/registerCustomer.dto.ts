@@ -11,15 +11,13 @@ export class RegisterCustomerDto {
 
     @IsString()
     @IsNotEmpty({ message: 'Tanggal lahir tidak boleh kosong' })
-    birthDate!: string; // "YYYY-MM-DD"
+    birthDate!: string;
 
 
-    //fullname
     @IsString()
     @IsNotEmpty({ message: 'Nama lengkap tidak boleh kosong' })
     fullName!: string;
 
-    //username 
     @IsString()
     @IsNotEmpty({ message: 'Username tidak boleh kosong' })
     username!: string;

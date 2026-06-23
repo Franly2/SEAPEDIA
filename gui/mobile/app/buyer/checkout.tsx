@@ -1,4 +1,3 @@
-// Lokasi file: app/buyer/checkout.tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'expo-router';
@@ -27,7 +26,6 @@ export default function CheckoutScreen() {
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const [deliveryMethod, setDeliveryMethod] = useState<'INSTANT' | 'NEXT_DAY' | 'REGULAR'>('REGULAR');
 
-  // State untuk Diskon (Level 4)
   const [discountInput, setDiscountInput] = useState('');
   const [appliedVoucher, setAppliedVoucher] = useState<DiscountApplier | null>(null);
   const [appliedPromo, setAppliedPromo] = useState<DiscountApplier | null>(null);
@@ -69,7 +67,6 @@ export default function CheckoutScreen() {
 
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
-  // === FUNGSI VALIDASI DISKON ===
   const handleApplyDiscount = async () => {
     if (!discountInput.trim()) return;
     setIsValidatingDiscount(true);
@@ -103,7 +100,6 @@ export default function CheckoutScreen() {
     }
   };
 
-  // === KALKULASI MATEMATIKA (ATURAN LEVEL 4) ===
   const subtotal = cartData?.subtotal || 0;
   const deliveryFee = deliveryMethod === 'INSTANT' ? 20000 : deliveryMethod === 'NEXT_DAY' ? 15000 : 10000;
   
@@ -115,7 +111,6 @@ export default function CheckoutScreen() {
   
   const isBalanceSufficient = walletBalance >= finalTotal;
 
-  // === PROSES CHECKOUT ===
   const handleProcessCheckout = async () => {
     if (!selectedAddressId) return showAlert('Validasi', 'Silakan tambah/pilih alamat pengiriman.');
     if (!isBalanceSufficient) return showAlert('Dompet Kosong', 'Saldo Anda tidak mencukupi. Silakan top up.');
@@ -161,7 +156,6 @@ export default function CheckoutScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
-        {/* 1. Alamat */}
         <Text style={styles.sectionTitle}>Alamat Pengiriman</Text>
         <View style={styles.card}>
           {addresses.length === 0 ? (
@@ -181,7 +175,6 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        {/* 2. Metode Pengiriman */}
         <Text style={styles.sectionTitle}>Pilih Pengiriman</Text>
         <View style={styles.card}>
           {[
@@ -199,7 +192,6 @@ export default function CheckoutScreen() {
           ))}
         </View>
 
-        {/* 3. Voucher & Promo */}
         <Text style={styles.sectionTitle}>Gunakan Diskon</Text>
         <View style={styles.card}>
           <View style={styles.discountInputRow}>
@@ -219,14 +211,12 @@ export default function CheckoutScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Badge Voucher Aktif */}
           {appliedVoucher && (
             <View style={styles.activeDiscountBadge}>
               <IconSymbol name="ticket.fill" size={16} color="#059669" />
               <Text style={styles.activeDiscountText}>
                 Voucher: {appliedVoucher.code} (-{formatRupiah(appliedVoucher.value)})
               </Text>
-              {/* TOMBOL X MANUAL (TANPA ICONSYMBOL) */}
               <TouchableOpacity
                 style={styles.removeDiscountBtn}
                 onPress={() => {
@@ -239,14 +229,12 @@ export default function CheckoutScreen() {
             </View>
           )}
 
-          {/* Badge Promo Aktif */}
           {appliedPromo && (
             <View style={styles.activeDiscountBadge}>
               <IconSymbol name="tag.fill" size={16} color="#059669" />
               <Text style={styles.activeDiscountText}>
                 Promo: {appliedPromo.code} (-{formatRupiah(appliedPromo.value)})
               </Text>
-              {/* TOMBOL X MANUAL (TANPA ICONSYMBOL) */}
               <TouchableOpacity 
                 style={styles.removeDiscountBtn} 
                 onPress={() => {
@@ -260,7 +248,6 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        {/* 4. Rincian Biaya */}
         <Text style={styles.sectionTitle}>Rincian Biaya</Text>
         <View style={styles.card}>
           <View style={styles.costRow}><Text style={styles.costLabel}>Subtotal Produk</Text><Text style={styles.costValue}>{formatRupiah(subtotal)}</Text></View>
@@ -279,7 +266,6 @@ export default function CheckoutScreen() {
           <View style={styles.costRow}><Text style={styles.costLabelBold}>Total Tagihan</Text><Text style={styles.totalValue}>{formatRupiah(finalTotal)}</Text></View>
         </View>
 
-        {/* 5. Dompet */}
         <View style={[styles.card, { backgroundColor: isBalanceSufficient ? '#F0FDF4' : '#FEF2F2' }]}>
           <View style={styles.costRow}>
             <Text style={styles.costLabelBold}>Saldo Dompet Anda</Text>
@@ -289,7 +275,6 @@ export default function CheckoutScreen() {
         </View>
       </ScrollView>
 
-      {/* 6. Tombol Bayar */}
       <View style={styles.bottomBar}>
         <TouchableOpacity style={[styles.payButton, (!isBalanceSufficient || cartData?.items.length === 0) && { backgroundColor: '#9CA3AF' }]} onPress={handleProcessCheckout} disabled={!isBalanceSufficient || cartData?.items.length === 0 || isProcessing}>
           {isProcessing ? <ActivityIndicator color="#FFF" /> : <Text style={styles.payButtonText}>Bayar Sekarang</Text>}
@@ -309,7 +294,6 @@ const styles = StyleSheet.create({
   optionInfo: { marginLeft: 12, flex: 1 }, optionLabel: { fontSize: 15, fontWeight: '600', color: '#1F2937' }, optionDesc: { fontSize: 13, color: '#6B7280', marginTop: 4 },
   linkText: { color: '#3B82F6', fontWeight: 'bold' },
   
-  // Gaya Diskon
   discountInputRow: { flexDirection: 'row', marginBottom: 8 },
   discountInput: { flex: 1, backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, marginRight: 8, color: '#1F2937' },
   applyBtn: { backgroundColor: '#374151', paddingHorizontal: 16, justifyContent: 'center', borderRadius: 8 },
@@ -317,7 +301,6 @@ const styles = StyleSheet.create({
   activeDiscountBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#D1FAE5', padding: 10, borderRadius: 8, marginTop: 8 },
   activeDiscountText: { flex: 1, marginLeft: 8, color: '#065F46', fontWeight: '600', fontSize: 13 },
   
-  // TOMBOL X YANG BARU DITAMBAHKAN (TEKS MURNI)
   removeDiscountBtn: {
     width: 24,
     height: 24,
@@ -333,7 +316,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Gaya Kalkulasi
   costRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }, 
   costLabel: { fontSize: 14, color: '#6B7280' }, costValue: { fontSize: 14, fontWeight: '600', color: '#1F2937' }, 
   costLabelDiscount: { fontSize: 14, color: '#059669', fontWeight: '500' }, costValueDiscount: { fontSize: 14, fontWeight: 'bold', color: '#059669' },

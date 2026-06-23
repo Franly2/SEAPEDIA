@@ -1,4 +1,3 @@
-// Lokasi file: app/reviews.tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'expo-router';
@@ -51,25 +50,22 @@ export default function ReviewsScreen() {
     } else {
       setIsLoading(false);
     }
-  }, [userId, fullName, token]); // Tambahkan fullName dan token ke dependency array
+  }, [userId, fullName, token]); 
 
-  // === FUNGSI YANG DIPERBARUI ===
   const fetchReviews = async () => {
     try {
       const response = await fetch(`http://${api_address}:3000/reviews`);
       if (response.ok) {
         const data: Review[] = await response.json();
         
-        // Logika Penyortiran: Pindahkan ulasan milik user yang login ke paling atas
         if (token && fullName) {
           const sortedData = data.sort((a, b) => {
-            if (a.reviewerName === fullName) return -1; // 'a' geser ke atas
-            if (b.reviewerName === fullName) return 1;  // 'b' geser ke atas
-            return 0; // Biarkan urutan sisanya tetap (berdasarkan tanggal terbaru)
+            if (a.reviewerName === fullName) return -1;
+            if (b.reviewerName === fullName) return 1; 
+            return 0; 
           });
           setReviews(sortedData);
         } else {
-          // Jika Guest, langsung set data tanpa diurutkan ulang
           setReviews(data);
         }
       }
@@ -79,7 +75,6 @@ export default function ReviewsScreen() {
       setIsLoading(false);
     }
   };
-  // ==============================
 
   const checkUserReviewStatus = async () => {
     try {
@@ -124,7 +119,6 @@ export default function ReviewsScreen() {
       const data = await response.json();
 
       if (response.ok) {
-        // Karena ini ulasan user login, otomatis pasti berada di urutan [0] teratas
         setReviews([data, ...reviews]);
         
         if (userId) {

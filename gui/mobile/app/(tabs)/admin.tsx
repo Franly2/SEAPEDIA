@@ -8,21 +8,18 @@ export default function AdminScreen() {
   const { token, activeRole } = useAuthStore();
   const api_address = process.env.EXPO_PUBLIC_API_IP_ADDRESS;
 
-  // State Statistik
   const [stats, setStats] = useState<any>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   
-  // State Aksi Loading
   const [isSimulating, setIsSimulating] = useState(false);
   const [isRefunding, setIsRefunding] = useState(false);
   const [isCreatingDiscount, setIsCreatingDiscount] = useState(false);
 
-  // State Form Diskon
   const [discountType, setDiscountType] = useState<'VOUCHER' | 'PROMO'>('VOUCHER');
   const [formCode, setFormCode] = useState('');
   const [formValue, setFormValue] = useState('');
   const [formQuota, setFormQuota] = useState('');
-  const [formExpiry, setFormExpiry] = useState(''); // Format: YYYY-MM-DD
+  const [formExpiry, setFormExpiry] = useState(''); 
 
   const showAlert = (title: string, message: string) => {
     if (Platform.OS === 'web') window.alert(`${title}\n${message}`);
@@ -50,7 +47,6 @@ export default function AdminScreen() {
     }, [activeRole, token])
   );
 
-  // === AKSI: MESIN WAKTU ===
   const handleSimulateDay = async () => {
     setIsSimulating(true);
     try {
@@ -72,7 +68,6 @@ export default function AdminScreen() {
     }
   };
 
-  // === AKSI: PEMICU REFUND ===
   const handleTriggerOverdue = async () => {
     setIsRefunding(true);
     try {
@@ -94,7 +89,6 @@ export default function AdminScreen() {
     }
   };
 
-  // === AKSI: GENERATOR DISKON ===
   const handleCreateDiscount = async () => {
     if (!formCode || !formValue || !formExpiry) {
       showAlert('Peringatan', 'Harap isi Kode, Nilai Diskon, dan Tanggal Berakhir.');
@@ -104,7 +98,6 @@ export default function AdminScreen() {
     setIsCreatingDiscount(true);
     const endpoint = discountType === 'VOUCHER' ? 'vouchers' : 'promos';
     
-    // Konversi string YYYY-MM-DD ke ISO 8601 agar Prisma menerimanya
     const isoExpiryDate = `${formExpiry}T23:59:59Z`;
 
     const payload: any = {
@@ -152,7 +145,7 @@ export default function AdminScreen() {
       <View style={[styles.container, styles.center]}>
         <IconSymbol name="lock.fill" size={64} color="#EF4444" />
         <Text style={styles.errorTitle}>Akses Dibatasi</Text>
-        <Text style={{ color: '#6B7280', marginTop: 8 }}>Halaman ini rahasia, khusus untuk Administrator.</Text>
+        <Text style={{ color: '#6B7280', marginTop: 8 }}>Halaman ini khusus untuk Administrator.</Text>
       </View>
     );
   }
@@ -161,7 +154,6 @@ export default function AdminScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <Text style={styles.pageTitle}>Admin Control Center</Text>
 
-      {/* --- SEGMEN 1: STATISTIK --- */}
       <View style={styles.sectionCard}>
         <Text style={styles.sectionTitle}>📈 Statistik Marketplace</Text>
         {isLoadingStats || !stats ? (
@@ -181,7 +173,6 @@ export default function AdminScreen() {
         )}
       </View>
 
-      {/* --- SEGMEN 2: MESIN WAKTU & REFUND (DANGER ZONE) --- */}
       <View style={[styles.sectionCard, { borderColor: '#FCA5A5', borderWidth: 1 }]}>
         <Text style={[styles.sectionTitle, { color: '#DC2626' }]}>⚠️ Operasi Logistik & SLA</Text>
         <Text style={styles.description}>
@@ -205,7 +196,6 @@ export default function AdminScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* --- SEGMEN 3: GENERATOR DISKON --- */}
       <View style={styles.sectionCard}>
         <Text style={styles.sectionTitle}>🎟️ Generator Diskon</Text>
         
@@ -248,17 +238,14 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 18, fontWeight: '700', color: '#1F2937', marginBottom: 16 },
   description: { fontSize: 13, color: '#6B7280', marginBottom: 16, lineHeight: 20 },
   
-  // Grid Statistik
   gridContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   gridItem: { flexBasis: '31%', backgroundColor: '#F9FAFB', padding: 12, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#F3F4F6' },
   gridValue: { fontSize: 20, fontWeight: '900', color: '#1F2937' },
   gridLabel: { fontSize: 11, color: '#6B7280', marginTop: 4, textAlign: 'center' },
   
-  // Tombol Berbahaya
   dangerButton: { padding: 16, borderRadius: 10, alignItems: 'center', marginBottom: 12 },
   buttonText: { color: '#FFF', fontWeight: 'bold', fontSize: 14 },
   
-  // Form Diskon
   toggleContainer: { flexDirection: 'row', backgroundColor: '#F3F4F6', borderRadius: 8, padding: 4, marginBottom: 16 },
   toggleButton: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 6 },
   toggleActive: { backgroundColor: '#FFF', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },

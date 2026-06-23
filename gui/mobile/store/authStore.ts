@@ -4,7 +4,7 @@ import { create } from 'zustand';
 interface AuthState {
   token: string | null;
   roles: string[];
-  activeRole: string | null; // <-- Properti baru untuk sesi saat ini
+  activeRole: string | null; 
   username: string | null;
   fullName: string | null;
   isLoading: boolean;
@@ -26,7 +26,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     await AsyncStorage.multiSet([
       ['userToken', token],
       ['userRoles', JSON.stringify(roles)],
-      ['userActiveRole', activeRole], // Simpan peran aktif ke memori
+      ['userActiveRole', activeRole], 
       ['userName', username],
       ['userFullName', fullName],
     ]);

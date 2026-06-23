@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable prettier/prettier */
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
@@ -17,11 +16,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   validate(payload: any) {
-    // Mengembalikan data yang akan ditempel di 'req.user'
     return { 
       userId: payload.sub, 
       username: payload.username, 
-      roles: payload.roles, // Ini sekarang adalah Array: ['BUYER', 'SELLER']
+      roles: payload.roles, 
+      activeRole: payload.activeRole, 
     };
   }
 }

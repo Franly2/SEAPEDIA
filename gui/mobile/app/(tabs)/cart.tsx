@@ -1,4 +1,3 @@
-// Lokasi file: app/(tabs)/cart.tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
 import { useFocusEffect, useRouter } from 'expo-router';

@@ -1,6 +1,4 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable prettier/prettier */
-// src/discount/discount.service.ts
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service'; 
 import { CreateVoucherDto, CreatePromoDto } from './dto/discount.dto';
@@ -9,9 +7,7 @@ import { CreateVoucherDto, CreatePromoDto } from './dto/discount.dto';
 export class DiscountService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // =====================================
-  // 1. ADMIN: Buat Voucher & Promo
-  // =====================================
+  // ADMIN: Buat Voucher & Promo
   async createVoucher(dto: CreateVoucherDto) {
     const existing = await this.prisma.voucher.findUnique({ where: { code: dto.code } });
     if (existing) throw new BadRequestException('Kode Voucher sudah digunakan.');
@@ -39,9 +35,7 @@ export class DiscountService {
     });
   }
 
-  // =====================================
-  // 2. PUBLIC/ADMIN: Lihat Daftar Diskon
-  // =====================================
+  // PUBLIC/ADMIN: Lihat Daftar Diskon
   async getAllDiscounts() {
     const vouchers = await this.prisma.voucher.findMany({ orderBy: { createdAt: 'desc' } });
     const promos = await this.prisma.promo.findMany({ orderBy: { createdAt: 'desc' } });
@@ -49,13 +43,10 @@ export class DiscountService {
     return { vouchers, promos };
   }
 
-  // =====================================
-  // 3. BUYER: Validasi Kode saat Checkout
-  // =====================================
+  // BUYER: Validasi Kode saat Checkout
   async validateCode(code: string) {
     const now = new Date();
 
-    // 1. Coba cari di tabel Voucher
     const voucher = await this.prisma.voucher.findUnique({ where: { code } });
     if (voucher) {
       if (voucher.expiryDate < now) {
@@ -73,7 +64,6 @@ export class DiscountService {
       };
     }
 
-    // 2. Jika tidak ada di Voucher, cari di tabel Promo
     const promo = await this.prisma.promo.findUnique({ where: { code } });
     if (promo) {
       if (promo.expiryDate < now) {
@@ -88,7 +78,6 @@ export class DiscountService {
       };
     }
 
-    // 3. Jika tidak ada di keduanya
     throw new NotFoundException('Kode diskon tidak ditemukan atau tidak valid.');
   }
 }

@@ -8,7 +8,6 @@ import { TransactionType } from '@prisma/client';
 export class WalletService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Mengambil informasi saldo saat ini beserta riwayat transaksinya
   async getWalletDetails(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -30,12 +29,9 @@ export class WalletService {
     };
   }
 
-  // Simulasi Top Up (Isi Saldo)
   async topUp(userId: string, amount: number) {
-    // Menggunakan Prisma $transaction agar jika salah satu gagal, semuanya dibatalkan (Rollback)
     return this.prisma.$transaction(async (prisma) => {
       
-      // 1. Tambahkan saldo ke profil pengguna
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: { 
@@ -43,7 +39,6 @@ export class WalletService {
         },
       });
 
-      // 2. Catat riwayat mutasi uang masuk
       const transaction = await prisma.walletTransaction.create({
         data: {
           userId,

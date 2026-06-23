@@ -15,5 +15,5 @@ export class CreateVoucherDto {
   usageQuota!: number;
 
   @IsDateString()
-  expiryDate!: string; // Akan menerima format ISO 8601, contoh: "2026-12-31T23:59:59Z"
+  expiryDate!: string; 
 }

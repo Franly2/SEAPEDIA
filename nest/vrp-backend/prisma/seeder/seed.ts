@@ -1,12 +1,5 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable prettier/prettier */
-/* eslint-disable prettier/prettier */
-/* eslint-disable prettier/prettier */
 import { PrismaClient, Role, OrderStatus, DeliveryMethod, TransactionType } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
@@ -28,7 +21,7 @@ async function main() {
   await prisma.promo.deleteMany();
   await prisma.appReview.deleteMany();
 
-  console.log('Mulai seeding data SEAPEDIA...');
+  console.log('Mulai seeding data ...');
 
   const salt = await bcrypt.genSalt(10);
   const DEFAULT_PASSWORD_HASH = await bcrypt.hash('password123', salt);
@@ -44,9 +37,6 @@ async function main() {
     });
   }
 
-  // ==========================================
-  // 2. MODIFIKASI LEVEL 4: VOUCHER & PROMO
-  // ==========================================
   const nextYear = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
   const lastYear = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
 
@@ -85,8 +75,8 @@ async function main() {
         username: `user_tester_${i}`,
         password: DEFAULT_PASSWORD_HASH,
         fullName: `Akun Tester ${i}`,
-        roles: [Role.BUYER, Role.SELLER, Role.DRIVER, Role.ADMIN], // Diberikan semua role untuk mempermudah tes
-        walletBalance: 500000, // Menambahkan inisiasi default di level skema baru
+        roles: [Role.BUYER, Role.SELLER, Role.DRIVER, Role.ADMIN], 
+        walletBalance: 500000, 
       },
     });
     users.push(user);
@@ -174,7 +164,7 @@ async function main() {
         ppnAmount: ((targetStoreIndex * 50000 * 2) * 12) / 100, // PPN 12%
         finalTotal: (targetStoreIndex * 50000 * 2) - 10000 + 15000 + (((targetStoreIndex * 50000 * 2) * 12) / 100),
         deliveryMethod: DeliveryMethod.REGULAR,
-        status: OrderStatus.SEDANG_DIKIRIM, // Set status sedang dikirim agar relasi DeliveryJob valid
+        status: OrderStatus.SEDANG_DIKIRIM, // status sedang dikirim agar relasi DeliveryJob valid
         voucherId: `55555555-5555-5555-5555-55555555555${i}`,
       },
     });
@@ -202,13 +192,13 @@ async function main() {
       data: {
         orderId: orderId,
         driverId: driverId,
-        driverFee: 10000, // Misal driver dapat 10.000 dari ongkir
+        driverFee: 10000, 
         takenAt: new Date(),
       },
     });
   }
 
-  console.log('Seeding selesai! Data berhasil disuntikkan ke seluruh tabel.');
+  console.log('Seeding berhasil.');
 }
 
 main()

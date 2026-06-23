@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-// src/product/dto/create-product.dto.ts
 import { IsString, IsNotEmpty, IsInt, Min, IsOptional } from 'class-validator';
 
 export class CreateProductDto {

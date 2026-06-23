@@ -1,4 +1,3 @@
-// Lokasi file: app/seller/add-product.tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'expo-router';
@@ -28,12 +27,10 @@ export default function AddProductScreen() {
   };
 
   const handleSaveProduct = async () => {
-    // 1. Validasi Input Dasar
     if (!formData.name.trim() || !formData.description.trim() || !formData.price || !formData.stock) {
       return showAlert('Validasi Gagal', 'Nama, deskripsi, harga, dan stok wajib diisi.');
     }
 
-    // Pastikan harga dan stok adalah angka valid dan tidak negatif
     const priceInt = parseInt(formData.price, 10);
     const stockInt = parseInt(formData.stock, 10);
 
@@ -47,7 +44,6 @@ export default function AddProductScreen() {
     setIsLoading(true);
 
     try {
-      // 2. Siapkan Payload (Data yang dikirim ke Backend)
       const payload: any = {
         name: formData.name.trim(),
         description: formData.description.trim(),
@@ -55,12 +51,10 @@ export default function AddProductScreen() {
         stock: stockInt,
       };
 
-      // Jika imageUrl diisi, masukkan ke payload
       if (formData.imageUrl.trim()) {
         payload.imageUrl = formData.imageUrl.trim();
       }
 
-      // 3. Tembak API NestJS
       const response = await fetch(`http://${api_address}:3000/products`, {
         method: 'POST',
         headers: {
@@ -72,7 +66,7 @@ export default function AddProductScreen() {
 
       if (response.ok) {
         showAlert('Sukses', 'Produk berhasil ditambahkan ke etalase!');
-        router.back(); // Kembali ke halaman Dasbor Penjual setelah sukses
+        router.back(); 
       } else {
         const err = await response.json();
         showAlert('Gagal Menyimpan', err.message || 'Terjadi kesalahan saat menyimpan produk.');
@@ -86,17 +80,15 @@ export default function AddProductScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Header Navigasi */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <IconSymbol name="chevron.left" size={24} color="#1F2937" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Tambah Produk Baru</Text>
-        <View style={{ width: 24 }} /> {/* Spacer agar judul di tengah */}
+        <View style={{ width: 24 }} /> 
       </View>
 
       <View style={styles.card}>
-        {/* Input Nama Produk */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Nama Produk <Text style={styles.required}>*</Text></Text>
           <TextInput
@@ -107,7 +99,6 @@ export default function AddProductScreen() {
           />
         </View>
 
-        {/* Input Deskripsi */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Deskripsi Produk <Text style={styles.required}>*</Text></Text>
           <TextInput
@@ -121,7 +112,6 @@ export default function AddProductScreen() {
           />
         </View>
 
-        {/* Input Harga & Stok (Bersebelahan) */}
         <View style={styles.row}>
           <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
             <Text style={styles.label}>Harga (Rp) <Text style={styles.required}>*</Text></Text>
@@ -146,7 +136,6 @@ export default function AddProductScreen() {
           </View>
         </View>
 
-        {/* Input Image URL (Opsional) */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>URL Gambar <Text style={styles.optional}>(Opsional)</Text></Text>
           <TextInput
@@ -160,7 +149,6 @@ export default function AddProductScreen() {
         </View>
       </View>
 
-      {/* Tombol Simpan */}
       <TouchableOpacity 
         style={[styles.submitButton, isLoading && { opacity: 0.7 }]} 
         onPress={handleSaveProduct}
@@ -259,8 +247,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   submitButton: {
-    backgroundColor: '#10B981', // Menggunakan warna hijau untuk aksi "Simpan/Positif"
-    width: '100%',
+    backgroundColor: '#10B981', 
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

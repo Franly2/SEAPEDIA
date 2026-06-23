@@ -1,4 +1,3 @@
-// Lokasi file: app/(tabs)/profile.tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -10,20 +9,17 @@ export default function ProfileScreen() {
   const router = useRouter();
   const api_address = process.env.EXPO_PUBLIC_API_IP_ADDRESS;
 
-  // State untuk Laporan Finansial (Level 4)
   const [isLoading, setIsLoading] = useState(true);
   const [walletBalance, setWalletBalance] = useState(0);
   const [buyerExpense, setBuyerExpense] = useState(0);
   const [sellerIncome, setSellerIncome] = useState(0);
 
-  // Ambil data setiap kali layar Profil difokuskan
   useFocusEffect(
     useCallback(() => {
       const fetchFinancialReports = async () => {
         if (!token) return;
         setIsLoading(true);
         try {
-          // Fetch secara paralel agar lebih cepat
           const [walletRes, buyerRes, sellerRes] = await Promise.all([
             fetch(`http://${api_address}:3000/wallet`, { headers: { Authorization: `Bearer ${token}` } }),
             fetch(`http://${api_address}:3000/orders/report/buyer`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -73,8 +69,6 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      
-      {/* 1. KARTU PROFIL UTAMA */}
       <View style={styles.profileCard}>
         <View style={styles.avatarContainer}>
           <IconSymbol name="person.crop.circle.fill" size={80} color="#9CA3AF" />
@@ -88,7 +82,6 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      {/* 2. LAPORAN FINANSIAL DINAMIS (Level 4) */}
       <View style={styles.sectionHeaderRow}>
          <Text style={styles.sectionTitle}>Ringkasan Finansial</Text>
          {isLoading && <ActivityIndicator size="small" color="#1D4ED8" />}
@@ -96,7 +89,6 @@ export default function ProfileScreen() {
       
       <View style={styles.financialContainer}>
         
-        {/* Saldo Dompet Aktif */}
         <View style={styles.financialRow}>
           <View style={styles.financialIconWrapper}>
             <IconSymbol name="creditcard.fill" size={24} color="#10B981" />
@@ -105,17 +97,10 @@ export default function ProfileScreen() {
             <Text style={styles.financialLabel}>Saldo Dompet (Wallet)</Text>
             <Text style={styles.financialValue}>{formatRupiah(walletBalance)}</Text>
           </View>
-          <TouchableOpacity 
-            style={styles.topupButton}
-            onPress={() => activeRole === 'BUYER' ? router.push('/buyer/wallet') : Alert.alert('Info', 'Harap ganti peran aktif ke BUYER untuk top-up.')}
-          >
-            <Text style={styles.topupButtonText}>Top Up</Text>
-          </TouchableOpacity>
         </View>
         
         <View style={styles.divider} />
 
-        {/* Total Pengeluaran Pembeli */}
         <View style={styles.financialRow}>
           <View style={[styles.financialIconWrapper, { backgroundColor: '#FEE2E2' }]}>
             <IconSymbol name="arrow.up.right" size={24} color="#DC2626" />
@@ -128,7 +113,6 @@ export default function ProfileScreen() {
 
         <View style={styles.divider} />
 
-        {/* Total Pendapatan Kotor Penjual */}
         <View style={styles.financialRow}>
           <View style={[styles.financialIconWrapper, { backgroundColor: '#FEF3C7' }]}>
             <IconSymbol name="bag.fill" size={24} color="#D97706" />
@@ -145,7 +129,6 @@ export default function ProfileScreen() {
         *Angka di atas dihitung otomatis berdasarkan riwayat transaksi yang sah dan mengikat di seluruh peran Anda.
       </Text>
 
-      {/* 3. MENU PENGATURAN (KHUSUS BUYER & UMUM) */}
       <Text style={styles.sectionTitle}>Pengaturan Akun</Text>
       <View style={styles.menuContainer}>
         

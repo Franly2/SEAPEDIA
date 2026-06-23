@@ -1,9 +1,8 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable prettier/prettier */
 import { Controller, Post, Body, UseGuards, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard'; 
-import { GetUser } from '../auth/get-user.decorator'; 
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'; 
+import { GetUser } from '../auth/decorators/get-user.decorator'; 
 
 import { Role } from '@prisma/client';
 

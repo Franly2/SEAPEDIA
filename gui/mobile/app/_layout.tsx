@@ -17,7 +17,6 @@ export default function RootLayout() {
   useEffect(() => {
     if (isAuthLoading) return;
 
-    // === A. GUARD CLAUSE: STATUS LOGIN (GUEST VS USER) ===
     const privatePages = ['orders', 'profile', 'checkout', 'dashboard', 'seller', 'add-product', 'edit-product', 'buyer'];
     const isProtectedRoute = segments.some(segment => privatePages.includes(segment));
     
@@ -33,12 +32,9 @@ export default function RootLayout() {
       return;
     }
 
-    // === B. GUARD CLAUSE: ROLE-BASED ACCESS CONTROL (RBAC) ===
     if (token && activeRole) {
       
-      // Aturan ketat untuk SELLER
       if (activeRole === 'SELLER') {
-        // PERUBAHAN: Hapus 'orders' dari sini
         const sellerForbidden = ['index', 'cart', 'checkout', 'buyer'];
         
         const isForbiddenForSeller = segments.some(segment => sellerForbidden.includes(segment)) || pathname === '/';
@@ -49,7 +45,6 @@ export default function RootLayout() {
         }
       } 
       
-      // Aturan ketat untuk BUYER / DRIVER
       else if (activeRole === 'BUYER' || activeRole === 'DRIVER') {
         const buyerForbidden = ['seller', 'add-product', 'edit-product'];
         const isForbiddenForBuyer = segments.some(segment => buyerForbidden.includes(segment));

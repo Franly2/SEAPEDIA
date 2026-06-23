@@ -1,4 +1,3 @@
-// Lokasi file: components/ui/ProductGrid.tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useRouter } from 'expo-router';
 import React from 'react';
@@ -27,7 +26,6 @@ interface ProductGridProps {
   ListHeaderComponent?: React.ReactElement;
   emptyMessage?: string;
   storeOverride?: { name: string };
-  // TAMBAHAN: Fungsi kustom ketika produk diklik
   onProductPress?: (product: Product) => void;
 }
 
@@ -39,7 +37,7 @@ export function ProductGrid({
   ListHeaderComponent,
   emptyMessage = "Belum ada produk.",
   storeOverride,
-  onProductPress // Ambil prop ini
+  onProductPress 
 }: ProductGridProps) {
   const router = useRouter();
   const { width } = useWindowDimensions();

@@ -8,9 +8,7 @@ import { UpdateStoreDto } from './dto/update-store.dto';
 export class StoreService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // 1. POST /stores -> Membuat toko baru
   async createStore(userId: string, dto: CreateStoreDto) {
-    // Validasi A: Cek apakah pengguna sudah memiliki toko
     const existingUserStore = await this.prisma.store.findUnique({
       where: { ownerId: userId },
     });
@@ -19,7 +17,6 @@ export class StoreService {
       throw new ConflictException('Akun Anda sudah memiliki toko terdaftar. Satu pengguna hanya boleh memiliki satu toko.');
     }
 
-    // Validasi B: Cek keunikan nama toko di database
     const existingStoreName = await this.prisma.store.findUnique({
       where: { name: dto.name },
     });
@@ -28,7 +25,6 @@ export class StoreService {
       throw new ConflictException(`Nama toko "${dto.name}" sudah digunakan oleh penjual lain.`);
     }
 
-    // Simpan toko baru ke database
     return this.prisma.store.create({
       data: {
         name: dto.name,
@@ -37,12 +33,11 @@ export class StoreService {
     });
   }
 
-  // 2. GET /stores/my-store -> Mengambil profil toko milik user login
   async getMyStore(userId: string) {
     const store = await this.prisma.store.findUnique({
       where: { ownerId: userId },
       include: {
-        products: true, // Sekaligus mengambil daftar produk miliknya untuk dasbor seller nanti
+        products: true, 
       },
     });
 
@@ -53,9 +48,7 @@ export class StoreService {
     return store;
   }
 
-  // 3. PUT /stores/my-store -> Mengupdate nama toko
   async updateStore(userId: string, dto: UpdateStoreDto) {
-    // Cek apakah toko tersebut memang ada
     const store = await this.prisma.store.findUnique({
       where: { ownerId: userId },
     });
@@ -64,7 +57,6 @@ export class StoreService {
       throw new NotFoundException('Toko tidak ditemukan atau Anda bukan pemilik toko ini.');
     }
 
-    // Cek apakah nama baru sudah dipakai oleh toko lain (kecuali toko milik sendiri)
     if (store.name !== dto.name) {
       const nameTaken = await this.prisma.store.findUnique({
         where: { name: dto.name },
@@ -75,7 +67,6 @@ export class StoreService {
       }
     }
 
-    // Update nama toko
     return this.prisma.store.update({
       where: { ownerId: userId },
       data: { name: dto.name },

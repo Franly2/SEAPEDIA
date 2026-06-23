@@ -1,11 +1,9 @@
-// Lokasi file: app/(tabs)/seller.tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-// Import komponen ProductGrid yang sudah kita buat
 import { Product, ProductGrid } from '@/components/ui/ProductGrid';
 
 export default function SellerDashboardScreen() {
@@ -34,7 +32,6 @@ export default function SellerDashboardScreen() {
   const fetchMyStoreAndProducts = async () => {
     if (!token) return;
     try {
-      // 1. Ambil Data Toko
       const storeRes = await fetch(`http://${api_address}:3000/stores/my-store`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -44,7 +41,6 @@ export default function SellerDashboardScreen() {
         setStore(storeData);
         setEditStoreName(storeData.name);
 
-        // 2. Ambil Data Produk (Hanya produk milik penjual ini)
         const prodRes = await fetch(`http://${api_address}:3000/products/my-products`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -152,7 +148,6 @@ export default function SellerDashboardScreen() {
     }
   };
 
-  // --- 1. GUARD CLAUSE: Belum Login ---
   if (!token) {
     return (
       <View style={[styles.container, styles.center]}>
@@ -163,7 +158,6 @@ export default function SellerDashboardScreen() {
     );
   }
 
-  // --- 2. GUARD CLAUSE: Logika Upgrade Role ---
   if (activeRole !== 'SELLER') {
     const hasSellerRole = roles.includes('SELLER');
     return (
@@ -209,8 +203,6 @@ export default function SellerDashboardScreen() {
     );
   }
 
-  // === KOMPONEN HEADER UNTUK FLATLIT ===
-  // Ini menggantikan ScrollView yang lama
   const renderDashboardHeader = () => {
     if (!store) {
       return (
@@ -286,7 +278,6 @@ export default function SellerDashboardScreen() {
     );
   };
 
-  // --- 3. LAYAR UTAMA DASBOR ---
   return (
     <View style={styles.container}>
       <View style={styles.pageWrapper}>
@@ -303,7 +294,6 @@ export default function SellerDashboardScreen() {
             ListHeaderComponent={renderDashboardHeader()}
             emptyMessage="Toko kamu belum memiliki produk. Klik 'Tambah Produk' untuk mulai berjualan."
             storeOverride={{ name: store.name }}
-            // TAMBAHAN BARU:
             onProductPress={(product) => router.push(`/seller/edit-product/${product.id}`)}
           />
         )}
@@ -317,7 +307,7 @@ const styles = StyleSheet.create({
   pageWrapper: { 
     flex: 1, 
     width: '100%', 
-    maxWidth: 800, // Sedikit dilebarkan untuk grid produk
+    maxWidth: 800,
     alignSelf: 'center',
     paddingHorizontal: 20,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,

@@ -7,11 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ==========================================
 // LEVEL 1: Authentication & Multi-Role
-// ==========================================
 
-// Satu user bisa memiliki banyak role di dalam array
 enum Role {
   ADMIN
   SELLER
@@ -24,7 +21,7 @@ model User {
   username     String   @unique
   password     String
   fullName     String?
-  roles        Role[]   @default([BUYER]) // PostgreSQL mendukung array enum
+  roles        Role[]   @default([BUYER]) 
   walletBalance Int     @default(0)
   
   // Relasi
@@ -56,9 +53,7 @@ model AppReview {
 }
 
 
-// ==========================================
 // LEVEL 2: Seller Experience & Catalog
-// ==========================================
 
 model Store {
   id          String    @id @default(uuid())
@@ -93,9 +88,7 @@ model Product {
 }
 
 
-// ==========================================
 // LEVEL 3: Buyer Wallet, Cart & Checkout
-// ==========================================
 
 model Address {
   id          String   @id @default(uuid())
@@ -138,9 +131,7 @@ model CartItem {
 }
 
 
-// ==========================================
 // LEVEL 4 & 5: Order, Status History, & Delivery
-// ==========================================
 
 // Status Pesanan Wajib sesuai dokumen SEAPEDIA
 enum OrderStatus {
@@ -225,9 +216,7 @@ model DeliveryJob {
 }
 
 
-// ==========================================
 // LEVEL 4 & 6: Discounts (Voucher & Promo)
-// ==========================================
 
 model Voucher {
   id             String   @id @default(uuid())

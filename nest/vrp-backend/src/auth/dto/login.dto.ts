@@ -1,15 +1,16 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable prettier/prettier */
-
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Role } from '@prisma/client';
 
 export class LoginUserDto {
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
   username!: string;
 
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
   password!: string;
+
+  @IsOptional()
+  activeRole?: Role; 
 }

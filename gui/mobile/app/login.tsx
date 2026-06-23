@@ -29,8 +29,8 @@ export default function LoginScreen() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   
-  // State untuk menahan data jika user harus memilih role
   const [pendingRoleData, setPendingRoleData] = useState<any>(null);
+  const [isSwitchingRole, setIsSwitchingRole] = useState(false);
 
   async function handleLogin() {
     if (!username || !password) {
@@ -52,12 +52,9 @@ export default function LoginScreen() {
       const data = await response.json();
 
       if (response.ok) {
-        // Cek jumlah role
         if (data.roles && data.roles.length > 1) {
-          // Tahan! Minta user memilih active role terlebih dahulu
           setPendingRoleData(data);
         } else {
-          // Hanya punya 1 role (atau tidak ada role, set fallback ke BUYER)
           const defaultRole = data.roles?.[0] || 'BUYER';
           executeFinalLogin(data, defaultRole);
         }
@@ -71,7 +68,34 @@ export default function LoginScreen() {
     }
   }
 
-  // Fungsi untuk mengeksekusi login final setelah peran dipilih/ditentukan
+  async function handleRoleSelection(selectedRole: string) {
+    setIsSwitchingRole(true);
+    setErrorMessage('');
+
+    try {
+      const response = await fetch(`http://${api_address}:3000/auth/switch-role`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${pendingRoleData.access_token}` 
+        },
+        body: JSON.stringify({ role: selectedRole }),
+      });
+
+      const newData = await response.json();
+
+      if (response.ok) {
+        executeFinalLogin(newData, selectedRole);
+      } else {
+        setErrorMessage(newData.message || 'Gagal mengubah peran aktif.');
+      }
+    } catch (error) {
+      setErrorMessage('Gagal terhubung ke server saat memilih peran.');
+    } finally {
+      setIsSwitchingRole(false);
+    }
+  }
+
   function executeFinalLogin(data: any, selectedRole: string) {
     setSuccessMessage(`Masuk sebagai ${selectedRole}`);
     login(data.access_token, data.roles, selectedRole, data.username, data.fullName);
@@ -85,7 +109,6 @@ export default function LoginScreen() {
     router.replace('/(tabs)');
   }
 
-  // --- KOMPONEN PEMILIHAN PERAN (ACTIVE ROLE) ---
   if (pendingRoleData) {
     return (
       <ThemedView style={styles.container}>
@@ -96,16 +119,27 @@ export default function LoginScreen() {
             Akun ini memiliki beberapa peran aktif. Silakan pilih peran yang ingin kamu gunakan di sesi ini.
           </ThemedText>
 
-          {pendingRoleData.roles.map((role: string) => (
-            <TouchableOpacity 
-              key={role}
-              style={[styles.loginButton, { backgroundColor: primaryColor, width: '100%', marginBottom: 12 }]} 
-              onPress={() => executeFinalLogin(pendingRoleData, role)} 
-              activeOpacity={0.8}
-            >
-              <ThemedText style={styles.loginButtonText}>Masuk sebagai {role}</ThemedText>
-            </TouchableOpacity>
-          ))}
+          {errorMessage ? (
+            <View style={[styles.errorContainer, { width: '100%' }]}>
+              <ThemedText style={styles.errorText}>{errorMessage}</ThemedText>
+            </View>
+          ) : null}
+
+          {isSwitchingRole ? (
+            <ActivityIndicator size="large" color={primaryColor} style={{ marginTop: 20 }} />
+          ) : (
+            pendingRoleData.roles.map((role: string) => (
+              <TouchableOpacity 
+                key={role}
+                style={[styles.loginButton, { backgroundColor: primaryColor, width: '100%', marginBottom: 12 }]} 
+                onPress={() => handleRoleSelection(role)} 
+                activeOpacity={0.8}
+                disabled={successMessage !== ''}
+              >
+                <ThemedText style={styles.loginButtonText}>Masuk sebagai {role}</ThemedText>
+              </TouchableOpacity>
+            ))
+          )}
 
           {successMessage ? (
             <View style={[styles.successContainer, { width: '100%', marginTop: 20 }]}>

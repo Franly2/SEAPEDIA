@@ -1,4 +1,3 @@
-// Lokasi file: app/(tabs)/orders.tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
 import { useFocusEffect } from 'expo-router';
@@ -13,7 +12,6 @@ export default function OrdersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null); 
   
-  // State BARU untuk melacak kartu pesanan mana yang sedang dibuka (Expand)
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   const fetchOrders = async () => {
@@ -74,7 +72,6 @@ export default function OrdersScreen() {
   };
 
   const toggleExpand = (id: string) => {
-    // Jika kartu yang diklik sudah terbuka, tutup. Jika beda, buka kartu tersebut.
     setExpandedOrderId(prev => prev === id ? null : id);
   };
 
@@ -115,7 +112,6 @@ export default function OrdersScreen() {
           const isExpanded = expandedOrderId === item.id;
 
           return (
-            // Gunakan TouchableOpacity agar seluruh kartu bisa diklik
             <TouchableOpacity 
               activeOpacity={0.9} 
               onPress={() => toggleExpand(item.id)} 
@@ -136,26 +132,22 @@ export default function OrdersScreen() {
                   <View style={styles.statusBadge}>
                     <Text style={styles.statusText}>{item.status.replace(/_/g, ' ')}</Text>
                   </View>
-                  {/* Ikon panah indikator buka/tutup */}
                   <IconSymbol name={isExpanded ? "chevron.up" : "chevron.down"} size={16} color="#9CA3AF" />
                 </View>
               </View>
 
               <View style={styles.divider} />
               
-              {/* Tampilan Produk Ringkas */}
               {item.items.map((orderItem: any) => (
                 <Text key={orderItem.id} style={styles.itemName}>
                   • {orderItem.quantity}x {orderItem.product.name}
                 </Text>
               ))}
 
-              {/* === KONTEN DETAIL YANG BISA DIBUKA/TUTUP (ACCORDION) === */}
               {isExpanded && (
                 <View style={styles.expandedContainer}>
                   <View style={styles.divider} />
                   
-                  {/* Info Pengiriman (Penting untuk Penjual) */}
                   <Text style={styles.detailTitle}>Informasi Pengiriman</Text>
                   <View style={styles.detailBox}>
                     <Text style={styles.detailLabel}>Penerima:</Text>
@@ -168,7 +160,6 @@ export default function OrdersScreen() {
                     <Text style={styles.detailValue}>{item.deliveryMethod.replace('_', ' ')}</Text>
                   </View>
 
-                  {/* Rincian Finansial (Sesuai Aturan Level 4) */}
                   <Text style={styles.detailTitle}>Rincian Pembayaran</Text>
                   <View style={styles.detailBox}>
                     <View style={styles.breakdownRow}>
@@ -192,7 +183,6 @@ export default function OrdersScreen() {
                   </View>
                 </View>
               )}
-              {/* === AKHIR KONTEN DETAIL === */}
 
               <View style={styles.divider} />
               
@@ -203,11 +193,9 @@ export default function OrdersScreen() {
                 <Text style={styles.totalValue}>{formatRupiah(item.finalTotal)}</Text>
               </View>
 
-              {/* TOMBOL AKSI SELLER */}
               {!isBuyer && item.status === 'SEDANG_DIKEMAS' && (
                 <TouchableOpacity 
                   style={[styles.processButton, processingId === item.id && { opacity: 0.7 }]}
-                  // Gunakan stopPropagation atau bungkus di dalam function agar klik tombol tidak memicu toggle buka/tutup kartu
                   onPress={(e) => {
                     e.stopPropagation(); 
                     handleProcessOrder(item.id);
@@ -248,14 +236,12 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 12 }, 
   itemName: { fontSize: 13, color: '#4B5563', marginBottom: 4 },
   
-  // GAYA BARU UNTUK DETAIL PESANAN
   expandedContainer: { marginTop: 4 },
   detailTitle: { fontSize: 13, fontWeight: 'bold', color: '#374151', marginBottom: 8 },
   detailBox: { backgroundColor: '#F9FAFB', padding: 12, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: '#F3F4F6' },
   detailLabel: { fontSize: 11, color: '#6B7280', marginBottom: 2 },
   detailValue: { fontSize: 13, color: '#1F2937', fontWeight: '500', marginBottom: 8 },
   
-  // GAYA RINCIAN BIAYA
   breakdownRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
   breakdownLabel: { fontSize: 12, color: '#6B7280' },
   breakdownValue: { fontSize: 12, color: '#374151', fontWeight: '500' },

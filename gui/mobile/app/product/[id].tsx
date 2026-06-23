@@ -1,4 +1,3 @@
-// Lokasi file: app/product/[id].tsx
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -23,7 +22,7 @@ interface Product {
 export default function ProductDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams(); 
-  const { token, activeRole } = useAuthStore(); // Ambil token dan peran dari state
+  const { token, activeRole } = useAuthStore(); 
   const api_address = process.env.EXPO_PUBLIC_API_IP_ADDRESS;
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -54,7 +53,6 @@ export default function ProductDetailScreen() {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
   };
 
-  // === FUNGSI TAMBAH KE KERANJANG (SINGLE STORE RULE) ===
   const handleAddToCart = async () => {
     if (!token || activeRole !== 'BUYER') {
       const msg = !token 
@@ -80,7 +78,7 @@ export default function ProductDetailScreen() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ productId: product!.id, quantity: 1 }), // Default tambah 1
+        body: JSON.stringify({ productId: product!.id, quantity: 1 }), 
       });
 
       const data = await response.json();
@@ -88,19 +86,16 @@ export default function ProductDetailScreen() {
       if (response.ok) {
         if (Platform.OS === 'web') window.alert('Produk berhasil ditambahkan ke keranjang!');
         else Alert.alert('Sukses', 'Produk berhasil ditambahkan ke keranjang!');
-        router.push('/cart'); // Lempar pembeli ke keranjang setelah berhasil
+        router.push('/cart');
       } 
-      // === PENANGANAN KONFLIK TOKO ===
       else if (response.status === 409 && data.code === 'SINGLE_STORE_VIOLATION') {
         const clearAndAdd = async () => {
           setIsAddingToCart(true);
-          // 1. Bersihkan keranjang
           await fetch(`http://${api_address}:3000/cart/clear`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` }
           });
-          // 2. Tambahkan ulang produk ini (Rekursif ringan)
-          setIsAddingToCart(false); // Reset state loading sebelum re-trigger
+          setIsAddingToCart(false); 
           handleAddToCart(); 
         };
 
@@ -120,7 +115,6 @@ export default function ProductDetailScreen() {
         }
       } 
       else {
-        // Error umum (misal: stok tidak cukup)
         if (Platform.OS === 'web') window.alert(data.message || 'Gagal menambahkan produk.');
         else Alert.alert('Gagal', data.message || 'Gagal menambahkan produk.');
         setIsAddingToCart(false);
@@ -154,7 +148,6 @@ export default function ProductDetailScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header Statis */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <IconSymbol name="chevron.left" size={24} color="#1F2937" />
@@ -166,7 +159,6 @@ export default function ProductDetailScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.contentWrapper}>
           
-          {/* Gambar Produk */}
           <View style={styles.imageContainer}>
             {product.imageUrl ? (
               <Image source={{ uri: product.imageUrl }} style={styles.productImage} />
@@ -177,7 +169,6 @@ export default function ProductDetailScreen() {
             )}
           </View>
 
-          {/* Info Utama Produk */}
           <View style={styles.infoSection}>
             <Text style={styles.productPrice}>{formatRupiah(product.price)}</Text>
             <Text style={styles.productName}>{product.name}</Text>
@@ -185,7 +176,6 @@ export default function ProductDetailScreen() {
 
           <View style={styles.divider} />
 
-          {/* Info Toko & Stok */}
           <View style={styles.metaSection}>
             <View style={styles.storeBadge}>
               <IconSymbol name="building.2.fill" size={16} color="#4B5563" />
@@ -198,7 +188,6 @@ export default function ProductDetailScreen() {
 
           <View style={styles.divider} />
 
-          {/* Deskripsi Produk */}
           <View style={styles.descriptionSection}>
             <Text style={styles.sectionTitle}>Deskripsi Produk</Text>
             <Text style={styles.productDescription}>{product.description}</Text>
@@ -207,7 +196,6 @@ export default function ProductDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Bottom Bar Dinamis */}
       <View style={styles.bottomBar}>
         <View style={styles.bottomBarContent}>
           <TouchableOpacity 
@@ -237,7 +225,6 @@ export default function ProductDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  // Gaya persis sama, hanya sedikit perubahan nama di Bottom Bar
   container: { flex: 1, backgroundColor: '#F9FAFB' },
   center: { justifyContent: 'center', alignItems: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 16, backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: '#E5E7EB', zIndex: 10 },
@@ -264,7 +251,6 @@ const styles = StyleSheet.create({
   bottomBar: { position: 'absolute', bottom: 0, width: '100%', backgroundColor: '#FFF', borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingVertical: 16, paddingHorizontal: 20 },
   bottomBarContent: { width: '100%', maxWidth: 600, alignSelf: 'center' },
   
-  // Perubahan nama class dummyButton -> actionButton
   actionButton: { backgroundColor: '#10B981', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 14, borderRadius: 12 },
   actionButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold', marginLeft: 8 },
   

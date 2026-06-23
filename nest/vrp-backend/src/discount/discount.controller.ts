@@ -2,33 +2,36 @@
 import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { DiscountService } from './discount.service';
 import { CreateVoucherDto, CreatePromoDto, ValidateDiscountDto } from './dto/discount.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('discount')
-@UseGuards(JwtAuthGuard) // Melindungi semua rute agar hanya pengguna terdaftar yang bisa mengakses
+@UseGuards(JwtAuthGuard, RolesGuard) 
 export class DiscountController {
   constructor(private readonly discountService: DiscountService) {}
 
-  // POST /discount/voucher (Idealnya ini dilindungi RoleGuard khusus ADMIN)
   @Post('voucher')
+  @Roles(Role.ADMIN)
   async createVoucher(@Body() dto: CreateVoucherDto) {
     return this.discountService.createVoucher(dto);
   }
 
-  // POST /discount/promo (Idealnya ini dilindungi RoleGuard khusus ADMIN)
   @Post('promo')
+  @Roles(Role.ADMIN)
   async createPromo(@Body() dto: CreatePromoDto) {
     return this.discountService.createPromo(dto);
   }
 
-  // GET /discount -> Melihat daftar semua diskon yang ada
   @Get()
+  @Roles(Role.ADMIN)
   async getAllDiscounts() {
     return this.discountService.getAllDiscounts();
   }
 
-  // POST /discount/validate -> Dipanggil oleh Buyer saat memasukkan kode di halaman Checkout
   @Post('validate')
+  @Roles(Role.BUYER)
   async validateCode(@Body() dto: ValidateDiscountDto) {
     return this.discountService.validateCode(dto.code);
   }

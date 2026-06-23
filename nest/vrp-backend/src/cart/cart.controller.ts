@@ -2,11 +2,15 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AddToCartDto, UpdateCartDto } from './dto/cart.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { GetUser } from '../auth/get-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard'; 
+import { Roles } from '../auth/decorators/roles.decorator'; 
+import { Role } from '@prisma/client'; 
+import { GetUser } from '../auth/decorators/get-user.decorator';
 
 @Controller('cart')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.BUYER)
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
@@ -29,7 +33,7 @@ export class CartController {
     return this.cartService.updateQuantity(userId, id, dto.quantity);
   }
 
-  @Delete('clear') // Harus ditaruh di atas rute ':id' agar tidak dianggap parameter ID
+  @Delete('clear') 
   async clearCart(@GetUser('userId') userId: string) {
     return this.cartService.clearCart(userId);
   }

@@ -8,9 +8,6 @@ import { OrderStatus, DeliveryMethod, TransactionType } from '@prisma/client';
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // =====================================
-  // 1. FUNGSI RAKSASA: PROSES CHECKOUT
-  // =====================================
   async checkout(buyerId: string, dto: CheckoutDto) {
     const cartItems = await this.prisma.cartItem.findMany({
       where: { userId: buyerId },
@@ -128,12 +125,7 @@ export class OrdersService {
     });
   }
 
-  // =====================================
-  // 2. RIWAYAT PESANAN PEMBELI (BUYER)
-  // =====================================
-  // =====================================
-  // 2. RIWAYAT PESANAN PEMBELI (BUYER)
-  // =====================================
+  // RIWAYAT PESANAN PEMBELI (BUYER)
   async getBuyerOrders(buyerId: string) {
     return this.prisma.order.findMany({
       where: { buyerId },
@@ -146,9 +138,7 @@ export class OrdersService {
     });
   }
 
-  // =====================================
-  // 3. PESANAN MASUK TOKO (SELLER)
-  // =====================================
+  // PESANAN MASUK TOKO (SELLER)
   async getStoreOrders(sellerId: string) {
     const store = await this.prisma.store.findUnique({ where: { ownerId: sellerId } });
     if (!store) return [];
@@ -164,17 +154,13 @@ export class OrdersService {
     });
   }
 
-  // =====================================
-  // 4. SELLER: PROSES PESANAN MASUK
-  // =====================================
+  // SELLER: PROSES PESANAN MASUK
   async processOrder(sellerId: string, orderId: string) {
-    // 1. Cari pesanan dan sertakan data toko untuk mengecek kepemilikan
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: { store: true },
     });
 
-    // 2. Validasi Keamanan & Status
     if (!order) throw new NotFoundException('Pesanan tidak ditemukan.');
     if (order.store.ownerId !== sellerId) {
       throw new ForbiddenException('Akses ditolak. Anda bukan pemilik toko ini.');
@@ -183,7 +169,6 @@ export class OrdersService {
       throw new BadRequestException('Pesanan ini sudah diproses atau dibatalkan.');
     }
 
-    // 3. Perbarui Status dan Catat Riwayat Waktu (Nested Writes)
     return this.prisma.order.update({
       where: { id: orderId },
       data: {
@@ -194,11 +179,8 @@ export class OrdersService {
       },
     });
   }
-  // =====================================
-  // 5. LAPORAN FINANSIAL (LEVEL 4)
-  // =====================================
+  // LAPORAN FINANSIAL (LEVEL 4)
   async getBuyerReport(buyerId: string) {
-    // Ambil pesanan milik buyer, kecualikan yang berstatus DIKEMBALIKAN
     const orders = await this.prisma.order.findMany({ 
       where: { 
         buyerId: buyerId,
@@ -218,7 +200,6 @@ export class OrdersService {
 
     const orders = await this.prisma.order.findMany({ where: { storeId: store.id } });
     
-    // Logika Bisnis: Pendapatan toko = subtotal (harga murni barang). PPN dan Ongkir bukan hak toko.
     const totalPendapatan = orders.reduce((sum, order) => sum + order.subtotal, 0);
     return { totalOrders: orders.length, totalPendapatan };
   }

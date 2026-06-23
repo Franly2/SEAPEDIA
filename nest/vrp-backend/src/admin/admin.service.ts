@@ -6,52 +6,6 @@ import { OrderStatus, DeliveryMethod, TransactionType } from '@prisma/client';
 @Injectable()
 export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
-
-  // =====================================
-  // 1. STATISTIK DASBOR ADMIN
-  // =====================================
-//   async getDashboardStats() {
-//     const [
-//       totalUsers,
-//       totalStores,
-//       totalProducts,
-//       totalOrders,
-//       totalVouchers,
-//       totalPromos,
-//       ordersDikemas,
-//       ordersMenungguPengirim,
-//       ordersSedangDikirim,
-//     ] = await Promise.all([
-//       this.prisma.user.count(),
-//       this.prisma.store.count(),
-//       this.prisma.product.count(),
-//       this.prisma.order.count(),
-//       this.prisma.voucher.count(),
-//       this.prisma.promo.count(),
-//       this.prisma.order.count({ where: { status: OrderStatus.SEDANG_DIKEMAS } }),
-//       this.prisma.order.count({ where: { status: OrderStatus.MENUNGGU_PENGIRIM } }),
-//       this.prisma.order.count({ where: { status: OrderStatus.SEDANG_DIKIRIM } }),
-//     ]);
-
-//     return {
-//       totals: {
-//         users: totalUsers,
-//         stores: totalStores,
-//         products: totalProducts,
-//         orders: totalOrders,
-//         vouchers: totalVouchers,
-//         promos: totalPromos,
-//       },
-//       activeOrders: {
-//         dikemas: ordersDikemas,
-//         menungguKurir: ordersMenungguPengirim,
-//         dalamPerjalanan: ordersSedangDikirim,
-//       },
-//     };
-//   }
-// =====================================
-  // 1. STATISTIK DASBOR ADMIN (UPDATED FULL LEVEL 6)
-  // =====================================
   async getDashboardStats() {
     const [
       totalUsers,
@@ -60,11 +14,11 @@ export class AdminService {
       totalOrders,
       totalVouchers,
       totalPromos,
-      totalDeliveryJobs, // TAMBAHAN 1
+      totalDeliveryJobs, 
       ordersDikemas,
       ordersMenungguPengirim,
       ordersSedangDikirim,
-      ordersOverdue, // TAMBAHAN 2
+      ordersOverdue,
     ] = await Promise.all([
       this.prisma.user.count(),
       this.prisma.store.count(),
@@ -72,11 +26,11 @@ export class AdminService {
       this.prisma.order.count(),
       this.prisma.voucher.count(),
       this.prisma.promo.count(),
-      this.prisma.deliveryJob.count(), // Menghitung total pengiriman kurir
+      this.prisma.deliveryJob.count(), 
       this.prisma.order.count({ where: { status: OrderStatus.SEDANG_DIKEMAS } }),
       this.prisma.order.count({ where: { status: OrderStatus.MENUNGGU_PENGIRIM } }),
       this.prisma.order.count({ where: { status: OrderStatus.SEDANG_DIKIRIM } }),
-      this.prisma.order.count({ where: { status: OrderStatus.DIKEMBALIKAN } }), // Menghitung pesanan Overdue/Refunded
+      this.prisma.order.count({ where: { status: OrderStatus.DIKEMBALIKAN } }), 
     ]);
 
     return {
@@ -87,8 +41,8 @@ export class AdminService {
         orders: totalOrders,
         vouchers: totalVouchers,
         promos: totalPromos,
-        deliveryJobs: totalDeliveryJobs, // Dimasukkan ke payload
-        overdueOrders: ordersOverdue,    // Dimasukkan ke payload
+        deliveryJobs: totalDeliveryJobs,
+        overdueOrders: ordersOverdue,   
       },
       activeOrders: {
         dikemas: ordersDikemas,
@@ -98,9 +52,6 @@ export class AdminService {
     };
   }
 
-  // =====================================
-  // 2. MANAJEMEN VOUCHER
-  // =====================================
   async getVouchers() {
     return this.prisma.voucher.findMany({
       orderBy: { createdAt: 'desc' },
@@ -121,9 +72,6 @@ export class AdminService {
     });
   }
 
-  // =====================================
-  // 3. MANAJEMEN PROMO
-  // =====================================
   async getPromos() {
     return this.prisma.promo.findMany({
       orderBy: { createdAt: 'desc' },
@@ -143,11 +91,7 @@ export class AdminService {
     });
   }
 
-  // =====================================
-  // 4. MESIN WAKTU: SIMULASI MAJU 1 HARI
-  // =====================================
   async simulateNextDay() {
-    // Cari semua pesanan yang belum selesai (masih dalam siklus aktif)
     const activeOrders = await this.prisma.order.findMany({
       where: {
         status: {
@@ -156,7 +100,6 @@ export class AdminService {
       }
     });
 
-    // Mundurkan waktu pembuatan pesanan (createdAt) sebesar 24 jam agar berumur lebih tua
     for (const order of activeOrders) {
       const simulatedPastDate = new Date(order.createdAt);
       simulatedPastDate.setDate(simulatedPastDate.getDate() - 1);
@@ -170,11 +113,7 @@ export class AdminService {
     return { message: 'Simulasi berhasil! Umur pesanan aktif telah dimajukan 1 hari lebih tua.' };
   }
 
-  // =====================================
-  // 5. OVERDUE ENGINE: PROSES REFUND & SLA
-  // =====================================
   async triggerOverdueHandling() {
-    // Ambil pesanan telat yang masih tertahan di tangan Seller (belum diambil kurir)
     const ordersToCheck = await this.prisma.order.findMany({
       where: {
         status: { in: [OrderStatus.SEDANG_DIKEMAS, OrderStatus.MENUNGGU_PENGIRIM] }
@@ -189,20 +128,16 @@ export class AdminService {
       const timeDifferenceMs = now.getTime() - order.createdAt.getTime();
       const hoursPassed = timeDifferenceMs / (1000 * 60 * 60);
 
-      // Aturan Bisnis SLA: Instant = 24 jam, Next Day = 48 jam, Regular = 72 jam
       let isOverdue = false;
       if (order.deliveryMethod === DeliveryMethod.INSTANT && hoursPassed >= 24) isOverdue = true;
       if (order.deliveryMethod === DeliveryMethod.NEXT_DAY && hoursPassed >= 48) isOverdue = true;
       if (order.deliveryMethod === DeliveryMethod.REGULAR && hoursPassed >= 72) isOverdue = true;
 
       if (isOverdue) {
-        // Eksekusi pemulihan data atomik dengan ACID Transaction
         await this.prisma.$transaction(async (tx) => {
-          // Guard Clause: Re-verifikasi status menghindari double-refund akibat klik ganda
           const freshOrder = await tx.order.findUnique({ where: { id: order.id } });
           if (!freshOrder || freshOrder.status === OrderStatus.DIKEMBALIKAN) return;
 
-          // A. Update Status Utama Pesanan ke DIKEMBALIKAN
           await tx.order.update({
             where: { id: order.id },
             data: {
@@ -213,32 +148,19 @@ export class AdminService {
             }
           });
 
-          // B. Kembalikan Dana (Refund) Utuh ke Dompet Buyer
           await tx.user.update({
             where: { id: order.buyerId },
             data: { walletBalance: { increment: order.finalTotal } }
           });
-          // C. Catat Log Transaksi Refund di Ledger Buku Besar
           await tx.walletTransaction.create({
             data: {
               userId: order.buyerId,
               amount: order.finalTotal,
-              type: TransactionType.REFUND, // <--- UBAH DARI PAYMENT MENJADI REFUND
+              type: TransactionType.REFUND, 
               description: `Refund Otomatis (SLA Overdue) Pesanan #${order.id.slice(-6).toUpperCase()}`
             }
           });
 
-        //   // C. Catat Log Transaksi Refund di Ledger Buku Besar
-        //   await tx.walletTransaction.create({
-        //     data: {
-        //       userId: order.buyerId,
-        //       amount: order.finalTotal,
-        //       type: TransactionType.PAYMENT, // Gunakan PAYMENT/REFUND sesuai enum ledger dompet pembeli Anda
-        //       description: `Refund Otomatis (SLA Overdue) Pesanan #${order.id.slice(-6).toUpperCase()}`
-        //     }
-        //   });
-
-          // D. Kembalikan Stok Barang Milik Penjual
           for (const item of order.items) {
             await tx.product.update({
               where: { id: item.productId },

@@ -1,4 +1,4 @@
-// Lokasi file: app/(tabs)/index.tsx
+
 import { Product, ProductGrid } from '@/components/ui/ProductGrid';
 import { useAuthStore } from '@/store/authStore';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -74,21 +74,14 @@ export default function HomeScreen() {
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
-      <Text style={styles.title}>Beranda SEAPEDIA</Text>
+      <Text style={styles.title}>SEAPEDIA</Text>
       
       {token ? (
-        <View style={styles.card}>
           <Text style={styles.text}>Halo, <Text style={styles.bold}>{fullName}</Text>!</Text>
-          <Text style={styles.text}>Username: {username}</Text>
-          <Text style={styles.text}>Peran Aktif: <Text style={styles.bold}>{activeRole}</Text></Text>
-        </View>
       ) : (
-        <View style={styles.card}>
-          <Text style={styles.text}>Halo, <Text style={styles.bold}>Pengunjung</Text>!</Text>
-          <Text style={styles.text}>Selamat datang di SEAPEDIA.</Text>
-          <Text style={styles.text}>Silakan jelajahi katalog produk kami secara bebas.</Text>
-        </View>
+        null
       )}
+      
 
       <View style={[styles.reviewBanner, hasReviewed && styles.reviewBannerSuccess]}>
         {hasReviewed ? (

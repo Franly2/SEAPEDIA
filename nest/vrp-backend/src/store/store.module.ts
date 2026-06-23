@@ -9,6 +9,6 @@ import { PrismaModule } from 'prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [StoreController],
   providers: [StoreService],
-  exports: [StoreService], // Diekspor jika module lain butuh validasi relasi store
+  exports: [StoreService], 
 })
 export class StoreModule {}

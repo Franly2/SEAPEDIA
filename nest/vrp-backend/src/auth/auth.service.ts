@@ -1,10 +1,7 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable prettier/prettier */
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -20,6 +17,7 @@ import { RegisterUserDto } from './dto/register.dto';
 export interface LoginResponse {
   access_token: string;
   roles: Role[]; 
+  activeRole: Role;
   username: string;
   fullName: string | null;
 }
@@ -49,7 +47,7 @@ export class AuthService {
           username,
           password: hashedPassword,
           fullName,
-          roles: [Role.BUYER], // Default: Pendaftar baru selalu mulai sebagai BUYER
+          roles: [Role.BUYER],
         },
       });
 
@@ -61,7 +59,6 @@ export class AuthService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          // Username diset @unique secara global di skema baru
           throw new ConflictException('Username sudah terpakai di SEAPEDIA');
         }
       }
@@ -71,9 +68,8 @@ export class AuthService {
   }
 
   async login(data: LoginUserDto): Promise<LoginResponse> {
-    const { username, password } = data;
+    const { username, password, activeRole } = data;
 
-    // Cari user hanya berdasarkan username (tanpa mempedulikan perusahaan)
     const user = await this.prisma.user.findUnique({
       where: { username },
     });
@@ -88,11 +84,17 @@ export class AuthService {
       throw new UnauthorizedException('Password salah');
     }
 
-    // Payload JWT sekarang membawa array 'roles'
+    const selectedRole = activeRole || user.roles[0];
+
+    if (!user.roles.includes(selectedRole)) {
+      throw new ForbiddenException(`Akses ditolak: Anda tidak memiliki peran ${selectedRole}`);
+    }
+
     const payload = {
       sub: user.id,
       username: user.username,
       roles: user.roles,
+      activeRole: selectedRole, 
     };
 
     const token = await this.jwtService.signAsync(payload);
@@ -100,10 +102,12 @@ export class AuthService {
     return {
       access_token: token,
       roles: user.roles,
+      activeRole: selectedRole,
       username: user.username,
       fullName: user.fullName,
     };
   }
+
   async addRoleToUser(userId: string, newRole: Role) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
@@ -111,12 +115,10 @@ export class AuthService {
       throw new NotFoundException('Pengguna tidak ditemukan.');
     }
 
-    // Cek apakah peran sudah ada
     if (user.roles.includes(newRole)) {
       throw new ConflictException(`Anda sudah memiliki peran ${newRole}.`);
     }
 
-    // Tambahkan peran baru ke dalam array yang sudah ada
     const updatedRoles = [...user.roles, newRole];
 
     const updatedUser = await this.prisma.user.update({
@@ -127,6 +129,33 @@ export class AuthService {
     return {
       message: `Peran ${newRole} berhasil ditambahkan.`,
       roles: updatedUser.roles,
+    };
+  }
+
+  //  Untuk pindah dashboard tanpa perlu password ulang
+  async switchRole(userId: string, newRole: Role): Promise<LoginResponse> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Pengguna tidak ditemukan');
+
+    if (!user.roles.includes(newRole)) {
+      throw new ForbiddenException(`Akses ditolak: Anda tidak memiliki peran ${newRole}`);
+    }
+
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      roles: user.roles,
+      activeRole: newRole,
+    };
+
+    const token = await this.jwtService.signAsync(payload);
+
+    return {
+      access_token: token,
+      roles: user.roles,
+      activeRole: newRole,
+      username: user.username,
+      fullName: user.fullName,
     };
   }
 }

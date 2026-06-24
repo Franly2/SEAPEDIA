@@ -17,10 +17,11 @@ SEAPEDIA adalah solusi e-commerce terukur yang berfokus pada efisiensi logistik 
 
 ## ☁️ Cloud Deployment & Infrastructure
 
-Sistem backend dan database SEAPEDIA telah di-*deploy* ke lingkungan *cloud production* untuk memastikan aksesibilitas, skalabilitas, dan performa yang optimal di dunia nyata:
+Keseluruhan ekosistem SEAPEDIA telah di-*deploy* ke lingkungan *cloud production* untuk memastikan aksesibilitas, skalabilitas, dan performa yang optimal di dunia nyata:
 
 * **Database (Neon):** Menggunakan infrastruktur PostgreSQL berbasis *serverless* dari **Neon DB**. Memastikan koneksi database yang cepat, aman, dan efisien dengan integrasi *Connection Pooling*.
 * **Backend API (Railway):** Server NestJS berjalan secara *live* di **Railway**. Proses *deployment* terintegrasi secara langsung menggunakan CI/CD dari repositori GitHub, lengkap dengan injeksi *Environment Variables* dan proteksi CORS yang ketat.
+* **Frontend Web (Vercel):** Aplikasi klien (React Native for Web) di-*hosting* menggunakan **Vercel**. Terintegrasi penuh dengan CI/CD GitHub untuk eksekusi otomatis (`npx expo export`), mendistribusikan aset antarmuka secara global melalui jaringan CDN yang super cepat.
 
 ---
 
@@ -169,5 +170,7 @@ Penting untuk dicatat bahwa SEAPEDIA mematuhi aturan bisnis yang ketat dalam pen
 * **Universitas:** Universitas Surabaya (Ubaya)
 
 Proyek ini dikembangkan secara bertahap sebagai bagian dari tantangan pengembangan perangkat lunak COMPFEST 2026.
+
+```
 
 ```

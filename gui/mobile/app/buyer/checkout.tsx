@@ -41,9 +41,9 @@ export default function CheckoutScreen() {
   const fetchCheckoutData = async () => {
     try {
       const [cartRes, addrRes, walletRes] = await Promise.all([
-        fetch(`http://${api_address}/cart`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`http://${api_address}/addresses`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`http://${api_address}/wallet`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${api_address}/cart`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${api_address}/addresses`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${api_address}/wallet`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
       const [cart, addr, wallet] = await Promise.all([cartRes.json(), addrRes.json(), walletRes.json()]);
@@ -72,7 +72,7 @@ export default function CheckoutScreen() {
     setIsValidatingDiscount(true);
 
     try {
-      const res = await fetch(`http://${api_address}/discount/validate`, {
+      const res = await fetch(`${api_address}/discount/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ code: discountInput.trim().toUpperCase() }),
@@ -124,7 +124,7 @@ export default function CheckoutScreen() {
         promoId: appliedPromo?.id      
       };
 
-      const res = await fetch(`http://${api_address}/orders/checkout`, {
+      const res = await fetch(`${api_address}/orders/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload),

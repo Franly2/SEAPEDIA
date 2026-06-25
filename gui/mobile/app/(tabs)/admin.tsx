@@ -57,7 +57,7 @@ export default function AdminScreen() {
       const data = await res.json();
       if (res.ok) {
         showAlert('Berhasil', data.message);
-        fetchStats(); // Segarkan data statistik
+        fetchStats(); 
       } else {
         showAlert('Gagal', data.message);
       }

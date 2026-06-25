@@ -1,5 +1,5 @@
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
+import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -147,16 +147,12 @@ export default function EditProductScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color="#1F2937" />
+          <Feather name="chevron-left" size={24} color="#1F2937" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Produk</Text>
         
-        <TouchableOpacity 
-          style={styles.deleteButtonHeader} 
-          onPress={handleDeleteProduct}
-          disabled={isDeleting}
-        >
-          {isDeleting ? <ActivityIndicator size="small" color="#DC2626" /> : <IconSymbol name="trash.fill" size={20} color="#DC2626" />}
+        <TouchableOpacity onPress={handleDeleteProduct} style={styles.deleteButtonHeader}>
+          <Feather name="trash-2" size={16} color="#DC2626" />
         </TouchableOpacity>
       </View>
 

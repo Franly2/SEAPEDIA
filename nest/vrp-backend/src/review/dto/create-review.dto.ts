@@ -15,7 +15,6 @@ export class CreateReviewDto {
   @IsNotEmpty({ message: 'Komentar tidak boleh kosong' })
   comment!: string;
 
-  // Opsional: Hanya diisi jika user sedang login
   @IsOptional()
   @IsString()
   userId?: string; 

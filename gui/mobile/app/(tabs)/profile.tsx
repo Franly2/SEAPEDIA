@@ -5,8 +5,7 @@ import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
-  // Asumsi: updateActiveRole adalah fungsi di Zustand untuk menyimpan token & peran aktif baru
-  const { fullName, username, activeRole, token, logout, updateActiveRole } = useAuthStore();
+  const { fullName, username, activeRole, token, roles, logout, login } = useAuthStore();
   const router = useRouter();
   const api_address = process.env.EXPO_PUBLIC_API_IP_ADDRESS;
 
@@ -40,7 +39,7 @@ export default function ProfileScreen() {
       };
 
       fetchFinancialReports();
-    }, [token, activeRole]) // Ditambahkan activeRole sebagai dependency agar data reload saat ganti peran
+    }, [token, activeRole])
   );
 
   const showAlert = (title: string, message: string) => {
@@ -65,13 +64,15 @@ export default function ProfileScreen() {
       const data = await res.json();
 
       if (res.ok) {
-        // Backend mengembalikan token baru dengan payload role yang baru
-        // Simpan token baru dan role baru ke Zustand store Anda
-        if (updateActiveRole) {
-          updateActiveRole(data.activeRole, data.accessToken || data.token);
-        }
+        await login(
+          data.access_token, 
+          data.roles || roles, 
+          targetRole, 
+          data.username || username || '', 
+          data.fullName || fullName || ''
+        );
+        
         showAlert('Sukses', `Berhasil beralih ke peran ${targetRole}!`);
-        router.replace('/profile');
       } else {
         showAlert('Gagal', data.message || 'Anda tidak memiliki otoritas untuk peran ini.');
       }
@@ -111,7 +112,6 @@ export default function ProfileScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       
-      {/* --- KARTU PROFIL --- */}
       <View style={styles.profileCard}>
         <View style={styles.avatarContainer}>
           <View style={styles.avatarCircle}>
@@ -127,7 +127,6 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      {/* --- SECTION PILIH PERAN AKTIF --- */}
       <View style={styles.sectionHeaderRow}>
          <Text style={styles.sectionTitle}>Beralih Peran Aktif</Text>
          {isSwitching && <ActivityIndicator size="small" color="#3B82F6" />}
@@ -161,7 +160,6 @@ export default function ProfileScreen() {
         })}
       </View>
 
-      {/* --- SUMMARY FINANSIAL --- */}
       <View style={styles.sectionHeaderRow}>
          <Text style={styles.sectionTitle}>Ringkasan Finansial</Text>
          {isLoading && <ActivityIndicator size="small" color="#1D4ED8" />}
@@ -207,7 +205,6 @@ export default function ProfileScreen() {
         *Angka di atas dihitung otomatis berdasarkan riwayat transaksi yang sah dan mengikat di seluruh peran Anda.
       </Text>
 
-      {/* --- ACCORDION MENU SETTING --- */}
       <Text style={styles.sectionTitle}>Pengaturan Akun</Text>
       <View style={styles.menuContainer}>
         {activeRole === 'BUYER' && (
@@ -261,7 +258,6 @@ const styles = StyleSheet.create({
   sectionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingHorizontal: 4 },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#374151', marginTop: 8 },
   
-  // Gaya Baru: Grid/List Pemilih Peran Aktif yang Mewah
   roleSelectorContainer: { marginBottom: 24 },
   roleCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', marginBottom: 8 },
   roleCardActive: { borderColor: '#3B82F6', backgroundColor: '#EFF6FF' },

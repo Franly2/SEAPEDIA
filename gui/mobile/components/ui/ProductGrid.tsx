@@ -63,8 +63,6 @@ export function ProductGrid({
   const cardWidth = getCardWidth();
 
   const handlePress = (item: Product) => {
-    // Jika ada fungsi kustom yang dilempar dari parent, panggil fungsi tersebut.
-    // Jika tidak ada, jalankan navigasi bawaan (publik)
     if (onProductPress) {
       onProductPress(item);
     } else {
@@ -79,7 +77,7 @@ export function ProductGrid({
       <TouchableOpacity 
         style={[styles.productCard, { width: cardWidth }]}
         activeOpacity={0.7}
-        onPress={() => handlePress(item)} // <-- Panggil fungsi yang dimodifikasi
+        onPress={() => handlePress(item)} 
       >
         <View style={styles.imageContainer}>
           {item.imageUrl ? (

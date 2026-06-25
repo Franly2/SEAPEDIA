@@ -232,10 +232,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FAFAFA' }, 
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   
-  // FlatList content padding disesuaikan agar sama dengan ScrollView di halaman lain
   list: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 60, maxWidth: 600, alignSelf: 'center', width: '100%' },
   
-  // Header dimodifikasi persis seperti AddressScreen (tanpa background putih kaku)
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
   backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 }, 
   headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
@@ -244,7 +242,6 @@ const styles = StyleSheet.create({
   
   emptyState: { alignItems: 'center', justifyContent: 'center', padding: 40, backgroundColor: '#FFF', borderRadius: 16, borderWidth: 1, borderColor: '#D1D5DB', borderStyle: 'dashed', marginTop: 20 },
   
-  // Card pesanan dibuat melengkung dan modern
   card: { backgroundColor: '#FFF', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#E5E7EB' }, 
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   entityNameContainer: { flexDirection: 'row', alignItems: 'center' },

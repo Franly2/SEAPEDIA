@@ -150,7 +150,6 @@ export default function CheckoutScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
-        {/* --- HEADER (Sekarang di dalam ScrollView agar ikut terscroll) --- */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Feather name="chevron-left" size={24} color="#1F2937" />
@@ -159,7 +158,6 @@ export default function CheckoutScreen() {
           <View style={{ width: 40 }} />
         </View>
         
-        {/* --- SECTION ALAMAT --- */}
         <Text style={styles.sectionTitle}>Alamat Pengiriman</Text>
         {addresses.length === 0 ? (
           <TouchableOpacity style={styles.addButton} onPress={() => router.push('/buyer/address')}>
@@ -189,7 +187,6 @@ export default function CheckoutScreen() {
           </View>
         )}
 
-        {/* --- SECTION PENGIRIMAN --- */}
         <Text style={styles.sectionTitle}>Metode Pengiriman</Text>
         <View style={styles.listContainer}>
           {[
@@ -220,7 +217,6 @@ export default function CheckoutScreen() {
           ))}
         </View>
 
-        {/* --- SECTION DISKON --- */}
         <Text style={styles.sectionTitle}>Gunakan Diskon</Text>
         <View style={styles.staticCard}>
           <View style={styles.discountInputRow}>
@@ -287,7 +283,6 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        {/* --- SECTION RINCIAN BIAYA --- */}
         <Text style={styles.sectionTitle}>Rincian Pembayaran</Text>
         <View style={styles.staticCard}>
           <View style={styles.costRow}><Text style={styles.costLabel}>Subtotal Produk</Text><Text style={styles.costValue}>{formatRupiah(subtotal)}</Text></View>
@@ -309,7 +304,7 @@ export default function CheckoutScreen() {
         <View style={[styles.walletStatusCard, { backgroundColor: isBalanceSufficient ? '#F0FDF4' : '#FEF2F2', borderColor: isBalanceSufficient ? '#BBF7D0' : '#FECACA' }]}>
           <View style={styles.costRow}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-               <Feather name="wallet" size={18} color={isBalanceSufficient ? '#10B981' : '#DC2626'} style={{marginRight: 8}} />
+               <Feather name="credit-card" size={18} color={isBalanceSufficient ? '#10B981' : '#DC2626'} style={{marginRight: 8}} />
                <Text style={styles.costLabelBold}>Saldo Dompet Anda</Text>
             </View>
             <Text style={[styles.costLabelBold, { color: isBalanceSufficient ? '#10B981' : '#DC2626' }]}>{formatRupiah(walletBalance)}</Text>
@@ -319,7 +314,6 @@ export default function CheckoutScreen() {
         
       </ScrollView>
 
-      {/* --- BOTTOM BAR --- */}
       <View style={styles.bottomBar}>
         <View style={styles.bottomBarContent}>
            <View style={styles.bottomBarTextContainer}>
@@ -339,10 +333,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FAFAFA' }, 
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   
-  // Update: Content memiliki paddingTop menyesuaikan AddressScreen
   content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 120, width: '100%', maxWidth: 600, alignSelf: 'center' },
   
-  // Update: Header dimodifikasi agar bersih seperti AddressScreen
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
   backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 }, 
   headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },

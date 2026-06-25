@@ -225,18 +225,15 @@ export default function ProductDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' }, // Disamakan dengan Checkout Screen
+  container: { flex: 1, backgroundColor: '#FAFAFA' }, 
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   
-  // Padding atas yang adaptif seperti di Checkout Screen
   content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 120, width: '100%', maxWidth: 600, alignSelf: 'center' },
   
-  // Header dimodifikasi tanpa background putih & border, murni mengambang
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
   backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 },
   headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
   
-  // Gambar sekarang melengkung menyesuaikan padding halaman (Modern Layout)
   imageContainer: { width: '100%', aspectRatio: 1, backgroundColor: '#FFF', borderRadius: 16, overflow: 'hidden', marginBottom: 20, borderWidth: 1, borderColor: '#E5E7EB' },
   productImage: { width: '100%', height: '100%', resizeMode: 'cover' },
   placeholderImage: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F3F4F6' },

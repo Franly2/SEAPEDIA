@@ -1,15 +1,15 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useAuthStore } from '@/store/authStore';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
   View
@@ -20,7 +20,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const { login } = useAuthStore(); 
 
-  const primaryColor = '#1976D2'; 
+  const primaryColor = '#3B82F6'; 
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -31,6 +31,11 @@ export default function LoginScreen() {
   
   const [pendingRoleData, setPendingRoleData] = useState<any>(null);
   const [isSwitchingRole, setIsSwitchingRole] = useState(false);
+
+  const showAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') window.alert(`${title}\n${message}`);
+    else Alert.alert(title, message);
+  };
 
   async function handleLogin() {
     if (!username || !password) {
@@ -111,158 +116,169 @@ export default function LoginScreen() {
 
   if (pendingRoleData) {
     return (
-      <ThemedView style={styles.container}>
-        <View style={[styles.scrollContainer, { alignItems: 'center' }]}>
-          <IconSymbol name="person.2.fill" size={64} color={primaryColor} />
-          <ThemedText style={[styles.title, { marginTop: 24, textAlign: 'center' }]}>Pilih Peran</ThemedText>
-          <ThemedText style={[styles.loginLinkText, { textAlign: 'center', marginBottom: 32 }]}>
-            Akun ini memiliki beberapa peran aktif. Silakan pilih peran yang ingin kamu gunakan di sesi ini.
-          </ThemedText>
+      <View style={styles.container}>
+        <View style={[styles.content, { flex: 1, justifyContent: 'center' }]}>
+          <View style={[styles.card, { alignItems: 'center', paddingVertical: 40 }]}>
+            <Feather name="users" size={64} color={primaryColor} />
+            <Text style={[styles.title, { marginTop: 24, textAlign: 'center' }]}>Pilih Peran</Text>
+            <Text style={[styles.subtitle, { textAlign: 'center', marginBottom: 32 }]}>
+              Akun ini memiliki beberapa peran aktif. Silakan pilih peran yang ingin kamu gunakan di sesi ini.
+            </Text>
 
-          {errorMessage ? (
-            <View style={[styles.errorContainer, { width: '100%' }]}>
-              <ThemedText style={styles.errorText}>{errorMessage}</ThemedText>
-            </View>
-          ) : null}
+            {errorMessage ? (
+              <View style={[styles.errorContainer, { width: '100%' }]}>
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              </View>
+            ) : null}
 
-          {isSwitchingRole ? (
-            <ActivityIndicator size="large" color={primaryColor} style={{ marginTop: 20 }} />
-          ) : (
-            pendingRoleData.roles.map((role: string) => (
-              <TouchableOpacity 
-                key={role}
-                style={[styles.loginButton, { backgroundColor: primaryColor, width: '100%', marginBottom: 12 }]} 
-                onPress={() => handleRoleSelection(role)} 
-                activeOpacity={0.8}
-                disabled={successMessage !== ''}
-              >
-                <ThemedText style={styles.loginButtonText}>Masuk sebagai {role}</ThemedText>
-              </TouchableOpacity>
-            ))
-          )}
+            {isSwitchingRole ? (
+              <ActivityIndicator size="large" color={primaryColor} style={{ marginTop: 20 }} />
+            ) : (
+              pendingRoleData.roles.map((role: string) => (
+                <TouchableOpacity 
+                  key={role}
+                  style={[styles.primaryButton, { width: '100%', marginBottom: 12 }]} 
+                  onPress={() => handleRoleSelection(role)} 
+                  activeOpacity={0.8}
+                  disabled={successMessage !== ''}
+                >
+                  <Text style={styles.primaryButtonText}>Masuk sebagai {role}</Text>
+                </TouchableOpacity>
+              ))
+            )}
 
-          {successMessage ? (
-            <View style={[styles.successContainer, { width: '100%', marginTop: 20 }]}>
-              <ThemedText style={styles.successText}>{successMessage}</ThemedText>
-              <ActivityIndicator size="small" color="#15803D" style={{ marginTop: 8 }} />
-            </View>
-          ) : null}
+            {successMessage ? (
+              <View style={[styles.successContainer, { width: '100%', marginTop: 20 }]}>
+                <Text style={styles.successText}>{successMessage}</Text>
+                <ActivityIndicator size="small" color="#10B981" style={{ marginTop: 8 }} />
+              </View>
+            ) : null}
+          </View>
         </View>
-      </ThemedView>
+      </View>
     );
   }
 
   return (
-    <ThemedView style={styles.container}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        
+        <View style={styles.headerSection}>
+          <View style={styles.logoWrapper}>
+            <Feather name="shopping-bag" size={48} color={primaryColor} />
+          </View>
+          <Text style={styles.brandTitle}>SELAMAT DATANG DI</Text>
+          <Text style={styles.title}>SEAPEDIA</Text>
+        </View>
+
+        <View style={styles.card}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Nama Pengguna (Username)</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={setUsername}
+              value={username}
+              placeholder="Masukkan username"
+              autoCapitalize="none"
+              placeholderTextColor="#9CA3AF"
+              editable={!successMessage && !isLoading}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Kata Sandi</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={setPassword}
+              value={password}
+              placeholder="••••••••"
+              secureTextEntry
+              placeholderTextColor="#9CA3AF"
+              editable={!successMessage && !isLoading}
+            />
+          </View>
           
-          <View style={styles.headerSection}>
-            <View style={styles.logoWrapper}>
-              <IconSymbol name="bag.fill" size={48} color={primaryColor} />
+          {errorMessage ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{errorMessage}</Text>
             </View>
-            <ThemedText style={styles.brandTitle}>SELAMAT DATANG DI</ThemedText>
-            <ThemedText style={styles.title}>SEAPEDIA</ThemedText>
-          </View>
+          ) : null}
 
-          <View style={styles.formContainer}>
-            <View style={styles.inputGroup}>
-              <ThemedText style={styles.label}>NAMA PENGGUNA (USERNAME)</ThemedText>
-              <TextInput
-                style={[styles.input, { borderBottomColor: primaryColor }]}
-                onChangeText={setUsername}
-                value={username}
-                placeholder="Masukkan username"
-                autoCapitalize="none"
-                placeholderTextColor="#A0A0A0"
-                editable={!successMessage && !isLoading}
-              />
+          {successMessage ? (
+            <View style={styles.successContainer}>
+              <Text style={styles.successText}>{successMessage}</Text>
+              <ActivityIndicator size="small" color="#10B981" style={{ marginTop: 8 }} />
             </View>
+          ) : null}
 
-            <View style={styles.inputGroup}>
-              <ThemedText style={styles.label}>KATA SANDI</ThemedText>
-              <TextInput
-                style={[styles.input, { borderBottomColor: primaryColor }]}
-                onChangeText={setPassword}
-                value={password}
-                placeholder="••••••••"
-                secureTextEntry
-                placeholderTextColor="#A0A0A0"
-                editable={!successMessage && !isLoading}
-              />
+          {isLoading ? (
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color={primaryColor} />
             </View>
-            
-            {errorMessage ? (
-              <View style={styles.errorContainer}>
-                <ThemedText style={styles.errorText}>{errorMessage}</ThemedText>
+          ) : (
+            !successMessage && (
+              <View>
+                <TouchableOpacity style={styles.primaryButton} onPress={handleLogin} activeOpacity={0.8}>
+                  <Text style={styles.primaryButtonText}>Masuk</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity style={styles.outlineButton} onPress={handleGuestAccess} activeOpacity={0.7}>
+                  <Text style={styles.outlineButtonText}>Lanjutkan sebagai Tamu</Text>
+                </TouchableOpacity>
               </View>
-            ) : null}
+            )
+          )}
 
-            {successMessage ? (
-              <View style={styles.successContainer}>
-                <ThemedText style={styles.successText}>{successMessage}</ThemedText>
-                <ActivityIndicator size="small" color="#15803D" style={{ marginTop: 8 }} />
-              </View>
-            ) : null}
-
-            {isLoading ? (
-              <View style={styles.loaderContainer}>
-                <ActivityIndicator size="small" color={primaryColor} />
-              </View>
-            ) : (
-              !successMessage && (
-                <View>
-                  <TouchableOpacity style={[styles.loginButton, { backgroundColor: primaryColor }]} onPress={handleLogin} activeOpacity={0.8}>
-                    <ThemedText style={styles.loginButtonText}>Masuk</ThemedText>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity style={styles.guestButton} onPress={handleGuestAccess} activeOpacity={0.7}>
-                    <ThemedText style={styles.guestButtonText}>Lanjutkan sebagai Tamu</ThemedText>
-                  </TouchableOpacity>
-                </View>
-              )
-            )}
-
-            <View style={styles.loginLinkContainer}>
-              <ThemedText style={styles.loginLinkText}>Belum punya akun? </ThemedText>
-              <TouchableOpacity onPress={() => router.replace('/register')}>
-                <ThemedText style={[styles.loginLinkHighlight, { color: primaryColor }]}>Daftar di sini</ThemedText>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.loginLinkContainer}>
+            <Text style={styles.loginLinkText}>Belum punya akun? </Text>
+            <TouchableOpacity onPress={() => router.replace('/register')}>
+              <Text style={[styles.loginLinkHighlight, { color: primaryColor }]}>Daftar di sini</Text>
+            </TouchableOpacity>
           </View>
+        </View>
 
-          <View style={styles.footer}>
-            <ThemedText style={styles.footerText}>© 2026 PT Karya Seapedia Nusantara</ThemedText>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </ThemedView>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>© 2026 PT Karya Seapedia Nusantara</Text>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FAFAFA' },
-  scrollContainer: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 40, paddingVertical: 40 },
-  headerSection: { marginBottom: 40 },
-  logoWrapper: { marginBottom: 20, alignItems: 'flex-start' },
-  brandTitle: { fontSize: 11, fontWeight: '700', color: '#636E72', letterSpacing: 2, marginBottom: 8 },
-  title: { fontSize: 28, fontWeight: '700', color: '#2D3436', letterSpacing: -0.5 },
-  formContainer: { width: '100%' },
-  inputGroup: { marginBottom: 24 },
-  label: { fontSize: 11, fontWeight: '700', color: '#2D3436', marginBottom: 8, letterSpacing: 1 },
-  input: { height: 45, borderBottomWidth: 2, borderColor: '#DFE6E9', paddingHorizontal: 4, fontSize: 16, color: '#2D3436' },
-  errorContainer: { backgroundColor: '#FFF5F5', padding: 12, borderRadius: 8, marginBottom: 20, borderLeftWidth: 4, borderLeftColor: '#FF7675' },
-  errorText: { color: '#D63031', fontSize: 13, fontWeight: '600' },
-  successContainer: { backgroundColor: '#F0FDF4', padding: 16, borderRadius: 8, marginBottom: 20, borderLeftWidth: 4, borderLeftColor: '#22C55E', alignItems: 'center' },
-  successText: { color: '#15803D', fontSize: 14, fontWeight: '700', textAlign: 'center' },
-  loginButton: { height: 54, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
-  loginButtonText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
-  guestButton: { height: 50, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 12, borderWidth: 1, borderColor: '#DFE6E9', backgroundColor: 'transparent' },
-  guestButtonText: { color: '#636E72', fontSize: 14, fontWeight: '600' },
-  loaderContainer: { height: 54, justifyContent: 'center', alignItems: 'center' },
-  loginLinkContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
-  loginLinkText: { fontSize: 13, color: '#636E72' },
-  loginLinkHighlight: { fontSize: 13, fontWeight: '700' },
-  footer: { marginTop: 60, alignItems: 'center' },
-  footerText: { fontSize: 11, color: '#B2BEC3' }
+  content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 60, paddingBottom: 40, width: '100%', maxWidth: 600, alignSelf: 'center', flexGrow: 1, justifyContent: 'center' },
+  
+  headerSection: { marginBottom: 32, alignItems: 'center' },
+  logoWrapper: { marginBottom: 16, backgroundColor: '#EFF6FF', padding: 16, borderRadius: 24 },
+  brandTitle: { fontSize: 12, fontWeight: '700', color: '#6B7280', letterSpacing: 2, marginBottom: 4 },
+  title: { fontSize: 32, fontWeight: '900', color: '#1F2937', letterSpacing: -0.5 },
+  subtitle: { fontSize: 14, color: '#6B7280', lineHeight: 22 },
+  
+  card: { backgroundColor: '#FFF', padding: 24, borderRadius: 16, borderWidth: 1, borderColor: '#E5E7EB', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 },
+  
+  inputGroup: { marginBottom: 20 },
+  label: { fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 8 },
+  input: { backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: '#1F2937' },
+  
+  errorContainer: { backgroundColor: '#FEF2F2', padding: 12, borderRadius: 8, marginBottom: 20, borderWidth: 1, borderColor: '#FCA5A5' },
+  errorText: { color: '#DC2626', fontSize: 13, fontWeight: '600', textAlign: 'center' },
+  
+  successContainer: { backgroundColor: '#F0FDF4', padding: 16, borderRadius: 8, marginBottom: 20, borderWidth: 1, borderColor: '#86EFAC', alignItems: 'center' },
+  successText: { color: '#059669', fontSize: 14, fontWeight: '700', textAlign: 'center' },
+  
+  loaderContainer: { height: 54, justifyContent: 'center', alignItems: 'center', marginVertical: 10 },
+  
+  primaryButton: { backgroundColor: '#3B82F6', alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderRadius: 12, marginTop: 8 },
+  primaryButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  
+  outlineButton: { alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 12, backgroundColor: '#FFF', marginTop: 12 },
+  outlineButtonText: { color: '#4B5563', fontSize: 15, fontWeight: '600' },
+  
+  loginLinkContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24, paddingTop: 20, borderTopWidth: 1, borderTopColor: '#F3F4F6' },
+  loginLinkText: { fontSize: 14, color: '#6B7280' },
+  loginLinkHighlight: { fontSize: 14, fontWeight: 'bold' },
+  
+  footer: { marginTop: 40, alignItems: 'center' },
+  footerText: { fontSize: 12, color: '#9CA3AF' }
 });

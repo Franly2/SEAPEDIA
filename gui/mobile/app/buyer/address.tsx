@@ -220,7 +220,7 @@ export default function AddressScreen() {
                 <View style={styles.actionIcons}>
                   <TouchableOpacity 
                     onPress={(e) => {
-                      e.stopPropagation(); // Mencegah form edit terbuka saat tombol hapus diklik
+                      e.stopPropagation();
                       handleDelete(addr.id);
                     }} 
                     style={styles.iconButton}

@@ -10,7 +10,6 @@ import { CreateProductDto } from './dto/create-product.dto';
 export class ProductService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Mengambil semua produk yang ada di database untuk halaman katalog publik
   async findAll() {
     return this.prisma.product.findMany({
       include: {
@@ -22,12 +21,11 @@ export class ProductService {
         },
       },
       orderBy: {
-        createdAt: 'desc', // Produk terbaru muncul di awal
+        createdAt: 'desc', 
       },
     });
   }
 
-  // Mengambil satu produk spesifik berdasarkan ID untuk halaman detail produk
   async findOne(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },
@@ -59,19 +57,17 @@ export class ProductService {
     return store.id;
   }
 
-  // 1. Membuat produk baru
   async createSellerProduct(userId: string, dto: CreateProductDto) {
     const storeId = await this.getStoreIdByUserId(userId);
     
     return this.prisma.product.create({
       data: {
         ...dto,
-        storeId: storeId, // Paksa ID toko milik user, bukan dari body input
+        storeId: storeId, 
       },
     });
   }
 
-  // 2. Mengambil daftar produk khusus milik toko si Penjual
   async findMyProducts(userId: string) {
     const storeId = await this.getStoreIdByUserId(userId);
     
@@ -81,11 +77,9 @@ export class ProductService {
     });
   }
 
-  // 3. Mengedit produk (Validasi kepemilikan)
   async updateSellerProduct(userId: string, productId: string, dto: UpdateProductDto) {
     const storeId = await this.getStoreIdByUserId(userId);
     
-    // Cek apakah produk ada dan apakah storeId produk tersebut sama dengan storeId milik user
     const existingProduct = await this.prisma.product.findUnique({
       where: { id: productId },
     });
@@ -103,7 +97,6 @@ export class ProductService {
     });
   }
 
-  // 4. Menghapus produk (Validasi kepemilikan)
   async deleteSellerProduct(userId: string, productId: string) {
     const storeId = await this.getStoreIdByUserId(userId);
     

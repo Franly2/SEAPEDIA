@@ -40,7 +40,6 @@ export class AdminController {
     return this.adminService.createPromo(dto);
   }
 
-  // time travel & overdue
   @Post('simulate-day')
   async simulateNextDay() {
     return this.adminService.simulateNextDay();

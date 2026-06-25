@@ -78,13 +78,12 @@ export default function CartScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
-        {/* --- HEADER (Sekarang memiliki Tombol Back dan Teks di Tengah seperti Address Screen) --- */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Feather name="chevron-left" size={24} color="#1F2937" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Keranjang Belanja</Text>
-          <View style={{ width: 40 }} /> {/* Spacer agar teks persis di tengah */}
+          <View style={{ width: 40 }} /> 
         </View>
         
         {!cartData || cartData.items.length === 0 ? (
@@ -136,7 +135,6 @@ export default function CartScreen() {
         )}
       </ScrollView>
 
-      {/* --- BOTTOM BAR --- */}
       {cartData && cartData.items.length > 0 && (
         <View style={styles.bottomBar}>
           <View style={styles.bottomBarContent}>
@@ -160,7 +158,6 @@ const styles = StyleSheet.create({
   
   content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 120, width: '100%', maxWidth: 600, alignSelf: 'center' },
   
-  // Header dimodifikasi persis seperti Checkout dan Address (Flex Row, Space Between)
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
   backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 }, 
   headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },

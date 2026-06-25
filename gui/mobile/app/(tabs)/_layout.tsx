@@ -28,8 +28,8 @@ export default function TabLayout() {
         name="index" 
         options={{
           title: 'Beranda',
-          href: activeRole === 'SELLER' ? null : undefined,
-          tabBarItemStyle: activeRole === 'SELLER' ? { display: 'none' } : undefined,
+          href: (activeRole === 'SELLER' || activeRole === 'DRIVER') ? null : undefined,
+          tabBarItemStyle: (activeRole === 'SELLER' || activeRole === 'DRIVER') ? { display: 'none' } : undefined,
           tabBarIcon: ({ color }) => <Feather size={24} name="home" color={color} />,
         }}
       />
@@ -87,7 +87,6 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          // Ubah title dinamis berdasarkan status token
           title: token ? 'Profil' : 'Login',
           href: undefined, 
           tabBarItemStyle: undefined,

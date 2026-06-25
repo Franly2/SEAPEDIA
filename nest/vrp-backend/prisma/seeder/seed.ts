@@ -82,7 +82,38 @@ async function main() {
     users.push(user);
   }
 
-  // 4. Store & Address (Masing-masing 5 data, berelasi dengan User)
+  // --- TAMBAHAN: 4 Akun Spesifik (Single Role) untuk Demo Juri ---
+  const singleRoleUsers = [
+    { id: '11111111-1111-1111-1111-111111111116', username: 'buyer_demo', fullName: 'Akun Khusus Buyer', role: Role.BUYER },
+    { id: '11111111-1111-1111-1111-111111111117', username: 'seller_demo', fullName: 'Akun Khusus Seller', role: Role.SELLER },
+    { id: '11111111-1111-1111-1111-111111111118', username: 'driver_demo', fullName: 'Akun Khusus Kurir', role: Role.DRIVER },
+    { id: '11111111-1111-1111-1111-111111111119', username: 'admin_seapedia', fullName: 'Akun Khusus Admin', role: Role.ADMIN },
+  ];
+
+  for (const u of singleRoleUsers) {
+    await prisma.user.create({
+      data: {
+        id: u.id,
+        username: u.username,
+        password: DEFAULT_PASSWORD_HASH,
+        fullName: u.fullName,
+        roles: [u.role], // CUMA 1 ROLE
+        walletBalance: 5000000, // Saldo banyak untuk keperluan testing
+      },
+    });
+
+    // Berikan saldo awal di tabel WalletTransaction
+    await prisma.walletTransaction.create({
+      data: {
+        userId: u.id,
+        amount: 5000000,
+        type: TransactionType.TOP_UP,
+        description: `Top Up Awal Saldo Akun Demo ${u.username}`,
+      },
+    });
+  }
+
+  // 4. Store & Address (Masing-masing 5 data untuk tester, berelasi dengan User)
   for (let i = 1; i <= 5; i++) {
     await prisma.store.create({
       data: {
@@ -102,7 +133,42 @@ async function main() {
     });
   }
 
-  // 5. Product (5 data, berelasi dengan Store)
+  // --- TAMBAHAN DATA PENDUKUNG UNTUK AKUN DEMO SINGLE-ROLE ---
+  
+  // Beri 1 alamat untuk buyer_demo
+  await prisma.address.create({
+    data: {
+      id: '44444444-4444-4444-4444-444444444446',
+      userId: '11111111-1111-1111-1111-111111111116', // buyer_demo ID
+      label: 'Rumah Utama Buyer',
+      addressLine: 'Jalan Pembeli Sejati No. 99, Surabaya Pusat',
+    },
+  });
+
+  // Beri toko untuk seller_demo
+  await prisma.store.create({
+    data: {
+      id: '22222222-2222-2222-2222-222222222226',
+      name: 'Toko Seller Demo',
+      ownerId: '11111111-1111-1111-1111-111111111117', // seller_demo ID
+    },
+  });
+
+  // Beri 1 produk unggulan untuk toko seller_demo
+  await prisma.product.create({
+    data: {
+      id: '33333333-3333-3333-3333-333333333336',
+      name: 'Produk Spesial Demo',
+      description: 'Ini adalah produk unggulan dari akun seller_demo. Silakan dibeli untuk menguji flow transaksi!',
+      price: 150000,
+      stock: 50,
+      storeId: '22222222-2222-2222-2222-222222222226',
+      imageUrl: 'https://picsum.photos/id/20/400/400',
+    },
+  });
+
+
+  // 5. Product (5 data untuk akun tester, berelasi dengan Store)
   for (let i = 1; i <= 5; i++) {
     await prisma.product.create({
       data: {
@@ -117,19 +183,19 @@ async function main() {
     });
   }
 
-  // 6. WalletTransaction (5 data, top up awal)
+  // 6. WalletTransaction (5 data top up awal untuk akun tester multirole)
   for (let i = 1; i <= 5; i++) {
     await prisma.walletTransaction.create({
       data: {
         userId: `11111111-1111-1111-1111-11111111111${i}`,
         amount: 500000,
         type: TransactionType.TOP_UP,
-        description: `Top Up Awal Saldo Akun ${i}`,
+        description: `Top Up Awal Saldo Akun Tester ${i}`,
       },
     });
   }
 
-  // 7. CartItem (5 data: User 1 memasukkan produk dari Toko 2, User 2 -> Toko 3, dst.)
+  // 7. CartItem (5 data: User 1 memasukkan produk dari Toko 2, dst.)
   for (let i = 1; i <= 5; i++) {
     const targetProductIndex = i === 5 ? 1 : i + 1; // User 5 beli produk 1
     await prisma.cartItem.create({
@@ -141,13 +207,13 @@ async function main() {
     });
   }
 
-  // 8. Order, OrderItem, StatusHistory, dan DeliveryJob (Masing-masing 5 data)
+  // 8. Order, OrderItem, StatusHistory, dan DeliveryJob (Masing-masing 5 data untuk riwayat)
   for (let i = 1; i <= 5; i++) {
     const buyerId = `11111111-1111-1111-1111-11111111111${i}`;
     const targetStoreIndex = i === 5 ? 1 : i + 1;
     const storeId = `22222222-2222-2222-2222-22222222222${targetStoreIndex}`;
     const productId = `33333333-3333-3333-3333-33333333333${targetStoreIndex}`;
-    const driverId = `11111111-1111-1111-1111-11111111111${i === 1 ? 5 : i - 1}`; // Driver diambil menyilang
+    const driverId = `11111111-1111-1111-1111-11111111111${i === 1 ? 5 : i - 1}`; // Driver menyilang
 
     const orderId = `77777777-7777-7777-7777-77777777777${i}`;
 
@@ -164,7 +230,7 @@ async function main() {
         ppnAmount: ((targetStoreIndex * 50000 * 2) * 12) / 100, // PPN 12%
         finalTotal: (targetStoreIndex * 50000 * 2) - 10000 + 15000 + (((targetStoreIndex * 50000 * 2) * 12) / 100),
         deliveryMethod: DeliveryMethod.REGULAR,
-        status: OrderStatus.SEDANG_DIKIRIM, // status sedang dikirim agar relasi DeliveryJob valid
+        status: OrderStatus.SEDANG_DIKIRIM,
         voucherId: `55555555-5555-5555-5555-55555555555${i}`,
       },
     });
@@ -198,7 +264,7 @@ async function main() {
     });
   }
 
-  console.log('Seeding berhasil.');
+  console.log('Seeding berhasil. Akun Demo siap digunakan!');
 }
 
 main()

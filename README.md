@@ -1,35 +1,129 @@
 # SEAPEDIA - Marketplace Logistik UMKM
 
-Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace logistik cerdas yang dirancang untuk mempertemukan Pembeli, Penjual, Driver, dan Admin dalam satu ekosistem yang terintegrasi.
+🔗 **Live Deployment URL:** [Kunjungi SEAPEDIA Live](https://seapedia-8vdkd5wpp-franlys-projects.vercel.app/)
 
-## 🚀 Tentang Proyek
+Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace logistik cerdas yang dirancang untuk mempertemukan Pembeli, Penjual, Kurir (Driver), dan Admin dalam satu ekosistem yang terintegrasi. 
 
-SEAPEDIA adalah solusi e-commerce terukur yang berfokus pada efisiensi logistik bagi UMKM. Aplikasi ini dibangun secara progresif untuk mendukung **Multi-Role Authentication**, di mana satu entitas pengguna dapat mengelola lebih dari satu peran (Buyer, Seller, Driver) dengan mengedepankan keamanan sesi, otorisasi data yang ketat, dan pengalaman pengguna yang mulus.
+Aplikasi ini dibangun secara progresif untuk mendukung **Multi-Role Authentication**, di mana satu entitas pengguna dapat mengelola lebih dari satu peran secara *seamless* tanpa perlu *login* berulang kali.
 
-## 🛠️ Stack Teknologi
+---
 
-* **Front-End:** React Native (Expo) dengan Expo Router, Zustand (State Management), dan TypeScript.
-* **Back-End:** NestJS dengan Prisma ORM.
-* **Database:** PostgreSQL.
-* **Architecture:** *Clean Architecture* dengan modularisasi *feature-based* dan penerapan prinsip *Zero-Trust* pada level API.
+## 🌟 Pemenuhan Kriteria Penilaian & Bonus Point
+
+Proyek ini dikembangkan dengan mematuhi seluruh spesifikasi sistem dan berfokus pada pencapaian *Bonus Points*:
+
+1. **🎨 Creative & Intuitive UI (Bonus 10 pts):** Antarmuka dibangun menggunakan React Native (Expo) untuk Web dan Mobile. Desain berfokus pada *Clean UI*, *white-space* yang lega, komponen interaktif (seperti *accordion* pesanan), dan navigasi *tab* dinamis yang otomatis menyesuaikan dengan peran aktif pengguna tanpa perlu *refresh* halaman.
+2. **🚀 Live Deployment (Bonus 15 pts):** Keseluruhan ekosistem telah di-*deploy* dan dapat diakses publik. (Lihat bagian **Cloud Deployment & Infrastructure**).
+3. **📜 Git Commit History:** Proyek ini dikerjakan secara bertahap (*step-by-step*) dengan riwayat *commit* logis yang merepresentasikan evolusi pengembangan fitur dari *Backend* hingga *Frontend*.
+4. **📖 API Documentation:** Dokumentasi *endpoint* API secara interaktif telah disediakan melalui integrasi Swagger/OpenAPI. (Lihat bagian **Dokumentasi API**).
+5. **🔐 Security Notes:** Arsitektur keamanan telah dirancang secara defensif. (Lihat bagian **Catatan Keamanan**).
 
 ---
 
 ## ☁️ Cloud Deployment & Infrastructure
 
-Keseluruhan ekosistem SEAPEDIA telah di-*deploy* ke lingkungan *cloud production* untuk memastikan aksesibilitas, skalabilitas, dan performa yang optimal di dunia nyata:
+Proyek ini dapat diakses langsung tanpa perlu instalasi lokal. Konfigurasi telah disiapkan agar terhubung dengan environment berikut:
 
-* **Database (Neon):** Menggunakan infrastruktur PostgreSQL berbasis *serverless* dari **Neon DB**. Memastikan koneksi database yang cepat, aman, dan efisien dengan integrasi *Connection Pooling*.
-* **Backend API (Railway):** Server NestJS berjalan secara *live* di **Railway**. Proses *deployment* terintegrasi secara langsung menggunakan CI/CD dari repositori GitHub, lengkap dengan injeksi *Environment Variables* dan proteksi CORS yang ketat.
-* **Frontend Web (Vercel):** Aplikasi klien (React Native for Web) di-*hosting* menggunakan **Vercel**. Terintegrasi penuh dengan CI/CD GitHub untuk eksekusi otomatis (`npx expo export`), mendistribusikan aset antarmuka secara global melalui jaringan CDN yang super cepat.
+* **Frontend Web (Vercel):** Aplikasi klien di-*hosting* menggunakan Vercel. [Buka Aplikasi](https://seapedia-8vdkd5wpp-franlys-projects.vercel.app/)
+* **Backend API (Railway):** Server NestJS berjalan secara *live* menggunakan Railway CI/CD.
+* **Database (Neon DB):** PostgreSQL Serverless berbasis *cloud* dengan integrasi *Connection Pooling*.
 
 ---
 
-## 🏗️ Cara Menjalankan Aplikasi
+## 👥 Akun Demo & Akses Admin
+
+Untuk memudahkan proses pengujian dan evaluasi, *database* produksi telah diisi menggunakan *seeder* dengan beberapa akun demo. Anda dapat menggunakan akun berikut untuk menguji berbagai *flow* transaksi:
+
+* **Akun Admin:**
+    * Username: `admin_seapedia`
+    * Password: `password123`
+* **Akun Pembeli (Buyer):**
+    * Username: `buyer_demo`
+    * Password: `password123`
+* **Akun Penjual (Seller):**
+    * Username: `seller_demo`
+    * Password: `password123`
+* **Akun Kurir (Driver):**
+    * Username: `driver_demo`
+    * Password: `password123`
+
+*(Anda juga dapat membuat akun baru melalui halaman Register, dan melakukan Switch Role langsung dari halaman Profile).*
+
+---
+
+## 🛠️ Stack Teknologi
+
+* **Front-End:** React Native (Expo) for Web & Mobile, Expo Router, Zustand (State Management), Feather Icons, TypeScript.
+* **Back-End:** NestJS, JWT Authentication, Bcrypt, Swagger UI.
+* **Database:** PostgreSQL dengan Prisma ORM.
+
+---
+
+## 🔐 Catatan Keamanan (Security Notes)
+
+Sistem ini menerapkan prinsip keamanan ketat pada lapisan API maupun Klien:
+
+1. **SQL Injection (SQLi) Prevention:** Seluruh interaksi *database* menggunakan Prisma ORM yang secara bawaan melakukan *parameterized queries* (safe-query). Tidak ada eksekusi *raw SQL* secara manual dari input pengguna.
+2. **Cross-Site Scripting (XSS) Prevention:** Seluruh *input payload* dari pengguna, terutama pada form *checkout* dan ulasan publik (*Public Reviews*), disanitasi. React/Expo secara bawaan melakukan *escaping* pada string sebelum dirender ke DOM.
+3. **Input Validation:** Penerapan DTO (Data Transfer Object) ketat menggunakan `class-validator` di NestJS. Anomali seperti harga negatif, stok minus, atau format string yang salah akan langsung ditolak oleh *server* dengan HTTP 400 Bad Request.
+4. **Session Behavior:** Manajemen sesi menggunakan **JWT (JSON Web Token)**. Penyimpanan token di *client* dilakukan secara aman menggunakan `AsyncStorage`. *State Management* (Zustand) memastikan token dihancurkan seketika saat *logout* atau saat token terdeteksi kedaluwarsa.
+5. **Role-Based Access Control (RBAC):** Backend menerapkan prinsip *Zero-Trust*. `RolesGuard` khusus dibuat di NestJS untuk memverifikasi ekstrak token JWT dan membandingkan *Active Role* pengguna. Contoh: Sebuah API toko hanya bisa dipanggil jika *Active Role* pengguna saat itu adalah `SELLER`, mencegah manipulasi lintas-peran meskipun dilakukan oleh akun yang sama.
+
+---
+
+## 📖 Dokumentasi API
+
+Seluruh rute, parameter *request*, dan skema *response* backend didokumentasikan menggunakan Swagger/OpenAPI. 
+Jika menjalankan backend secara lokal, dokumentasi dapat diakses melalui:
+👉 `http://localhost:3000/api-docs`
+
+---
+
+## 🏗️ Cara Menjalankan Secara Lokal (Development)
+
+Apabila evaluator ingin menjalankan proyek ini secara lokal (*Works on Any Machine*), ikuti langkah-langkah berikut:
+
+### ⚙️ Back-End (NestJS)
+
+1. Masuk ke direktori backend:
+```bash
+cd nest/vrp-backend
+
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+
+```
+
+3. Konfigurasi Environment:
+Buat file `.env` di **root direktori backend** Anda dengan konfigurasi berikut:
+
+```env
+JWT_SECRET="kode_rahasia_seapedia-franly"
+PORT=3000
+EXPIRES_IN="1d"
+origin="http://localhost:8081"
+DATABASE_URL="postgresql://neondb_owner:npg_B1YrGftqzI3b@ep-little-truth-aonuepl1-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+```
+
+4. Setup Database & Jalankan Server:
+
+```bash
+npx prisma db push --force-reset
+npx prisma generate
+npx prisma db seed
+npm run start:dev
+
+```
 
 ### 📱 Front-End (Expo)
 
 1. Masuk ke direktori mobile:
+
 ```bash
 cd gui/mobile
 
@@ -43,123 +137,35 @@ npm install
 ```
 
 3. Konfigurasi Environment:
-Buat file `.env` dan arahkan variabel ke server Railway (Production) atau IP lokal Anda (Development).
+Buat file `.env` di root direktori mobile. Ubah target API sesuai kebutuhan (Local atau Production).
 
 ```env
-# ENV PRODUCTION (RAILWAY)
+# Gunakan alamat railway untuk koneksi ke Live Production
 EXPO_PUBLIC_API_IP_ADDRESS=[https://seapedia-production.up.railway.app](https://seapedia-production.up.railway.app)
+
+# ATAU gunakan Localhost jika menjalankan backend lokal
+# EXPO_PUBLIC_API_IP_ADDRESS=http://localhost:3000
 
 ```
 
-4. Run development server (gunakan `-c` untuk *clear cache* jika baru mengubah `.env`):
+4. Jalankan Development Server:
 
 ```bash
 npx expo start -c
 
 ```
 
-### ⚙️ Back-End (NestJS) - *Untuk Development Lokal*
-
-*Catatan: Langkah ini hanya diperlukan jika Anda ingin menjalankan server backend secara lokal. Untuk penggunaan normal, aplikasi mobile sudah otomatis terhubung ke server Railway.*
-
-1. Masuk ke direktori backend:
-
-```bash
-cd nest/vrp-backend
-
-```
-
-2. Install dependencies:
-
-```bash
-npm install
-
-```
-
-3. Setup Database (Prisma):
-
-```bash
-npx prisma db push --force-reset
-npx prisma generate
-npx prisma db seed
-
-```
-
-4. Run Server:
-
-```bash
-npm run start:dev
-
-```
-
----
-
-## 📋 Fitur Utama & Progres Pengembangan
-
-### Level 1: Public Marketplace & Role Awareness
-
-* **[x] Public Marketplace:** Katalog produk dan detail baca-saja (read-only) dapat diakses oleh pengunjung (Guest) tanpa harus login.
-* **[x] Secure Auth:** Pendaftaran dan proses login menggunakan JWT, dengan enkripsi password menggunakan bcrypt.
-* **[x] Multi-Role Aware:** Sistem mendukung identitas tunggal yang dapat memiliki multi-peran (Seller, Buyer, Driver).
-* **[x] Active Role Selection:** Memaksa pengguna memilih active role untuk membatasi otorisasi navigasi.
-* **[x] Public Reviews:** Pengguna dapat memberikan ulasan pengalaman aplikasi (dilengkapi dengan filter pencegahan XSS).
-
-### Level 2: Building the Seller Experience
-
-* **[x] Store Management:** Penjual dapat membuka dan mengubah profil toko. Sistem memastikan validasi keunikan nama toko di seluruh platform.
-* **[x] Product CRUD (Seller):** Antarmuka dan API khusus bagi penjual untuk menambah, melihat, mengedit, dan menghapus produk di etalase mereka.
-* **[x] Strict Ownership Authorization:** Proteksi berlapis di backend (Guard Clauses) untuk memastikan Penjual hanya dapat mengubah atau menghapus produk dari tokonya sendiri.
-* **[x] Integrated Public Catalog:** Katalog publik langsung menarik data dinamis dari database produk penjual.
-
-### Level 3: Buyer Wallet, Cart, and Checkout
-
-* **[x] Buyer Wallet & Address:** Sistem manajemen alamat pengiriman (CRUD) dan dompet digital pembeli yang dilengkapi simulasi top-up serta pencatatan riwayat buku besar (ledger) transaksi.
-* **[x] Cart Management (Single-Store Rule):** Sistem keranjang cerdas yang menolak pencampuran produk antar-toko (HTTP 409 Conflict) di level backend, dilengkapi dengan Alert konfirmasi pergantian toko di frontend.
-* **[x] ACID Checkout Engine:** Mesin transaksi database (Prisma `$transaction`) yang mengkalkulasi subtotal, ongkos kirim dinamis (Instant, Next Day, Regular), dan PPN 12% secara real-time. Memotong saldo dompet dan stok produk secara aman tanpa anomali data.
-* **[x] Unified Order Interface:** Satu halaman Orders yang beradaptasi secara cerdas: menampilkan "Riwayat Pesanan" bagi Pembeli, dan berubah wujud menjadi "Pesanan Masuk" bagi Penjual.
-
-### Level 4: Discounts and Seller Order Processing
-
-* **[x] Smart Discount System:** Dukungan untuk `Voucher` (berbasis kuota & tenggat waktu) dan `Promo` (berbasis tenggat waktu). Terdapat API validasi yang memotong harga secara *real-time* saat *checkout*.
-* **[x] Order Fulfillment (Seller Action):** Fitur otorisasi khusus penjual untuk memproses pesanan masuk, memajukan status pesanan dari `SEDANG_DIKEMAS` menjadi `MENUNGGU_PENGIRIM` yang disertai pencatatan riwayat waktu (*timestamp*).
-* **[x] Financial Reports & Dashboard:** API analitik finansial yang menghitung total pengeluaran pembeli (Buyer Expense) dan pendapatan kotor penjual (Seller Gross Income), disajikan secara dinamis di halaman Profil.
-* **[x] Expandable Order Details (Accordion UI):** Implementasi antarmuka dinamis pada riwayat pesanan yang memungkinkan pengguna melihat rincian komprehensif tanpa berpindah halaman (meliputi detail alamat, subtotal, potongan diskon, ongkos kirim, dan PPN 12%).
-
-### Level 5: Delivery and Driver Workflow
-
-* **[x] Driver Dashboard & Job Market:** Dasbor interaktif khusus Kurir dengan *Segmented Control* yang memisahkan "Bursa Pekerjaan", "Tugas Aktif", dan "Riwayat" yang dirender secara aman dari bentrok state UI.
-* **[x] Race-Condition Safe Job Taking:** API `POST /take` yang dikunci menggunakan `Prisma $transaction` untuk memastikan sebuah pesanan `MENUNGGU_PENGIRIM` hanya bisa diambil oleh SATU kurir. Mencegah duplikasi data tugas di tengah konkurensi.
-* **[x] Delivery Completion & Earning Payout:** Sistem konfirmasi penyelesaian otomatis yang memajukan pesanan menjadi `PESANAN_SELESAI`, sekaligus mencairkan ongkos kirim ke dalam Saldo Dompet kurir yang disertai rekam jejak (*ledger*).
-
-### Level 6: Admin Monitoring and Overdue Handling
-
-* **[x] Admin Monitoring Dashboard:** Pusat kendali untuk memantau metrik agregasi platform secara *real-time*, meliputi total pengguna, toko, pesanan aktif, pengiriman, hingga angka pesanan yang berstatus *overdue*.
-* **[x] Discount Management UI:** Antarmuka khusus Administrator untuk menghasilkan (*generate*) *Voucher* dan *Promo* dengan validasi DTO ketat.
-* **[x] Time Travel Simulation:** *Endpoint* khusus untuk mensimulasikan pergeseran waktu (memundurkan umur pesanan) guna mendemonstrasikan proses SLA secara instan tanpa memanipulasi waktu server.
-* **[x] ACID Overdue & Auto-Refund Engine:** Mesin logistik yang mengeksekusi pembatalan pesanan yang melanggar SLA. Mengotomatisasi pengembalian dana ke dompet pembeli, penyesuaian riwayat pengeluaran, serta pemulihan stok barang di dalam satu transaksi database yang kebal *double-refund*.
-
-### Level 7: Security Hardening and Finalization
-
-* **[x] SQLi & XSS Prevention:** Pengamanan interaksi database menggunakan metode *safe-query* (Prisma ORM) untuk mencegah SQL Injection. Seluruh input dari pengguna, terutama form *checkout* dan *public reviews*, disanitasi secara ketat untuk mencegah eksekusi *script* berbahaya (XSS).
-* **[x] Strict DTO & Input Validation:** Implementasi validasi data di level API untuk menolak input yang tidak valid atau berbahaya (seperti anomali harga, stok, atau tipe data) dengan mengembalikan pesan *error* yang jelas dan terstruktur.
-* **[x] RBAC & Session Hardening:** Penegakan aturan otorisasi berbasis *Zero-Trust* di sisi *backend*. Sistem tidak mempercayai *role* hanya dari rute UI, melainkan memverifikasi kepemilikan token, batas kedaluwarsa sesi, dan *active role* pengguna untuk mencegah akses lintas entitas (misal: Penjual tidak dapat memodifikasi produk penjual lain).
-* **[x] Comprehensive API Documentation:** Penyediaan dokumentasi API interaktif dan terstandarisasi menggunakan Swagger/OpenAPI untuk memetakan seluruh *endpoint*, format *request*, dan respons sistem.
-* **[x] Ready-to-Test Demo Environment:** Implementasi *database seeder* yang komprehensif untuk menghasilkan akun demo (Admin, Seller, Buyer, Driver) dan data awal secara otomatis.
-* **[x] End-to-End Testing Guide:** Pendokumentasian aturan bisnis secara mendetail (aturan *single-store checkout*, kombinasi diskon, kalkulasi PPN 12%, pendapatan kurir, simulasi *time-travel* SLA) beserta panduan pengujian alur e-commerce yang utuh.
+*(Tekan tombol `w` di terminal untuk membuka antarmuka Web).*
 
 ---
 
 ## 🔑 Aturan Bisnis & Logika Inti
 
-Penting untuk dicatat bahwa SEAPEDIA mematuhi aturan bisnis yang ketat dalam penanganan transaksinya:
-
-* **Single-Store Checkout:** Untuk mencegah kerumitan pengiriman dan menjaga SLA logistik yang akurat, satu keranjang (cart) hanya boleh berisi produk dari **satu toko**. Jika pembeli mencoba menambahkan produk dari toko yang berbeda, sistem akan menolak dan meminta pembeli untuk menyelesaikan atau mengosongkan keranjang sebelumnya.
-* **Tax & Discount Calculation Rule:** Kalkulasi diskon (Voucher/Promo) akan memotong `Subtotal` terlebih dahulu. PPN 12% kemudian dihitung secara akurat dari Dasar Pengenaan Pajak (DPP), yang rumusnya adalah: `(Subtotal - Diskon) + Ongkos Kirim`. Pemotongan kuota diskon dikunci secara atomik untuk mencegah *race condition*.
-* **Transactional Integrity:** Proses checkout bersifat absolut. Jika di tengah proses stok ternyata habis atau saldo dompet tiba-tiba kurang, seluruh rangkaian transaksi dibatalkan (rollback) untuk mencegah uang hilang atau pesanan hantu.
-* **Driver Job Concurrency:** Sebuah pengiriman hanya bisa dieksekusi oleh satu Kurir. Transaksi pengambilan paket di-lock di level database untuk mencegah *race condition* apabila ada dua kurir mengeklik pesanan yang sama di milidetik yang berbarengan.
-* **Overdue SLA & Auto-Refund Policy:** Batas waktu pengiriman diatur berdasarkan metode yang dipilih (Instant: 24 Jam, Next Day: 48 Jam, Regular: 72 Jam). Jika pesanan melewati SLA dan belum diambil kurir, sistem dapat membatalkan pesanan (status: `DIKEMBALIKAN`). Saldo dikembalikan secara utuh ke dompet pembeli, pengeluaran pembeli disesuaikan, pendapatan penjual dihapus, dan stok direstorasi secara atomik.
-* **Role-Based Backend Authorization:** Akses ke endpoint API tidak hanya mengecek validitas token JWT, tetapi juga secara aktif mencocokkan Active Role yang di-klaim dengan database untuk mencegah akses ilegal.
-* **Guest Browsing:** Halaman publik dirancang aman dari interaksi transaksional. Fungsi checkout dan manajemen toko dinonaktifkan secara otomatis hingga pengguna masuk dengan peran yang sesuai.
+* **Single-Store Checkout:** Satu keranjang (cart) hanya boleh berisi produk dari **satu toko**. Sistem akan menolak percampuran produk antar-toko (HTTP 409 Conflict) di level backend.
+* **Tax & Discount Calculation Rule:** Kalkulasi diskon (Voucher/Promo) akan memotong `Subtotal` terlebih dahulu. PPN 12% kemudian dihitung dari Dasar Pengenaan Pajak (DPP) yaitu: `(Subtotal - Diskon) + Ongkos Kirim`.
+* **Transactional Integrity:** Proses *checkout* menggunakan `Prisma $transaction` untuk memastikan sifat ACID. Pemotongan saldo dompet dan stok dilakukan serempak.
+* **Driver Job Concurrency:** Endpoint pengambilan pesanan dikunci di level *database* untuk mencegah *race condition* apabila ada dua kurir mengambil pesanan yang sama di waktu bersamaan.
+* **Overdue SLA & Auto-Refund Policy:** Mesin *Overdue* akan mengotomatisasi pengembalian dana penuh ke dompet pembeli, penyesuaian *ledger*, dan restorasi stok barang dalam satu transaksi kebal *double-refund* apabila pesanan melanggar tenggat waktu pengiriman (Instant: 24 Jam, Next Day: 48 Jam, Regular: 72 Jam).
 
 ---
 
@@ -170,7 +176,5 @@ Penting untuk dicatat bahwa SEAPEDIA mematuhi aturan bisnis yang ketat dalam pen
 * **Universitas:** Universitas Surabaya (Ubaya)
 
 Proyek ini dikembangkan secara bertahap sebagai bagian dari tantangan pengembangan perangkat lunak COMPFEST 2026.
-
-```
 
 ```

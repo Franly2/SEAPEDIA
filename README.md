@@ -102,11 +102,11 @@ npm install
 Buat file `.env` di **root direktori backend** Anda dengan konfigurasi berikut:
 
 ```env
-JWT_SECRET="kode_rahasia_seapedia-franly"
+JWT_SECRET="xxxxxxxxxxxxy"
 PORT=3000
 EXPIRES_IN="1d"
 origin="http://localhost:8081"
-DATABASE_URL="postgresql://neondb_owner:npg_B1YrGftqzI3b@ep-little-truth-aonuepl1-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DATABASE_URL="xxxxxxxxxxxxxxxxxxxxx"
 
 ```
 
@@ -140,11 +140,11 @@ npm install
 Buat file `.env` di root direktori mobile. Ubah target API sesuai kebutuhan (Local atau Production).
 
 ```env
-# Gunakan alamat railway untuk koneksi ke Live Production
-EXPO_PUBLIC_API_IP_ADDRESS=[https://seapedia-production.up.railway.app](https://seapedia-production.up.railway.app)
+# Host
+EXPO_PUBLIC_API_IP_ADDRESS="xxxxxxxxxxxxxxxxx"
 
-# ATAU gunakan Localhost jika menjalankan backend lokal
-# EXPO_PUBLIC_API_IP_ADDRESS=http://localhost:3000
+# Local
+# EXPO_PUBLIC_API_IP_ADDRESS="xxxxxxxxxxxxxxxxx"
 
 ```
 

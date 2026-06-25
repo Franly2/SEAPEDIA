@@ -1,5 +1,5 @@
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
+import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -137,7 +137,7 @@ export default function ProductDetailScreen() {
   if (!product) {
     return (
       <View style={[styles.container, styles.center]}>
-        <IconSymbol name="exclamationmark.triangle.fill" size={48} color="#9CA3AF" />
+        <Feather name="alert-triangle" size={48} color="#9CA3AF" />
         <Text style={styles.errorText}>Produk tidak ditemukan.</Text>
         <TouchableOpacity style={styles.backButtonError} onPress={() => router.back()}>
           <Text style={styles.backButtonErrorText}>Kembali</Text>
@@ -148,54 +148,54 @@ export default function ProductDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <IconSymbol name="chevron.left" size={24} color="#1F2937" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Detail Produk</Text>
-        <View style={{ width: 24 }} /> 
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={styles.contentWrapper}>
-          
-          <View style={styles.imageContainer}>
-            {product.imageUrl ? (
-              <Image source={{ uri: product.imageUrl }} style={styles.productImage} />
-            ) : (
-              <View style={styles.placeholderImage}>
-                <IconSymbol name="cube.box" size={64} color="#9CA3AF" />
-              </View>
-            )}
-          </View>
-
-          <View style={styles.infoSection}>
-            <Text style={styles.productPrice}>{formatRupiah(product.price)}</Text>
-            <Text style={styles.productName}>{product.name}</Text>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.metaSection}>
-            <View style={styles.storeBadge}>
-              <IconSymbol name="building.2.fill" size={16} color="#4B5563" />
-              <Text style={styles.storeName}>{product.store.name}</Text>
-            </View>
-            <View style={styles.stockBadge}>
-              <Text style={styles.stockText}>Stok: {product.stock}</Text>
-            </View>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.descriptionSection}>
-            <Text style={styles.sectionTitle}>Deskripsi Produk</Text>
-            <Text style={styles.productDescription}>{product.description}</Text>
-          </View>
-          
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        
+        {/* Header sekarang berada di dalam ScrollView agar ikut terscroll bersama halaman */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Feather name="chevron-left" size={24} color="#1F2937" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Detail Produk</Text>
+          <View style={{ width: 40 }} /> 
         </View>
+
+        <View style={styles.imageContainer}>
+          {product.imageUrl ? (
+            <Image source={{ uri: product.imageUrl }} style={styles.productImage} />
+          ) : (
+            <View style={styles.placeholderImage}>
+              <Feather name="box" size={64} color="#9CA3AF" />
+            </View>
+          )}
+        </View>
+
+        <View style={styles.infoSection}>
+          <Text style={styles.productPrice}>{formatRupiah(product.price)}</Text>
+          <Text style={styles.productName}>{product.name}</Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.metaSection}>
+          <View style={styles.storeBadge}>
+            <Feather name="briefcase" size={16} color="#4B5563" />
+            <Text style={styles.storeName}>{product.store.name}</Text>
+          </View>
+          <View style={styles.stockBadge}>
+            <Text style={styles.stockText}>Stok: {product.stock}</Text>
+          </View>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.descriptionSection}>
+          <Text style={styles.sectionTitle}>Deskripsi Produk</Text>
+          <Text style={styles.productDescription}>{product.description}</Text>
+        </View>
+          
       </ScrollView>
 
+      {/* Bottom Bar tetap fixed di bawah */}
       <View style={styles.bottomBar}>
         <View style={styles.bottomBarContent}>
           <TouchableOpacity 
@@ -211,7 +211,7 @@ export default function ProductDetailScreen() {
               <ActivityIndicator size="small" color="#FFF" />
             ) : (
               <>
-                <IconSymbol name="cart.badge.plus" size={20} color="#FFF" />
+                <Feather name="shopping-cart" size={20} color="#FFF" />
                 <Text style={styles.actionButtonText}>
                   {product.stock < 1 ? 'Stok Habis' : 'Tambah ke Keranjang'}
                 </Text>
@@ -225,30 +225,39 @@ export default function ProductDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB' },
-  center: { justifyContent: 'center', alignItems: 'center' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 16, backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: '#E5E7EB', zIndex: 10 },
-  backButton: { padding: 4 },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937' },
-  scrollContent: { flexGrow: 1, paddingBottom: 100 },
-  contentWrapper: { width: '100%', maxWidth: 600, alignSelf: 'center', backgroundColor: '#FFF', minHeight: '100%' },
-  imageContainer: { width: '100%', aspectRatio: 1, backgroundColor: '#F3F4F6' },
-  productImage: { width: '100%', height: '100%', resizeMode: 'cover' },
-  placeholderImage: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  infoSection: { padding: 20 },
-  productPrice: { fontSize: 24, fontWeight: '800', color: '#E11D48', marginBottom: 8 },
-  productName: { fontSize: 18, color: '#1F2937', fontWeight: '600', lineHeight: 26 },
-  divider: { height: 1, backgroundColor: '#F3F4F6', marginHorizontal: 20 },
-  metaSection: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20 },
-  storeBadge: { flexDirection: 'row', alignItems: 'center' },
-  storeName: { fontSize: 14, fontWeight: '600', color: '#4B5563', marginLeft: 8 },
-  stockBadge: { backgroundColor: '#EFF6FF', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
-  stockText: { color: '#1D4ED8', fontWeight: '700', fontSize: 13 },
-  descriptionSection: { padding: 20 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#111827', marginBottom: 12 },
-  productDescription: { fontSize: 14, color: '#4B5563', lineHeight: 24 },
+  container: { flex: 1, backgroundColor: '#FAFAFA' }, // Disamakan dengan Checkout Screen
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   
-  bottomBar: { position: 'absolute', bottom: 0, width: '100%', backgroundColor: '#FFF', borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingVertical: 16, paddingHorizontal: 20 },
+  // Padding atas yang adaptif seperti di Checkout Screen
+  content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 120, width: '100%', maxWidth: 600, alignSelf: 'center' },
+  
+  // Header dimodifikasi tanpa background putih & border, murni mengambang
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
+  backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 },
+  headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
+  
+  // Gambar sekarang melengkung menyesuaikan padding halaman (Modern Layout)
+  imageContainer: { width: '100%', aspectRatio: 1, backgroundColor: '#FFF', borderRadius: 16, overflow: 'hidden', marginBottom: 20, borderWidth: 1, borderColor: '#E5E7EB' },
+  productImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+  placeholderImage: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F3F4F6' },
+  
+  infoSection: { marginBottom: 16 },
+  productPrice: { fontSize: 28, fontWeight: '900', color: '#E11D48', marginBottom: 8 },
+  productName: { fontSize: 20, color: '#1F2937', fontWeight: 'bold', lineHeight: 28 },
+  
+  divider: { height: 1, backgroundColor: '#E5E7EB', marginVertical: 16 },
+  
+  metaSection: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  storeBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F3F4F6', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
+  storeName: { fontSize: 14, fontWeight: '700', color: '#4B5563', marginLeft: 8 },
+  stockBadge: { backgroundColor: '#EFF6FF', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
+  stockText: { color: '#1D4ED8', fontWeight: '800', fontSize: 13 },
+  
+  descriptionSection: { marginBottom: 20 },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#374151', marginBottom: 12 },
+  productDescription: { fontSize: 15, color: '#4B5563', lineHeight: 24 },
+  
+  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#FFF', borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingVertical: 16, paddingHorizontal: 20 },
   bottomBarContent: { width: '100%', maxWidth: 600, alignSelf: 'center' },
   
   actionButton: { backgroundColor: '#10B981', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 14, borderRadius: 12 },

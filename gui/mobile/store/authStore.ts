@@ -12,6 +12,9 @@ interface AuthState {
   login: (token: string, roles: string[], activeRole: string, username: string, fullName: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
+  
+  // 1. Tambahkan deklarasi fungsi di interface
+  updateActiveRole: (newRole: string, newToken?: string) => Promise<void>; 
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -56,4 +59,24 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ isLoading: false });
     }
   },
+
+  // 2. Implementasi fungsi pembaruan peran dan token
+  updateActiveRole: async (newRole, newToken) => {
+    // Siapkan array data yang akan diperbarui di penyimpanan HP
+    const updates: [string, string][] = [['userActiveRole', newRole]];
+    
+    // Jika ada token baru dari backend, ikut perbarui juga
+    if (newToken) {
+      updates.push(['userToken', newToken]);
+    }
+    
+    // Simpan perubahan ke memori HP (agar awet saat aplikasi ditutup)
+    await AsyncStorage.multiSet(updates);
+    
+    // Perbarui state Zustand secara real-time agar UI langsung berubah
+    set((state) => ({
+      activeRole: newRole,
+      token: newToken ? newToken : state.token
+    }));
+  }
 }));

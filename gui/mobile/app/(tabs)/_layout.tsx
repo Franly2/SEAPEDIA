@@ -1,13 +1,12 @@
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuthStore } from '@/store/authStore';
+import { Feather } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  // Tambahkan 'token' dari useAuthStore untuk mengecek status login
   const { activeRole, token } = useAuthStore(); 
   
   const primaryColor = '#1976D2';
@@ -31,7 +30,7 @@ export default function TabLayout() {
           title: 'Beranda',
           href: activeRole === 'SELLER' ? null : undefined,
           tabBarItemStyle: activeRole === 'SELLER' ? { display: 'none' } : undefined,
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={24} name="home" color={color} />,
         }}
       />
 
@@ -41,7 +40,7 @@ export default function TabLayout() {
           title: 'Toko Saya',
           href: activeRole === 'SELLER' ? undefined : null, 
           tabBarItemStyle: activeRole === 'SELLER' ? undefined : { display: 'none' },
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="briefcase.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={24} name="briefcase" color={color} />,
         }}
       />
 
@@ -51,7 +50,7 @@ export default function TabLayout() {
           title: 'Keranjang',
           href: activeRole === 'BUYER' ? undefined : null,
           tabBarItemStyle: activeRole === 'BUYER' ? undefined : { display: 'none' },
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={24} name="shopping-cart" color={color} />,
         }}
       />
       
@@ -61,7 +60,7 @@ export default function TabLayout() {
           title: 'Pesanan',
           href: (activeRole === 'BUYER' || activeRole === 'SELLER') ? undefined : null,
           tabBarItemStyle: (activeRole === 'BUYER' || activeRole === 'SELLER') ? undefined : { display: 'none' },
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="bag.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={24} name="shopping-bag" color={color} />,
         }}
       />
 
@@ -71,7 +70,7 @@ export default function TabLayout() {
           title: 'Driver',
           href: activeRole === 'DRIVER' ? undefined : null,
           tabBarItemStyle: activeRole === 'DRIVER' ? undefined : { display: 'none' },
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="car.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={24} name="truck" color={color} />,
         }}
       />
 
@@ -81,7 +80,7 @@ export default function TabLayout() {
           title: 'Admin',
           href: activeRole === 'ADMIN' ? undefined : null,
           tabBarItemStyle: activeRole === 'ADMIN' ? undefined : { display: 'none' },
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="chart.bar.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={24} name="bar-chart-2" color={color} />,
         }}
       />
 
@@ -92,7 +91,7 @@ export default function TabLayout() {
           title: token ? 'Profil' : 'Login',
           href: undefined, 
           tabBarItemStyle: undefined,
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={24} name="user" color={color} />,
         }}
       />
     </Tabs>

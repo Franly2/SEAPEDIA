@@ -1,5 +1,5 @@
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -144,59 +144,88 @@ export default function CheckoutScreen() {
     }
   };
 
-  if (isLoading) return <View style={[styles.container, styles.center]}><ActivityIndicator size="large" color="#10B981" /></View>;
+  if (isLoading) return <View style={[styles.container, styles.center]}><ActivityIndicator size="large" color="#3B82F6" /></View>;
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}><IconSymbol name="chevron.left" size={24} color="#1F2937" /></TouchableOpacity>
-        <Text style={styles.headerTitle}>Checkout Pesanan</Text>
-        <View style={{ width: 24 }} />
-      </View>
-
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
-        <Text style={styles.sectionTitle}>Alamat Pengiriman</Text>
-        <View style={styles.card}>
-          {addresses.length === 0 ? (
-            <TouchableOpacity onPress={() => router.push('/buyer/address')}>
-              <Text style={styles.linkText}>+ Tambah Alamat Baru</Text>
-            </TouchableOpacity>
-          ) : (
-            addresses.map(addr => (
-              <TouchableOpacity key={addr.id} style={[styles.optionRow, selectedAddressId === addr.id && styles.optionSelected]} onPress={() => setSelectedAddressId(addr.id)}>
-                <IconSymbol name={selectedAddressId === addr.id ? 'checkmark.circle.fill' : 'circle'} size={20} color={selectedAddressId === addr.id ? '#3B82F6' : '#9CA3AF'} />
-                <View style={styles.optionInfo}>
-                  <Text style={styles.optionLabel}>{addr.label}</Text>
-                  <Text style={styles.optionDesc}>{addr.addressLine}</Text>
-                </View>
-              </TouchableOpacity>
-            ))
-          )}
+        {/* --- HEADER (Sekarang di dalam ScrollView agar ikut terscroll) --- */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Feather name="chevron-left" size={24} color="#1F2937" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Checkout Pesanan</Text>
+          <View style={{ width: 40 }} />
         </View>
+        
+        {/* --- SECTION ALAMAT --- */}
+        <Text style={styles.sectionTitle}>Alamat Pengiriman</Text>
+        {addresses.length === 0 ? (
+          <TouchableOpacity style={styles.addButton} onPress={() => router.push('/buyer/address')}>
+            <Feather name="plus" size={20} color="#3B82F6" />
+            <Text style={styles.addButtonText}> Tambah Alamat Baru</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.listContainer}>
+            {addresses.map(addr => (
+              <TouchableOpacity 
+                key={addr.id} 
+                style={[styles.selectionCard, selectedAddressId === addr.id && styles.selectionCardActive]} 
+                activeOpacity={0.7}
+                onPress={() => setSelectedAddressId(addr.id)}
+              >
+                <View style={styles.cardHeader}>
+                  <View style={styles.labelBadge}>
+                    <Text style={styles.labelText}>{addr.label}</Text>
+                  </View>
+                  <View style={styles.radioCircle}>
+                    {selectedAddressId === addr.id && <View style={styles.radioInnerCircle} />}
+                  </View>
+                </View>
+                <Text style={styles.cardDescText}>{addr.addressLine}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
-        <Text style={styles.sectionTitle}>Pilih Pengiriman</Text>
-        <View style={styles.card}>
+        {/* --- SECTION PENGIRIMAN --- */}
+        <Text style={styles.sectionTitle}>Metode Pengiriman</Text>
+        <View style={styles.listContainer}>
           {[
-            { id: 'REGULAR', name: 'Regular', price: 10000 },
-            { id: 'NEXT_DAY', name: 'Next Day', price: 15000 },
-            { id: 'INSTANT', name: 'Instant (Sameday)', price: 20000 },
+            { id: 'REGULAR', name: 'Regular', desc: 'Estimasi 3-5 Hari', price: 10000, icon: 'package' },
+            { id: 'NEXT_DAY', name: 'Next Day', desc: 'Tiba Esok Hari', price: 15000, icon: 'sun' },
+            { id: 'INSTANT', name: 'Instant (Sameday)', desc: 'Tiba Hari Ini', price: 20000, icon: 'zap' },
           ].map(method => (
-            <TouchableOpacity key={method.id} style={[styles.optionRow, deliveryMethod === method.id && styles.optionSelected]} onPress={() => setDeliveryMethod(method.id as any)}>
-              <IconSymbol name={deliveryMethod === method.id ? 'checkmark.circle.fill' : 'circle'} size={20} color={deliveryMethod === method.id ? '#3B82F6' : '#9CA3AF'} />
-              <View style={styles.optionInfo}>
-                <Text style={styles.optionLabel}>{method.name}</Text>
-                <Text style={styles.optionDesc}>{formatRupiah(method.price)}</Text>
+            <TouchableOpacity 
+              key={method.id} 
+              style={[styles.selectionCard, deliveryMethod === method.id && styles.selectionCardActive]} 
+              activeOpacity={0.7}
+              onPress={() => setDeliveryMethod(method.id as any)}
+            >
+              <View style={styles.cardHeader}>
+                <View style={styles.methodHeaderLeft}>
+                  <Feather name={method.icon as any} size={18} color={deliveryMethod === method.id ? '#3B82F6' : '#6B7280'} style={{marginRight: 8}}/>
+                  <Text style={[styles.methodNameText, deliveryMethod === method.id && {color: '#1D4ED8'}]}>{method.name}</Text>
+                </View>
+                <View style={styles.radioCircle}>
+                  {deliveryMethod === method.id && <View style={styles.radioInnerCircle} />}
+                </View>
+              </View>
+              <View style={styles.methodFooter}>
+                 <Text style={styles.methodDescText}>{method.desc}</Text>
+                 <Text style={styles.methodPriceText}>{formatRupiah(method.price)}</Text>
               </View>
             </TouchableOpacity>
           ))}
         </View>
 
+        {/* --- SECTION DISKON --- */}
         <Text style={styles.sectionTitle}>Gunakan Diskon</Text>
-        <View style={styles.card}>
+        <View style={styles.staticCard}>
           <View style={styles.discountInputRow}>
             <TextInput
-              style={styles.discountInput}
+              style={styles.input}
               placeholder="Kode Voucher/Promo"
               value={discountInput}
               onChangeText={setDiscountInput}
@@ -213,43 +242,54 @@ export default function CheckoutScreen() {
 
           {appliedVoucher && (
             <View style={styles.activeDiscountBadge}>
-              <IconSymbol name="ticket.fill" size={16} color="#059669" />
-              <Text style={styles.activeDiscountText}>
-                Voucher: {appliedVoucher.code} (-{formatRupiah(appliedVoucher.value)})
-              </Text>
-              <TouchableOpacity
-                style={styles.removeDiscountBtn}
-                onPress={() => {
-                  setAppliedVoucher(null);
-                  showAlert('Info', 'Voucher berhasil dilepas.');
-                }}
-              >
-                <Text style={styles.removeDiscountText}>X</Text>
-              </TouchableOpacity>
+              <View style={styles.discountBadgeLeft}>
+                <Feather name="tag" size={16} color="#059669" />
+                <Text style={styles.activeDiscountText}>
+                  Voucher: {appliedVoucher.code}
+                </Text>
+              </View>
+              <View style={styles.discountBadgeRight}>
+                 <Text style={styles.discountAmountText}>-{formatRupiah(appliedVoucher.value)}</Text>
+                 <TouchableOpacity
+                  style={styles.removeDiscountBtn}
+                  onPress={() => {
+                    setAppliedVoucher(null);
+                    showAlert('Info', 'Voucher dilepas.');
+                  }}
+                 >
+                  <Feather name="x" size={14} color="#FFF" />
+                 </TouchableOpacity>
+              </View>
             </View>
           )}
 
           {appliedPromo && (
             <View style={styles.activeDiscountBadge}>
-              <IconSymbol name="tag.fill" size={16} color="#059669" />
-              <Text style={styles.activeDiscountText}>
-                Promo: {appliedPromo.code} (-{formatRupiah(appliedPromo.value)})
-              </Text>
-              <TouchableOpacity 
-                style={styles.removeDiscountBtn} 
-                onPress={() => {
-                  setAppliedPromo(null);
-                  showAlert('Info', 'Promo berhasil dilepas.');
-                }}
-              >
-                <Text style={styles.removeDiscountText}>X</Text>
-              </TouchableOpacity>
+              <View style={styles.discountBadgeLeft}>
+                <Feather name="percent" size={16} color="#059669" />
+                <Text style={styles.activeDiscountText}>
+                  Promo: {appliedPromo.code}
+                </Text>
+              </View>
+              <View style={styles.discountBadgeRight}>
+                 <Text style={styles.discountAmountText}>-{formatRupiah(appliedPromo.value)}</Text>
+                 <TouchableOpacity
+                  style={styles.removeDiscountBtn}
+                  onPress={() => {
+                    setAppliedPromo(null);
+                    showAlert('Info', 'Promo dilepas.');
+                  }}
+                 >
+                  <Feather name="x" size={14} color="#FFF" />
+                 </TouchableOpacity>
+              </View>
             </View>
           )}
         </View>
 
-        <Text style={styles.sectionTitle}>Rincian Biaya</Text>
-        <View style={styles.card}>
+        {/* --- SECTION RINCIAN BIAYA --- */}
+        <Text style={styles.sectionTitle}>Rincian Pembayaran</Text>
+        <View style={styles.staticCard}>
           <View style={styles.costRow}><Text style={styles.costLabel}>Subtotal Produk</Text><Text style={styles.costValue}>{formatRupiah(subtotal)}</Text></View>
           
           {totalDiscount > 0 && (
@@ -266,62 +306,100 @@ export default function CheckoutScreen() {
           <View style={styles.costRow}><Text style={styles.costLabelBold}>Total Tagihan</Text><Text style={styles.totalValue}>{formatRupiah(finalTotal)}</Text></View>
         </View>
 
-        <View style={[styles.card, { backgroundColor: isBalanceSufficient ? '#F0FDF4' : '#FEF2F2' }]}>
+        <View style={[styles.walletStatusCard, { backgroundColor: isBalanceSufficient ? '#F0FDF4' : '#FEF2F2', borderColor: isBalanceSufficient ? '#BBF7D0' : '#FECACA' }]}>
           <View style={styles.costRow}>
-            <Text style={styles.costLabelBold}>Saldo Dompet Anda</Text>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+               <Feather name="wallet" size={18} color={isBalanceSufficient ? '#10B981' : '#DC2626'} style={{marginRight: 8}} />
+               <Text style={styles.costLabelBold}>Saldo Dompet Anda</Text>
+            </View>
             <Text style={[styles.costLabelBold, { color: isBalanceSufficient ? '#10B981' : '#DC2626' }]}>{formatRupiah(walletBalance)}</Text>
           </View>
-          {!isBalanceSufficient && <Text style={styles.errorText}>Saldo kurang {formatRupiah(finalTotal - walletBalance)}</Text>}
+          {!isBalanceSufficient && <Text style={styles.errorText}>Saldo kurang {formatRupiah(finalTotal - walletBalance)}. Silakan top up di menu Profil.</Text>}
         </View>
+        
       </ScrollView>
 
+      {/* --- BOTTOM BAR --- */}
       <View style={styles.bottomBar}>
-        <TouchableOpacity style={[styles.payButton, (!isBalanceSufficient || cartData?.items.length === 0) && { backgroundColor: '#9CA3AF' }]} onPress={handleProcessCheckout} disabled={!isBalanceSufficient || cartData?.items.length === 0 || isProcessing}>
-          {isProcessing ? <ActivityIndicator color="#FFF" /> : <Text style={styles.payButtonText}>Bayar Sekarang</Text>}
-        </TouchableOpacity>
+        <View style={styles.bottomBarContent}>
+           <View style={styles.bottomBarTextContainer}>
+              <Text style={styles.bottomBarLabel}>Total Pembayaran</Text>
+              <Text style={styles.bottomBarTotal}>{formatRupiah(finalTotal)}</Text>
+           </View>
+          <TouchableOpacity style={[styles.payButton, (!isBalanceSufficient || cartData?.items.length === 0) && { backgroundColor: '#9CA3AF' }]} onPress={handleProcessCheckout} disabled={!isBalanceSufficient || cartData?.items.length === 0 || isProcessing}>
+            {isProcessing ? <ActivityIndicator color="#FFF" /> : <Text style={styles.payButtonText}>Bayar Sekarang</Text>}
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' }, center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFF', paddingHorizontal: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }, backBtn: { padding: 4 }, headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937' },
-  content: { padding: 20, paddingBottom: 120, width: '100%', maxWidth: 600, alignSelf: 'center' },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#374151', marginBottom: 12 },
-  card: { backgroundColor: '#FFF', borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', padding: 16, marginBottom: 20 },
-  optionRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }, optionSelected: { backgroundColor: '#EFF6FF', borderRadius: 8, paddingHorizontal: 8 },
-  optionInfo: { marginLeft: 12, flex: 1 }, optionLabel: { fontSize: 15, fontWeight: '600', color: '#1F2937' }, optionDesc: { fontSize: 13, color: '#6B7280', marginTop: 4 },
-  linkText: { color: '#3B82F6', fontWeight: 'bold' },
+  container: { flex: 1, backgroundColor: '#FAFAFA' }, 
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   
-  discountInputRow: { flexDirection: 'row', marginBottom: 8 },
-  discountInput: { flex: 1, backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, marginRight: 8, color: '#1F2937' },
-  applyBtn: { backgroundColor: '#374151', paddingHorizontal: 16, justifyContent: 'center', borderRadius: 8 },
-  applyBtnText: { color: '#FFF', fontWeight: 'bold', fontSize: 13 },
-  activeDiscountBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#D1FAE5', padding: 10, borderRadius: 8, marginTop: 8 },
-  activeDiscountText: { flex: 1, marginLeft: 8, color: '#065F46', fontWeight: '600', fontSize: 13 },
+  // Update: Content memiliki paddingTop menyesuaikan AddressScreen
+  content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 120, width: '100%', maxWidth: 600, alignSelf: 'center' },
   
-  removeDiscountBtn: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#EF4444',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  removeDiscountText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
+  // Update: Header dimodifikasi agar bersih seperti AddressScreen
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
+  backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 }, 
+  headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
+  
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#374151', marginBottom: 12, marginTop: 8 },
+  
+  addButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#BFDBFE', borderStyle: 'dashed', paddingVertical: 16, borderRadius: 12, marginBottom: 20 },
+  addButtonText: { color: '#3B82F6', fontSize: 15, fontWeight: '600' },
+  
+  listContainer: { marginBottom: 20 },
+  selectionCard: { backgroundColor: '#FFF', padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: '#E5E7EB' },
+  selectionCardActive: { borderColor: '#3B82F6', backgroundColor: '#EFF6FF' },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  labelBadge: { backgroundColor: '#F3F4F6', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 },
+  labelText: { fontSize: 12, fontWeight: 'bold', color: '#4B5563' },
+  cardDescText: { fontSize: 14, color: '#374151', lineHeight: 22 },
+  
+  radioCircle: { height: 20, width: 20, borderRadius: 10, borderWidth: 2, borderColor: '#3B82F6', alignItems: 'center', justifyContent: 'center' },
+  radioInnerCircle: { height: 10, width: 10, borderRadius: 5, backgroundColor: '#3B82F6' },
+  
+  methodHeaderLeft: { flexDirection: 'row', alignItems: 'center' },
+  methodNameText: { fontSize: 15, fontWeight: 'bold', color: '#374151' },
+  methodFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
+  methodDescText: { fontSize: 13, color: '#6B7280' },
+  methodPriceText: { fontSize: 14, fontWeight: '800', color: '#1F2937' },
 
-  costRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }, 
-  costLabel: { fontSize: 14, color: '#6B7280' }, costValue: { fontSize: 14, fontWeight: '600', color: '#1F2937' }, 
-  costLabelDiscount: { fontSize: 14, color: '#059669', fontWeight: '500' }, costValueDiscount: { fontSize: 14, fontWeight: 'bold', color: '#059669' },
-  costLabelBold: { fontSize: 15, fontWeight: 'bold', color: '#1F2937' }, totalValue: { fontSize: 18, fontWeight: '900', color: '#E11D48' }, divider: { height: 1, backgroundColor: '#E5E7EB', marginVertical: 12 },
-  errorText: { color: '#DC2626', fontSize: 12, marginTop: 4, fontStyle: 'italic' },
+  staticCard: { backgroundColor: '#FFF', borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', padding: 16, marginBottom: 20 },
   
-  bottomBar: { position: 'absolute', bottom: 0, width: '100%', backgroundColor: '#FFF', padding: 20, borderTopWidth: 1, borderTopColor: '#E5E7EB' },
-  payButton: { backgroundColor: '#10B981', paddingVertical: 14, borderRadius: 10, alignItems: 'center', width: '100%', maxWidth: 600, alignSelf: 'center' }, payButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' }
+  discountInputRow: { flexDirection: 'row' },
+  input: { flex: 1, backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: '#1F2937', marginRight: 8 },
+  applyBtn: { backgroundColor: '#3B82F6', paddingHorizontal: 20, justifyContent: 'center', borderRadius: 10 },
+  applyBtnText: { color: '#FFF', fontWeight: 'bold', fontSize: 14 },
+  
+  activeDiscountBadge: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#D1FAE5', padding: 12, borderRadius: 10, marginTop: 12, borderWidth: 1, borderColor: '#A7F3D0' },
+  discountBadgeLeft: { flexDirection: 'row', alignItems: 'center' },
+  activeDiscountText: { marginLeft: 8, color: '#065F46', fontWeight: 'bold', fontSize: 13 },
+  discountBadgeRight: { flexDirection: 'row', alignItems: 'center' },
+  discountAmountText: { color: '#065F46', fontWeight: '900', fontSize: 14, marginRight: 12 },
+  removeDiscountBtn: { width: 24, height: 24, borderRadius: 12, backgroundColor: '#EF4444', justifyContent: 'center', alignItems: 'center' },
+
+  costRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }, 
+  costLabel: { fontSize: 14, color: '#6B7280' }, 
+  costValue: { fontSize: 14, fontWeight: '600', color: '#1F2937' }, 
+  costLabelDiscount: { fontSize: 14, color: '#059669', fontWeight: 'bold' }, 
+  costValueDiscount: { fontSize: 14, fontWeight: '900', color: '#059669' },
+  costLabelBold: { fontSize: 15, fontWeight: 'bold', color: '#1F2937' }, 
+  totalValue: { fontSize: 20, fontWeight: '900', color: '#E11D48' }, 
+  divider: { height: 1, backgroundColor: '#E5E7EB', marginVertical: 14 },
+  
+  walletStatusCard: { borderRadius: 12, borderWidth: 1, padding: 16, marginBottom: 20 },
+  errorText: { color: '#DC2626', fontSize: 12, marginTop: 6, fontStyle: 'italic', fontWeight: '500' },
+  
+  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#FFF', borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingVertical: 16, paddingHorizontal: 20 },
+  bottomBarContent: { width: '100%', maxWidth: 600, alignSelf: 'center', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  bottomBarTextContainer: { flex: 1, marginRight: 16 },
+  bottomBarLabel: { fontSize: 12, color: '#6B7280', fontWeight: '600', marginBottom: 2 },
+  bottomBarTotal: { fontSize: 18, fontWeight: '900', color: '#E11D48' },
+  payButton: { backgroundColor: '#10B981', paddingVertical: 14, paddingHorizontal: 32, borderRadius: 10, alignItems: 'center', minWidth: 160 }, 
+  payButtonText: { color: '#FFF', fontSize: 15, fontWeight: 'bold' }
 });

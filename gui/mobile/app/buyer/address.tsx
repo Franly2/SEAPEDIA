@@ -1,5 +1,5 @@
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -141,7 +141,7 @@ export default function AddressScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color="#1F2937" />
+          <Feather name="chevron-left" size={24} color="#1F2937" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Alamat Pengiriman</Text>
         <View style={{ width: 40 }} />
@@ -153,7 +153,7 @@ export default function AddressScreen() {
             <Text style={styles.cardTitle}>{editId ? 'Edit Alamat' : 'Tambah Alamat Baru'}</Text>
             {editId && (
               <TouchableOpacity onPress={() => handleDelete(editId)} style={styles.deleteFormBtn}>
-                 <IconSymbol name="trash.fill" size={16} color="#DC2626" />
+                 <Feather name="trash-2" size={16} color="#DC2626" />
               </TouchableOpacity>
             )}
           </View>
@@ -192,7 +192,7 @@ export default function AddressScreen() {
         </View>
       ) : (
         <TouchableOpacity style={styles.addButton} onPress={() => setIsFormVisible(true)}>
-          <IconSymbol name="plus" size={20} color="#3B82F6" />
+          <Feather name="plus" size={20} color="#3B82F6" />
           <Text style={styles.addButtonText}> Tambah Alamat Baru</Text>
         </TouchableOpacity>
       )}
@@ -201,7 +201,7 @@ export default function AddressScreen() {
         <Text style={styles.listSectionTitle}>Daftar Alamat Tersimpan</Text>
         {addresses.length === 0 && !isFormVisible ? (
           <View style={styles.emptyBox}>
-            <IconSymbol name="map.fill" size={48} color="#D1D5DB" />
+            <Feather name="map" size={48} color="#D1D5DB" />
             <Text style={styles.emptyText}>Belum ada alamat tersimpan.</Text>
           </View>
         ) : (
@@ -220,11 +220,12 @@ export default function AddressScreen() {
                 <View style={styles.actionIcons}>
                   <TouchableOpacity 
                     onPress={(e) => {
+                      e.stopPropagation(); // Mencegah form edit terbuka saat tombol hapus diklik
                       handleDelete(addr.id);
                     }} 
                     style={styles.iconButton}
                   >
-                    <IconSymbol name="trash.fill" size={20} color="#DC2626" />
+                    <Feather name="trash-2" size={18} color="#DC2626" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -233,7 +234,7 @@ export default function AddressScreen() {
               
               <View style={styles.clickHint}>
                  <Text style={styles.clickHintText}>Ketuk untuk mengedit</Text>
-                 <IconSymbol name="chevron.right" size={14} color="#9CA3AF" />
+                 <Feather name="chevron-right" size={14} color="#9CA3AF" />
               </View>
             </TouchableOpacity>
           ))

@@ -1,11 +1,12 @@
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuthStore } from '@/store/authStore';
-import { useFocusEffect } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
+import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function OrdersScreen() {
   const { token, activeRole } = useAuthStore();
+  const router = useRouter();
   const api_address = process.env.EXPO_PUBLIC_API_IP_ADDRESS;
   
   const [orders, setOrders] = useState<any[]>([]);
@@ -80,7 +81,7 @@ export default function OrdersScreen() {
   if (!token || (activeRole !== 'BUYER' && activeRole !== 'SELLER')) {
     return (
       <View style={[styles.container, styles.center]}>
-        <IconSymbol name="shield.slash.fill" size={64} color="#EF4444" />
+        <Feather name="shield-off" size={64} color="#EF4444" />
         <Text style={styles.errorTitle}>Akses Dibatasi</Text>
         <Text style={{ color: '#6B7280', marginTop: 8 }}>Halaman ini hanya untuk Pembeli dan Penjual.</Text>
       </View>
@@ -91,21 +92,30 @@ export default function OrdersScreen() {
 
   const isBuyer = activeRole === 'BUYER';
 
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Feather name="chevron-left" size={24} color="#1F2937" />
+      </TouchableOpacity>
+      <Text style={styles.headerTitle}>
+        {isBuyer ? 'Riwayat Pesanan' : 'Pesanan Masuk'}
+      </Text>
+      <View style={{ width: 40 }} />
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>
-          {isBuyer ? 'Riwayat Pesanan' : 'Pesanan Masuk'}
-        </Text>
-      </View>
-      
       <FlatList
         data={orders}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={renderHeader}
         ListEmptyComponent={
-          <View style={styles.center}>
-            <Text style={{ color: '#9CA3AF' }}>Belum ada pesanan.</Text>
+          <View style={styles.emptyState}>
+            <Feather name="inbox" size={48} color="#D1D5DB" />
+            <Text style={{ color: '#9CA3AF', marginTop: 12 }}>Belum ada pesanan.</Text>
           </View>
         }
         renderItem={({ item }) => {
@@ -118,21 +128,22 @@ export default function OrdersScreen() {
               style={[styles.card, isExpanded && { borderColor: '#3B82F6', borderWidth: 1.5 }]}
             >
               <View style={styles.cardHeader}>
-                <Text style={styles.entityName}>
-                  <IconSymbol 
-                    name={isBuyer ? "building.2.fill" : "person.fill"} 
+                <View style={styles.entityNameContainer}>
+                  <Feather 
+                    name={isBuyer ? "briefcase" : "user"} 
                     size={14} 
                     color="#4B5563" 
                   /> 
-                  {' '}
-                  {isBuyer ? item.store?.name : (item.buyer?.fullName || item.buyer?.username)}
-                </Text>
+                  <Text style={styles.entityName}>
+                    {isBuyer ? item.store?.name : (item.buyer?.fullName || item.buyer?.username)}
+                  </Text>
+                </View>
                 
                 <View style={styles.statusContainer}>
                   <View style={styles.statusBadge}>
                     <Text style={styles.statusText}>{item.status.replace(/_/g, ' ')}</Text>
                   </View>
-                  <IconSymbol name={isExpanded ? "chevron.up" : "chevron.down"} size={16} color="#9CA3AF" />
+                  <Feather name={isExpanded ? "chevron-up" : "chevron-down"} size={16} color="#9CA3AF" />
                 </View>
               </View>
 
@@ -220,17 +231,27 @@ export default function OrdersScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FAFAFA' }, 
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }, 
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
-  errorTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 16 }, 
-  list: { padding: 20, maxWidth: 600, alignSelf: 'center', width: '100%' },
   
-  card: { backgroundColor: '#FFF', borderRadius: 12, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#E5E7EB' }, 
+  // FlatList content padding disesuaikan agar sama dengan ScrollView di halaman lain
+  list: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 60, maxWidth: 600, alignSelf: 'center', width: '100%' },
+  
+  // Header dimodifikasi persis seperti AddressScreen (tanpa background putih kaku)
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
+  backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 }, 
+  headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
+  
+  errorTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 16 }, 
+  
+  emptyState: { alignItems: 'center', justifyContent: 'center', padding: 40, backgroundColor: '#FFF', borderRadius: 16, borderWidth: 1, borderColor: '#D1D5DB', borderStyle: 'dashed', marginTop: 20 },
+  
+  // Card pesanan dibuat melengkung dan modern
+  card: { backgroundColor: '#FFF', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#E5E7EB' }, 
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  entityName: { fontSize: 14, fontWeight: 'bold', color: '#374151' }, 
+  entityNameContainer: { flexDirection: 'row', alignItems: 'center' },
+  entityName: { fontSize: 14, fontWeight: 'bold', color: '#374151', marginLeft: 6 }, 
   
   statusContainer: { flexDirection: 'row', alignItems: 'center' },
-  statusBadge: { backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, marginRight: 8 }, 
+  statusBadge: { backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, marginRight: 8 }, 
   statusText: { fontSize: 10, fontWeight: 'bold', color: '#D97706' },
   
   divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 12 }, 
@@ -238,7 +259,7 @@ const styles = StyleSheet.create({
   
   expandedContainer: { marginTop: 4 },
   detailTitle: { fontSize: 13, fontWeight: 'bold', color: '#374151', marginBottom: 8 },
-  detailBox: { backgroundColor: '#F9FAFB', padding: 12, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: '#F3F4F6' },
+  detailBox: { backgroundColor: '#F9FAFB', padding: 12, borderRadius: 10, marginBottom: 12, borderWidth: 1, borderColor: '#F3F4F6' },
   detailLabel: { fontSize: 11, color: '#6B7280', marginBottom: 2 },
   detailValue: { fontSize: 13, color: '#1F2937', fontWeight: '500', marginBottom: 8 },
   
@@ -252,6 +273,6 @@ const styles = StyleSheet.create({
   totalLabel: { fontSize: 13, color: '#6B7280' }, 
   totalValue: { fontSize: 16, fontWeight: '900', color: '#E11D48' },
   
-  processButton: { backgroundColor: '#10B981', paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginTop: 16 },
+  processButton: { backgroundColor: '#10B981', paddingVertical: 12, borderRadius: 10, alignItems: 'center', marginTop: 16 },
   processButtonText: { color: '#FFF', fontWeight: 'bold', fontSize: 14 }
 });

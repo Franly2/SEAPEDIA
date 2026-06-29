@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.orbis",
+      "bundleIdentifier": "com.orbis"
     },
     "android": {
       "adaptiveIcon": {
@@ -46,6 +46,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6aa31f01-e131-4442-a64f-00905d7d1986"
+      }
     }
   }
 }

@@ -65,7 +65,7 @@ export default function RootLayout() {
   return (
     <>
       <Head>
-        <title>Seapedia</title>
+        <title>SEAPEDIA</title>
         <meta name="description" content="Aplikasi Marketplace Logistik Cerdas" />
         <meta name="dicoding:email" content="franlybudipramana588@gmail.com" />
       </Head>

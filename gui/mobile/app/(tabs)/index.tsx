@@ -74,14 +74,28 @@ export default function HomeScreen() {
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
-      <Text style={styles.title}>SEAPEDIA</Text>
+      <View style={styles.heroSection}>
+        <Text style={styles.title}>SEAPEDIA</Text>
+        <Text style={styles.heroDescription}>
+          Jelajahi ribuan produk dari berbagai toko di seluruh Indonesia. Belanja aman, pengiriman cepat, dalam satu platform terintegrasi.
+        </Text>
+      </View>
       
       {token ? (
-          <Text style={styles.text}>Halo, <Text style={styles.bold}>{fullName}</Text>!</Text>
+        <View style={styles.welcomeBox}>
+           <Text style={styles.text}>Halo, <Text style={styles.bold}>{fullName}</Text>!</Text>
+           <View style={styles.roleBadge}>
+             <Text style={styles.roleBadgeText}>{activeRole}</Text>
+           </View>
+        </View>
       ) : (
-        null
+        <View style={styles.guestBox}>
+          <Text style={styles.guestText}>Masuk atau daftar untuk mulai bertransaksi dan membuka toko.</Text>
+          <TouchableOpacity onPress={() => router.push('/profile')} style={styles.guestButton}>
+            <Text style={styles.guestButtonText}>Masuk Akun</Text>
+          </TouchableOpacity>
+        </View>
       )}
-      
 
       <View style={[styles.reviewBanner, hasReviewed && styles.reviewBannerSuccess]}>
         {hasReviewed ? (
@@ -113,7 +127,7 @@ export default function HomeScreen() {
         )}
       </View>
 
-      <Text style={styles.sectionTitle}>Katalog Produk</Text>
+      <Text style={styles.sectionTitle}>Eksplorasi Katalog</Text>
     </View>
   );
 
@@ -233,5 +247,74 @@ const styles = StyleSheet.create({
     color: '#111827',
     marginTop: 12,
     marginBottom: 16,
+  },
+  heroSection: {
+    marginBottom: 24,
+    backgroundColor: '#FFF',
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#3B82F6',
+    marginBottom: 8,
+  },
+  heroDescription: {
+    fontSize: 13,
+    color: '#6B7280',
+    lineHeight: 20,
+  },
+  welcomeBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+  roleBadge: {
+    backgroundColor: '#DBEAFE',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  roleBadgeText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#1D4ED8',
+  },
+  guestBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FEF2F2',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
+  },
+  guestText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#991B1B',
+    marginRight: 12,
+  },
+  guestButton: {
+    backgroundColor: '#DC2626',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  guestButtonText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });

@@ -47,9 +47,71 @@ export default function ProfileScreen() {
     else Alert.alert(title, message);
   };
 
-  const handleSwitchRole = async (targetRole: 'BUYER' | 'SELLER' | 'DRIVER' | 'ADMIN') => {
+  // --- LOGIKA BARU: Fungsi untuk mengeksekusi API upgrade-role ---
+  const executeUpgradeRole = async (targetRole: 'BUYER' | 'SELLER' | 'DRIVER' | 'ADMIN') => {
+    setIsSwitching(true);
+    try {
+      const response = await fetch(`${api_address}/users/upgrade-role`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ role: targetRole }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Jika berhasil di-upgrade di DB, langsung switch role untuk mendapatkan token JWT baru
+        await handleSwitchRole(targetRole);
+      } else {
+        showAlert('Gagal', data.message || `Gagal mengaktifkan peran ${targetRole}.`);
+        setIsSwitching(false);
+      }
+    } catch (error) {
+      showAlert('Error', 'Terjadi kesalahan jaringan saat mengaktifkan peran baru.');
+      setIsSwitching(false);
+    }
+  };
+
+  // --- LOGIKA BARU: Wrapper saat tombol role ditekan ---
+  const handleRolePress = (targetRole: 'BUYER' | 'SELLER' | 'DRIVER' | 'ADMIN') => {
     if (activeRole === targetRole) return;
-    
+
+    // Cek apakah user sudah memiliki role ini di dalam tokennya
+    if (roles && roles.includes(targetRole)) {
+      handleSwitchRole(targetRole);
+    } else {
+      // Jika belum punya, cegah upgrade ke ADMIN sesuai aturan backend
+      if (targetRole === 'ADMIN') {
+        showAlert('Akses Ditolak', 'Peran Admin tidak dapat ditambahkan secara otomatis.');
+        return;
+      }
+
+      // Tampilkan konfirmasi untuk mendaftar peran baru
+      const confirmMessage = `Anda belum memiliki peran ${targetRole}. Apakah Anda ingin mengaktifkan peran ini pada akun Anda sekarang?`;
+      
+      if (Platform.OS === 'web') {
+        const confirm = window.confirm(confirmMessage);
+        if (confirm) executeUpgradeRole(targetRole);
+      } else {
+        Alert.alert(
+          'Aktivasi Peran Baru',
+          confirmMessage,
+          [
+            { text: 'Batal', style: 'cancel' },
+            { 
+              text: 'Aktifkan', 
+              onPress: () => executeUpgradeRole(targetRole) 
+            }
+          ]
+        );
+      }
+    }
+  };
+
+  const handleSwitchRole = async (targetRole: 'BUYER' | 'SELLER' | 'DRIVER' | 'ADMIN') => {
     setIsSwitching(true);
     try {
       const res = await fetch(`${api_address}/auth/switch-role`, {
@@ -138,13 +200,16 @@ export default function ProfileScreen() {
           { id: 'SELLER', name: 'Penjual', icon: 'briefcase' },
           { id: 'DRIVER', name: 'Kurir / Driver', icon: 'truck' },
           { id: 'ADMIN', name: 'Admin', icon: 'command' }
-        ].map((roleOption) => {
+        ]
+        .filter(roleOption => roleOption.id !== 'ADMIN' || (roles && roles.includes('ADMIN')))
+        .map((roleOption) => {
           const isActive = activeRole === roleOption.id;
+          
           return (
             <TouchableOpacity
               key={roleOption.id}
               style={[styles.roleCard, isActive && styles.roleCardActive]}
-              onPress={() => handleSwitchRole(roleOption.id as any)}
+              onPress={() => handleRolePress(roleOption.id as any)}
               disabled={isSwitching || isActive}
               activeOpacity={0.7}
             >
@@ -152,6 +217,11 @@ export default function ProfileScreen() {
               <Text style={[styles.roleCardText, isActive && styles.roleCardTextActive]}>
                 {roleOption.name}
               </Text>
+
+              {!roles?.includes(roleOption.id) && roleOption.id !== 'ADMIN' && (
+                <Feather name="plus-circle" size={16} color="#9CA3AF" style={{ marginRight: 8 }} />
+              )}
+
               {isActive && (
                 <View style={styles.activeIndicatorDot} />
               )}

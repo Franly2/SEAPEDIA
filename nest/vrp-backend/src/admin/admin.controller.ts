@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard'; 
@@ -18,6 +18,11 @@ export class AdminController {
   @Get('dashboard')
   async getDashboardStats() {
     return this.adminService.getDashboardStats();
+  }
+
+  @Get('users-stats')
+  async getUsersDetailStats() {
+    return this.adminService.getUsersDetailStats();
   }
 
   @Get('vouchers')
@@ -48,5 +53,36 @@ export class AdminController {
   @Post('trigger-overdue')
   async triggerOverdueHandling() {
     return this.adminService.triggerOverdueHandling();
+  }
+
+  @Get('stores-stats')
+  async getStoresDetailStats() {
+    return this.adminService.getStoresDetailStats();
+  }
+
+  @Get('products-stats')
+  async getProductsDetailStats() {
+    return this.adminService.getProductsDetailStats();
+  }
+
+  @Get('orders-stats')
+  async getOrdersDetailStats(@Query('overdue') overdue: string) {
+    const isOverdue = overdue === 'true';
+    return this.adminService.getOrdersDetailStats(isOverdue);
+  }
+
+  @Get('deliveries-stats')
+  async getDeliveriesDetailStats() {
+    return this.adminService.getDeliveriesDetailStats();
+  }
+
+  @Delete('vouchers/:id')
+  async deleteVoucher(@Param('id') id: string) {
+    return this.adminService.deleteVoucher(id);
+  }
+
+  @Delete('promos/:id')
+  async deletePromo(@Param('id') id: string) {
+    return this.adminService.deletePromo(id);
   }
 }

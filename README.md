@@ -1,6 +1,6 @@
 # SEAPEDIA 
 
-🔗 **Live Deployment URL:** [Kunjungi SEAPEDIA Live](https://seapedia-8vdkd5wpp-franlys-projects.vercel.app/)
+🔗 **Live Deployment URL:** [Kunjungi SEAPEDIA Live](https://seapedia-delta.vercel.app/)
 
 Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace logistik cerdas yang dirancang untuk mempertemukan Pembeli, Penjual, Kurir (Driver), dan Admin dalam satu ekosistem yang terintegrasi. 
 

@@ -156,7 +156,7 @@ npx expo start -c
 
 ```
 
-*(Tekan tombol 'w' di terminal buat membuka antarmuka versi Web).*
+*(Tekan tombol 'w' atau Ctrl + left click localhost... di terminal buat membuka antarmuka versi Web).*
 
 ---
 

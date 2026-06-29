@@ -1,35 +1,37 @@
-# SEAPEDIA 
+# SEAPEDIA - Marketplace  
 
-**Live Deployment URL:** [Kunjungi SEAPEDIA Live](https://seapedia-delta.vercel.app/)
+ **Web App (Live):** [Kunjungi SEAPEDIA Live](https://seapedia-delta.vercel.app/)
+ **Mobile App (Android):** [⬇️ Download SEAPEDIA .apk](PASTE_LINK_YANG_KAMU_COPY_DI_SINI)
 
-Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace yang dirancang untuk mempertemukan Pembeli, Penjual, Kurir (Driver), dan Admin dalam satu ekosistem yang terintegrasi. 
+Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace yang dirancang buat mempertemukan Pembeli, Penjual, Kurir (Driver), dan Admin dalam satu ekosistem yang terintegrasi.
 
----
-
-## Fitur
-
-Proyek ini dikembangkan dengan mematuhi seluruh spesifikasi sistem dan berfokus pada pencapaian *Bonus Points*:
-
-1. **  Intuitive UI :** Antarmuka dibangun menggunakan React Native (Expo) untuk Web dan Mobile. Desain berfokus pada *Clean UI* dan *white-space* yang lega
-2. ** Live Deployment :** Keseluruhan ekosistem telah di-*deploy* dan dapat diakses publik. (Lihat bagian **Cloud Deployment & Infrastructure**).
-3. ** API Documentation:** Dokumentasi *endpoint* API secara interaktif telah disediakan melalui integrasi Swagger/OpenAPI dan Postman Collection. (Lihat bagian **Dokumentasi API**).
-4. ** Security Notes:** Arsitektur keamanan telah dirancang agar aman. (Lihat bagian **Catatan Keamanan**).
 
 ---
 
-##  Cloud Deployment & Infrastructure
+## Fitur dan Poin Penilaian
 
-Proyek ini dapat diakses langsung tanpa perlu instalasi lokal. Konfigurasi telah disiapkan agar terhubung dengan environment berikut:
+Proyek ini dikembangkan dengan mematuhi seluruh spesifikasi sistem dan berfokus pada pencapaian poin bonus:
 
-* **Frontend Web (Vercel):** Aplikasi klien di-*hosting* menggunakan Vercel. [Buka Aplikasi](https://seapedia-8vdkd5wpp-franlys-projects.vercel.app/)
-* **Backend API (Railway):** Server NestJS berjalan secara *live* menggunakan Railway CI/CD.
-* **Database (Neon DB):** PostgreSQL Serverless berbasis *cloud* dengan integrasi *Connection Pooling*.
+1. **Intuitive UI:** Antarmuka dibangun pakai React Native (Expo) buat Web dan Mobile. Desainnya fokus pada Clean UI dan white-space yang lega biar navigasinya enak dan ga bikin pusing pengguna.
+2. **Live Deployment:** Keseluruhan ekosistem udah di-deploy dan bisa diakses publik secara live. Detail infrastrukturnya bisa dilihat di bagian Cloud Deployment & Infrastructure.
+3. **API Documentation:** Dokumentasi endpoint API secara interaktif udah disediakan lewat integrasi Swagger/OpenAPI dan Postman Collection.
+4. **Security Notes:** Arsitektur keamanan dari awal udah didesain defensif biar aman dari exploit umum.
 
 ---
 
-##  Akun Demo & Akses Admin
+## Cloud Deployment & Infrastructure
 
-Untuk memudahkan proses pengujian dan evaluasi, *database* produksi telah diisi menggunakan *seeder* dengan beberapa akun demo. Anda dapat menggunakan akun berikut untuk menguji berbagai *flow* transaksi:
+Proyek ini bisa diakses langsung tanpa perlu instalasi lokal karena udah terhubung dengan environment cloud berikut:
+
+* **Frontend Web (Vercel):** Aplikasi client di-hosting menggunakan Vercel.
+* **Backend API (Railway):** Server NestJS berjalan secara live menggunakan Railway CI/CD.
+* **Database (Neon DB):** Pakai PostgreSQL Serverless berbasis cloud dengan integrasi Connection Pooling.
+
+---
+
+## Akun Demo & Akses Admin
+
+Buat gampangin proses pengujian dan evaluasi, database production udah diisi pake seeder dengan beberapa akun demo. Bisa pakai beberapa akun ini buat nyoba alur transaksinya:
 
 * **Akun Admin:**
     * Username: `admin_seapedia`
@@ -44,126 +46,131 @@ Untuk memudahkan proses pengujian dan evaluasi, *database* produksi telah diisi 
     * Username: `driver_demo`
     * Password: `password123`
 
-*(Anda juga dapat membuat akun baru melalui halaman Register, dan melakukan Switch Role langsung dari halaman Profile).*
+*(Kamu juga bisa bikin akun baru lewat halaman Register, dan nyobain fitur Switch Role langsung dari halaman Profile).*
 
 ---
 
-##  Stack Teknologi
+## Stack Teknologi
 
-* **Front-End:** React Native (Expo) for Web & Mobile.
-* **Back-End:** NestJS.
+* **Front-End:** React Native (Expo) buat Web & Mobile, Expo Router, Zustand (State Management), Feather Icons, TypeScript.
+* **Back-End:** NestJS, JWT Authentication, Bcrypt, Swagger UI.
 * **Database:** PostgreSQL dengan Prisma ORM.
 
 ---
 
-##  Catatan Keamanan (Security Notes)
+## Catatan Keamanan (Security Notes)
 
-Sistem ini menerapkan prinsip keamanan ketat pada lapisan API maupun Klien:
+Sistem ini menerapkan prinsip keamanan ketat pada lapisan API maupun Client:
 
-1. **SQL Injection (SQLi) Prevention:** Seluruh interaksi *database* menggunakan Prisma ORM yang secara bawaan melakukan *parameterized queries* (safe-query). Tidak ada eksekusi *raw SQL* secara manual dari input pengguna.
-2. **Cross-Site Scripting (XSS) Prevention:** Seluruh *input payload* dari pengguna, terutama pada form *checkout* dan ulasan publik (*Public Reviews*), disanitasi. React/Expo secara bawaan melakukan *escaping* pada string sebelum dirender ke DOM.
-3. **Input Validation:** Penerapan DTO (Data Transfer Object) ketat menggunakan `class-validator` di NestJS. Anomali seperti harga negatif, stok minus, atau format string yang salah akan langsung ditolak oleh *server* dengan HTTP 400 Bad Request.
-4. **Session Behavior:** Manajemen sesi menggunakan **JWT (JSON Web Token)**. Penyimpanan token di *client* dilakukan secara aman menggunakan `AsyncStorage`. *State Management* (Zustand) memastikan token dihancurkan seketika saat *logout* atau saat token terdeteksi kedaluwarsa.
-5. **Role-Based Access Control (RBAC):** Backend menerapkan prinsip *Zero-Trust*. `RolesGuard` khusus dibuat di NestJS untuk memverifikasi ekstrak token JWT dan membandingkan *Active Role* pengguna. Contoh: Sebuah API toko hanya bisa dipanggil jika *Active Role* pengguna saat itu adalah `SELLER`, mencegah manipulasi lintas-peran meskipun dilakukan oleh akun yang sama.
-
----
-
-##  Dokumentasi API
-
-Seluruh rute, parameter *request*, dan skema *response* backend didokumentasikan secara lengkap. Kami menyediakan dua cara untuk menguji API SEAPEDIA:
-
-1. **Swagger/OpenAPI (Interactive):** Jika menjalankan backend secara lokal, dokumentasi interaktif bawaan NestJS dapat diakses melalui: 
-    `http://localhost:3000/api-docs`
-2. **Postman Collection:** Kami juga menyediakan file ekspor Postman untuk memudahkan pengujian. Anda dapat menemukan filenya di dalam repositori ini pada path: 
-    `seapedia/seapedia.postman_collection.json`
-   *(Cukup lakukan "Import" file tersebut ke dalam aplikasi Postman Anda untuk melihat dan mengeksekusi seluruh endpoint).*
+1. **SQL Injection (SQLi) Prevention:** Semua interaksi database pakai Prisma ORM yang secara bawaan udah ngelakuin parameterized queries (safe-query). Ga ada eksekusi raw SQL secara manual dari input user.
+2. **Cross-Site Scripting (XSS) Prevention:** Semua input payload dari user, terutama pada form checkout dan ulasan publik (Public Reviews), disanitasi. React/Expo secara bawaan juga ngelakuin escaping pada string sebelum dirender ke DOM.
+3. **Input Validation:** Penerapan DTO (Data Transfer Object) ketat menggunakan class-validator di NestJS. Anomali kayak harga negatif, stok minus, atau format string yang ngaco bakal langsung ditolak oleh server dengan HTTP 400 Bad Request.
+4. **Session Behavior:** Manajemen sesi menggunakan JWT (JSON Web Token). Penyimpanan token di client dilakukan secara aman menggunakan AsyncStorage. State Management (Zustand) memastikan token dihancurkan seketika pas user logout atau saat token terdeteksi expired.
+5. **Role-Based Access Control (RBAC):** Backend nerapin prinsip Zero-Trust. RolesGuard khusus dibuat di NestJS buat memverifikasi ekstrak token JWT dan membandingkan Active Role pengguna. Contohnya: API toko cuma bisa dipanggil kalau Active Role pengguna saat itu beneran SELLER, jadi ngehindarin manipulasi lintas-peran meskipun dicoba oleh akun yang sama.
 
 ---
 
-##  Cara Menjalankan Secara Lokal (Development)
+## Dokumentasi API
 
-Jika ingin menjalankan proyek secara lokal :
+Seluruh rute, parameter request, dan skema response backend didokumentasikan secara lengkap. Ada dua cara buat menguji API SEAPEDIA:
 
-### ⚙️ Back-End (NestJS)
+1. **Swagger/OpenAPI (Interactive):** Kalau ngejalankan backend secara lokal, dokumentasi interaktif bawaan NestJS bisa diakses melalui: 
+   `http://localhost:3000/api-docs`
+2. **Postman Collection:** File ekspor Postman ditaruh di dalam repositori ini pada path: 
+   `seapedia/seapedia.postman_collection.json`
+   *(Tinggal import file tersebut ke aplikasi Postman buat melihat dan nge-test semua endpoint secara langsung).*
+
+---
+
+## Cara Menjalankan Secara Lokal (Development)
+
+Kalau mau menjalankan proyek ini di mesin lokal, ikutin langkah-langkah berikut:
+
+### Back-End (NestJS)
 
 1. Masuk ke direktori backend:
 ```bash
 cd nest/vrp-backend
 
-    Install dependencies:
+```
 
-Bash
+2. Install dependencies:
 
+```bash
 npm install
 
-    Konfigurasi Environment:
-    Buat file .env di root direktori backend Anda dengan konfigurasi berikut:
+```
 
-Cuplikan kode
+3. Konfigurasi Environment:
+Buat file `.env` di root direktori backend dengan konfigurasi berikut:
 
+```env
 JWT_SECRET="xxxxxxxxxxxxy"
 PORT=3000
 EXPIRES_IN="1d"
 origin="http://localhost:8081"
 DATABASE_URL="xxxxxxxxxxxxxxxxxxxxx"
 
-    Setup Database & Jalankan Server:
+```
 
-Bash
+4. Setup Database & Jalankan Server:
 
+```bash
 npx prisma db push --force-reset
 npx prisma generate
 npx prisma db seed
 npm run start:dev
 
- Front-End (Expo)
+```
 
-    Masuk ke direktori mobile:
+### Front-End (Expo)
 
-Bash
+1. Masuk ke direktori mobile:
 
+```bash
 cd gui/mobile
 
-    Install dependencies:
+```
 
-Bash
+2. Install dependencies:
 
+```bash
 npm install
 
-    Konfigurasi Environment:
-    Buat file .env di root direktori mobile. Ubah target API sesuai kebutuhan (Local atau Production).
+```
 
-Cuplikan kode
+3. Konfigurasi Environment:
+Buat file `.env` di root direktori mobile. Ubah target API sesuai kebutuhan (Local atau Production).
 
-# Host
+```env
+# Host Target API
 EXPO_PUBLIC_API_IP_ADDRESS="xxxxxxxxxxxxxxxxx"
 
-# Local
-# EXPO_PUBLIC_API_IP_ADDRESS="xxxxxxxxxxxxxxxxx"
+```
 
-    Jalankan Development Server:
+4. Jalankan Development Server:
 
-Bash
-
+```bash
 npx expo start -c
 
-(Tekan tombol w di terminal untuk membuka antarmuka Web).
- Aturan Bisnis & Logika Inti
+```
 
-    Single-Store Checkout: Satu keranjang (cart) hanya boleh berisi produk dari satu toko. Sistem akan menolak percampuran produk antar-toko (HTTP 409 Conflict) di level backend.
+*(Tekan tombol 'w' di terminal buat membuka antarmuka versi Web).*
 
-    Tax & Discount Calculation Rule: Kalkulasi diskon (Voucher/Promo) akan memotong Subtotal terlebih dahulu. PPN 12% kemudian dihitung dari Dasar Pengenaan Pajak (DPP) yaitu: (Subtotal - Diskon) + Ongkos Kirim.
+---
 
-    Transactional Integrity: Proses checkout menggunakan Prisma $transaction untuk memastikan sifat ACID. Pemotongan saldo dompet dan stok dilakukan serempak.
+## Aturan Bisnis & Logika Inti
 
-    Driver Job Concurrency: Endpoint pengambilan pesanan dikunci di level database untuk mencegah race condition apabila ada dua kurir mengambil pesanan yang sama di waktu bersamaan.
+* **Single-Store Checkout:** Satu keranjang (cart) cuma boleh berisi produk dari satu toko. Sistem bakal menolak percampuran produk antar-toko (HTTP 409 Conflict) di level backend.
+* **Tax & Discount Calculation Rule:** Kalkulasi diskon (Voucher/Promo) bakal memotong Subtotal duluan. PPN 12% kemudian dihitung dari Dasar Pengenaan Pajak (DPP) yaitu: `(Subtotal - Diskon) + Ongkos Kirim`.
+* **Transactional Integrity:** Proses checkout menggunakan `Prisma $transaction` buat memastikan sifat ACID. Pemotongan saldo dompet pembeli dan stok barang dilakuin serempak secara atomic.
+* **Driver Job Concurrency:** Endpoint pengambilan pesanan dikunci di level database buat mencegah race condition kalau ada dua kurir rebutan ngambil pesanan yang sama di waktu bersamaan.
+* **Overdue SLA & Auto-Refund Policy:** Mesin Overdue bakal otomatis ngembaliin dana penuh ke dompet pembeli, nyesuain ledger pembukuan, dan ngebalikin stok barang dalam satu transaksi aman biar ga terjadi double-refund kalau pesanan ngelanggar batas waktu pengiriman (Instant: 24 Jam, Next Day: 48 Jam, Regular: 72 Jam).
 
-    Overdue SLA & Auto-Refund Policy: Mesin Overdue akan mengotomatisasi pengembalian dana penuh ke dompet pembeli, penyesuaian ledger, dan restorasi stok barang dalam satu transaksi kebal double-refund apabila pesanan melanggar tenggat waktu pengiriman (Instant: 24 Jam, Next Day: 48 Jam, Regular: 72 Jam).
+---
 
- Author
+## Author
 
-    Nama: Franly Budi Pramana
-
-    Email: franlybudipramana588@gmail.com
-
-    Universitas: Universitas Surabaya (Ubaya)
+* **Nama:** Franly Budi Pramana
+* **Email:** franlybudipramana588@gmail.com
+* **Universitas:** Universitas Surabaya (Ubaya)

@@ -1,4 +1,4 @@
-# SEAPEDIA - Marketplace Logistik UMKM
+# SEAPEDIA 
 
 🔗 **Live Deployment URL:** [Kunjungi SEAPEDIA Live](https://seapedia-8vdkd5wpp-franlys-projects.vercel.app/)
 
@@ -15,7 +15,7 @@ Proyek ini dikembangkan dengan mematuhi seluruh spesifikasi sistem dan berfokus 
 1. **🎨 Creative & Intuitive UI (Bonus 10 pts):** Antarmuka dibangun menggunakan React Native (Expo) untuk Web dan Mobile. Desain berfokus pada *Clean UI*, *white-space* yang lega, komponen interaktif (seperti *accordion* pesanan), dan navigasi *tab* dinamis yang otomatis menyesuaikan dengan peran aktif pengguna tanpa perlu *refresh* halaman.
 2. **🚀 Live Deployment (Bonus 15 pts):** Keseluruhan ekosistem telah di-*deploy* dan dapat diakses publik. (Lihat bagian **Cloud Deployment & Infrastructure**).
 3. **📜 Git Commit History:** Proyek ini dikerjakan secara bertahap (*step-by-step*) dengan riwayat *commit* logis yang merepresentasikan evolusi pengembangan fitur dari *Backend* hingga *Frontend*.
-4. **📖 API Documentation:** Dokumentasi *endpoint* API secara interaktif telah disediakan melalui integrasi Swagger/OpenAPI. (Lihat bagian **Dokumentasi API**).
+4. **📖 API Documentation:** Dokumentasi *endpoint* API secara interaktif telah disediakan melalui integrasi Swagger/OpenAPI dan Postman Collection. (Lihat bagian **Dokumentasi API**).
 5. **🔐 Security Notes:** Arsitektur keamanan telah dirancang secara defensif. (Lihat bagian **Catatan Keamanan**).
 
 ---
@@ -73,9 +73,13 @@ Sistem ini menerapkan prinsip keamanan ketat pada lapisan API maupun Klien:
 
 ## 📖 Dokumentasi API
 
-Seluruh rute, parameter *request*, dan skema *response* backend didokumentasikan menggunakan Swagger/OpenAPI. 
-Jika menjalankan backend secara lokal, dokumentasi dapat diakses melalui:
-👉 `http://localhost:3000/api-docs`
+Seluruh rute, parameter *request*, dan skema *response* backend didokumentasikan secara lengkap. Kami menyediakan dua cara untuk menguji API SEAPEDIA:
+
+1. **Swagger/OpenAPI (Interactive):** Jika menjalankan backend secara lokal, dokumentasi interaktif bawaan NestJS dapat diakses melalui: 
+   👉 `http://localhost:3000/api-docs`
+2. **Postman Collection:** Kami juga menyediakan file ekspor Postman untuk memudahkan pengujian. Anda dapat menemukan filenya di dalam repositori ini pada path: 
+   👉 `seapedia/seapedia.postman_collection.json`
+   *(Cukup lakukan "Import" file tersebut ke dalam aplikasi Postman Anda untuk melihat dan mengeksekusi seluruh endpoint).*
 
 ---
 
@@ -89,92 +93,80 @@ Apabila evaluator ingin menjalankan proyek ini secara lokal (*Works on Any Machi
 ```bash
 cd nest/vrp-backend
 
-```
+    Install dependencies:
 
-2. Install dependencies:
+Bash
 
-```bash
 npm install
 
-```
+    Konfigurasi Environment:
+    Buat file .env di root direktori backend Anda dengan konfigurasi berikut:
 
-3. Konfigurasi Environment:
-Buat file `.env` di **root direktori backend** Anda dengan konfigurasi berikut:
+Cuplikan kode
 
-```env
 JWT_SECRET="xxxxxxxxxxxxy"
 PORT=3000
 EXPIRES_IN="1d"
 origin="http://localhost:8081"
 DATABASE_URL="xxxxxxxxxxxxxxxxxxxxx"
 
-```
+    Setup Database & Jalankan Server:
 
-4. Setup Database & Jalankan Server:
+Bash
 
-```bash
 npx prisma db push --force-reset
 npx prisma generate
 npx prisma db seed
 npm run start:dev
 
-```
+📱 Front-End (Expo)
 
-### 📱 Front-End (Expo)
+    Masuk ke direktori mobile:
 
-1. Masuk ke direktori mobile:
+Bash
 
-```bash
 cd gui/mobile
 
-```
+    Install dependencies:
 
-2. Install dependencies:
+Bash
 
-```bash
 npm install
 
-```
+    Konfigurasi Environment:
+    Buat file .env di root direktori mobile. Ubah target API sesuai kebutuhan (Local atau Production).
 
-3. Konfigurasi Environment:
-Buat file `.env` di root direktori mobile. Ubah target API sesuai kebutuhan (Local atau Production).
+Cuplikan kode
 
-```env
 # Host
 EXPO_PUBLIC_API_IP_ADDRESS="xxxxxxxxxxxxxxxxx"
 
 # Local
 # EXPO_PUBLIC_API_IP_ADDRESS="xxxxxxxxxxxxxxxxx"
 
-```
+    Jalankan Development Server:
 
-4. Jalankan Development Server:
+Bash
 
-```bash
 npx expo start -c
 
-```
+(Tekan tombol w di terminal untuk membuka antarmuka Web).
+🔑 Aturan Bisnis & Logika Inti
 
-*(Tekan tombol `w` di terminal untuk membuka antarmuka Web).*
+    Single-Store Checkout: Satu keranjang (cart) hanya boleh berisi produk dari satu toko. Sistem akan menolak percampuran produk antar-toko (HTTP 409 Conflict) di level backend.
 
----
+    Tax & Discount Calculation Rule: Kalkulasi diskon (Voucher/Promo) akan memotong Subtotal terlebih dahulu. PPN 12% kemudian dihitung dari Dasar Pengenaan Pajak (DPP) yaitu: (Subtotal - Diskon) + Ongkos Kirim.
 
-## 🔑 Aturan Bisnis & Logika Inti
+    Transactional Integrity: Proses checkout menggunakan Prisma $transaction untuk memastikan sifat ACID. Pemotongan saldo dompet dan stok dilakukan serempak.
 
-* **Single-Store Checkout:** Satu keranjang (cart) hanya boleh berisi produk dari **satu toko**. Sistem akan menolak percampuran produk antar-toko (HTTP 409 Conflict) di level backend.
-* **Tax & Discount Calculation Rule:** Kalkulasi diskon (Voucher/Promo) akan memotong `Subtotal` terlebih dahulu. PPN 12% kemudian dihitung dari Dasar Pengenaan Pajak (DPP) yaitu: `(Subtotal - Diskon) + Ongkos Kirim`.
-* **Transactional Integrity:** Proses *checkout* menggunakan `Prisma $transaction` untuk memastikan sifat ACID. Pemotongan saldo dompet dan stok dilakukan serempak.
-* **Driver Job Concurrency:** Endpoint pengambilan pesanan dikunci di level *database* untuk mencegah *race condition* apabila ada dua kurir mengambil pesanan yang sama di waktu bersamaan.
-* **Overdue SLA & Auto-Refund Policy:** Mesin *Overdue* akan mengotomatisasi pengembalian dana penuh ke dompet pembeli, penyesuaian *ledger*, dan restorasi stok barang dalam satu transaksi kebal *double-refund* apabila pesanan melanggar tenggat waktu pengiriman (Instant: 24 Jam, Next Day: 48 Jam, Regular: 72 Jam).
+    Driver Job Concurrency: Endpoint pengambilan pesanan dikunci di level database untuk mencegah race condition apabila ada dua kurir mengambil pesanan yang sama di waktu bersamaan.
 
----
+    Overdue SLA & Auto-Refund Policy: Mesin Overdue akan mengotomatisasi pengembalian dana penuh ke dompet pembeli, penyesuaian ledger, dan restorasi stok barang dalam satu transaksi kebal double-refund apabila pesanan melanggar tenggat waktu pengiriman (Instant: 24 Jam, Next Day: 48 Jam, Regular: 72 Jam).
 
-## ✒️ Author
+✒️ Author
 
-* **Nama:** Franly Budi Pramana
-* **Email:** franlybudipramana588@gmail.com
-* **Universitas:** Universitas Surabaya (Ubaya)
+    Nama: Franly Budi Pramana
 
-Proyek ini dikembangkan secara bertahap sebagai bagian dari tantangan pengembangan perangkat lunak COMPFEST 2026.
+    Email: franlybudipramana588@gmail.com
 
-```
+    Universitas: Universitas Surabaya (Ubaya)

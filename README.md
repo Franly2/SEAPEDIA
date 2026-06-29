@@ -83,6 +83,7 @@ Seluruh rute, parameter request, dan skema response backend didokumentasikan sec
 ---
 
 ## Cara Menjalankan Secara Lokal (Development)
+Wajib install nodeJS, Postgresql
 
 Kalau mau menjalankan proyek ini di mesin lokal, ikutin langkah-langkah berikut:
 
@@ -109,7 +110,7 @@ JWT_SECRET="xxxxxxxxxxxxy"
 PORT=3000
 EXPIRES_IN="1d"
 origin="http://localhost:8081"
-DATABASE_URL="xxxxxxxxxxxxxxxxxxxxx"
+DATABASE_URL="xxxxxxxxxxxxxxxxxxxxx" input sesuai connection string dari postgresql
 
 ```
 
@@ -144,7 +145,7 @@ Buat file `.env` di root direktori mobile. Ubah target API sesuai kebutuhan (Loc
 
 ```env
 # Host Target API
-EXPO_PUBLIC_API_IP_ADDRESS="xxxxxxxxxxxxxxxxx"
+EXPO_PUBLIC_API_IP_ADDRESS="xxxxxxxxxxxxxxxxx" (lihat ip di Windows + R, lalu run 'ipconfig')
 
 ```
 

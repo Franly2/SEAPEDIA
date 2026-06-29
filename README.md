@@ -1,26 +1,23 @@
 # SEAPEDIA 
 
-🔗 **Live Deployment URL:** [Kunjungi SEAPEDIA Live](https://seapedia-delta.vercel.app/)
+**Live Deployment URL:** [Kunjungi SEAPEDIA Live](https://seapedia-delta.vercel.app/)
 
-Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace logistik cerdas yang dirancang untuk mempertemukan Pembeli, Penjual, Kurir (Driver), dan Admin dalam satu ekosistem yang terintegrasi. 
-
-Aplikasi ini dibangun secara progresif untuk mendukung **Multi-Role Authentication**, di mana satu entitas pengguna dapat mengelola lebih dari satu peran secara *seamless* tanpa perlu *login* berulang kali.
+Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace yang dirancang untuk mempertemukan Pembeli, Penjual, Kurir (Driver), dan Admin dalam satu ekosistem yang terintegrasi. 
 
 ---
 
-## 🌟 Pemenuhan Kriteria Penilaian & Bonus Point
+## Fitur
 
 Proyek ini dikembangkan dengan mematuhi seluruh spesifikasi sistem dan berfokus pada pencapaian *Bonus Points*:
 
-1. **🎨 Creative & Intuitive UI (Bonus 10 pts):** Antarmuka dibangun menggunakan React Native (Expo) untuk Web dan Mobile. Desain berfokus pada *Clean UI*, *white-space* yang lega, komponen interaktif (seperti *accordion* pesanan), dan navigasi *tab* dinamis yang otomatis menyesuaikan dengan peran aktif pengguna tanpa perlu *refresh* halaman.
-2. **🚀 Live Deployment (Bonus 15 pts):** Keseluruhan ekosistem telah di-*deploy* dan dapat diakses publik. (Lihat bagian **Cloud Deployment & Infrastructure**).
-3. **📜 Git Commit History:** Proyek ini dikerjakan secara bertahap (*step-by-step*) dengan riwayat *commit* logis yang merepresentasikan evolusi pengembangan fitur dari *Backend* hingga *Frontend*.
-4. **📖 API Documentation:** Dokumentasi *endpoint* API secara interaktif telah disediakan melalui integrasi Swagger/OpenAPI dan Postman Collection. (Lihat bagian **Dokumentasi API**).
-5. **🔐 Security Notes:** Arsitektur keamanan telah dirancang secara defensif. (Lihat bagian **Catatan Keamanan**).
+1. **  Intuitive UI :** Antarmuka dibangun menggunakan React Native (Expo) untuk Web dan Mobile. Desain berfokus pada *Clean UI* dan *white-space* yang lega
+2. ** Live Deployment :** Keseluruhan ekosistem telah di-*deploy* dan dapat diakses publik. (Lihat bagian **Cloud Deployment & Infrastructure**).
+3. ** API Documentation:** Dokumentasi *endpoint* API secara interaktif telah disediakan melalui integrasi Swagger/OpenAPI dan Postman Collection. (Lihat bagian **Dokumentasi API**).
+4. ** Security Notes:** Arsitektur keamanan telah dirancang agar aman. (Lihat bagian **Catatan Keamanan**).
 
 ---
 
-## ☁️ Cloud Deployment & Infrastructure
+##  Cloud Deployment & Infrastructure
 
 Proyek ini dapat diakses langsung tanpa perlu instalasi lokal. Konfigurasi telah disiapkan agar terhubung dengan environment berikut:
 
@@ -30,7 +27,7 @@ Proyek ini dapat diakses langsung tanpa perlu instalasi lokal. Konfigurasi telah
 
 ---
 
-## 👥 Akun Demo & Akses Admin
+##  Akun Demo & Akses Admin
 
 Untuk memudahkan proses pengujian dan evaluasi, *database* produksi telah diisi menggunakan *seeder* dengan beberapa akun demo. Anda dapat menggunakan akun berikut untuk menguji berbagai *flow* transaksi:
 
@@ -51,15 +48,15 @@ Untuk memudahkan proses pengujian dan evaluasi, *database* produksi telah diisi 
 
 ---
 
-## 🛠️ Stack Teknologi
+##  Stack Teknologi
 
-* **Front-End:** React Native (Expo) for Web & Mobile, Expo Router, Zustand (State Management), Feather Icons, TypeScript.
-* **Back-End:** NestJS, JWT Authentication, Bcrypt, Swagger UI.
+* **Front-End:** React Native (Expo) for Web & Mobile.
+* **Back-End:** NestJS.
 * **Database:** PostgreSQL dengan Prisma ORM.
 
 ---
 
-## 🔐 Catatan Keamanan (Security Notes)
+##  Catatan Keamanan (Security Notes)
 
 Sistem ini menerapkan prinsip keamanan ketat pada lapisan API maupun Klien:
 
@@ -71,21 +68,21 @@ Sistem ini menerapkan prinsip keamanan ketat pada lapisan API maupun Klien:
 
 ---
 
-## 📖 Dokumentasi API
+##  Dokumentasi API
 
 Seluruh rute, parameter *request*, dan skema *response* backend didokumentasikan secara lengkap. Kami menyediakan dua cara untuk menguji API SEAPEDIA:
 
 1. **Swagger/OpenAPI (Interactive):** Jika menjalankan backend secara lokal, dokumentasi interaktif bawaan NestJS dapat diakses melalui: 
-   👉 `http://localhost:3000/api-docs`
+    `http://localhost:3000/api-docs`
 2. **Postman Collection:** Kami juga menyediakan file ekspor Postman untuk memudahkan pengujian. Anda dapat menemukan filenya di dalam repositori ini pada path: 
-   👉 `seapedia/seapedia.postman_collection.json`
+    `seapedia/seapedia.postman_collection.json`
    *(Cukup lakukan "Import" file tersebut ke dalam aplikasi Postman Anda untuk melihat dan mengeksekusi seluruh endpoint).*
 
 ---
 
-## 🏗️ Cara Menjalankan Secara Lokal (Development)
+##  Cara Menjalankan Secara Lokal (Development)
 
-Apabila evaluator ingin menjalankan proyek ini secara lokal (*Works on Any Machine*), ikuti langkah-langkah berikut:
+Jika ingin menjalankan proyek secara lokal :
 
 ### ⚙️ Back-End (NestJS)
 
@@ -119,7 +116,7 @@ npx prisma generate
 npx prisma db seed
 npm run start:dev
 
-📱 Front-End (Expo)
+ Front-End (Expo)
 
     Masuk ke direktori mobile:
 
@@ -151,7 +148,7 @@ Bash
 npx expo start -c
 
 (Tekan tombol w di terminal untuk membuka antarmuka Web).
-🔑 Aturan Bisnis & Logika Inti
+ Aturan Bisnis & Logika Inti
 
     Single-Store Checkout: Satu keranjang (cart) hanya boleh berisi produk dari satu toko. Sistem akan menolak percampuran produk antar-toko (HTTP 409 Conflict) di level backend.
 
@@ -163,7 +160,7 @@ npx expo start -c
 
     Overdue SLA & Auto-Refund Policy: Mesin Overdue akan mengotomatisasi pengembalian dana penuh ke dompet pembeli, penyesuaian ledger, dan restorasi stok barang dalam satu transaksi kebal double-refund apabila pesanan melanggar tenggat waktu pengiriman (Instant: 24 Jam, Next Day: 48 Jam, Regular: 72 Jam).
 
-✒️ Author
+ Author
 
     Nama: Franly Budi Pramana
 

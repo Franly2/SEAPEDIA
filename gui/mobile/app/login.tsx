@@ -238,7 +238,7 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>© 2026 PT Karya Seapedia Nusantara</Text>
+          <Text style={styles.footerText}>© 2026 Seapedia</Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

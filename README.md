@@ -3,14 +3,12 @@
  **Web App (Live):** [Kunjungi SEAPEDIA Live](https://seapedia-delta.vercel.app/)
  **Mobile App (Android):** [Download SEAPEDIA .apk (Android)](https://github.com/Franly2/SEAPEDIA/releases/tag/v1.0.0)
 
-Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace yang dirancang buat mempertemukan Pembeli, Penjual, Kurir (Driver), dan Admin dalam satu ekosistem yang terintegrasi.
+Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace yang dirancang buat mempertemukan Pembeli, Penjual, Kurir , dan Admin dalam satu ekosistem yang terintegrasi.
 
 
 ---
 
-## Fitur dan Poin Penilaian
-
-Proyek ini dikembangkan dengan mematuhi seluruh spesifikasi sistem dan berfokus pada pencapaian poin bonus:
+## Fitur 
 
 1. **Intuitive UI:** Antarmuka dibangun pakai React Native (Expo) buat Web dan Mobile. Desainnya fokus pada Clean UI dan white-space yang lega biar navigasinya enak dan ga bikin pusing pengguna.
 2. **Live Deployment:** Keseluruhan ekosistem udah di-deploy dan bisa diakses publik secara live. Detail infrastrukturnya bisa dilihat di bagian Cloud Deployment & Infrastructure.
@@ -46,7 +44,7 @@ Buat gampangin proses pengujian dan evaluasi, database production udah diisi pak
     * Username: `driver_demo`
     * Password: `password123`
 
-*(Kamu juga bisa bikin akun baru lewat halaman Register, dan nyobain fitur Switch Role langsung dari halaman Profile).*
+*(juga bisa bikin akun baru lewat halaman Register, dan nyobain fitur Switch Role langsung dari halaman Profile).*
 
 ---
 

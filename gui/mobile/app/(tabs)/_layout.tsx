@@ -1,14 +1,12 @@
 import { HapticTab } from '@/components/haptic-tab';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
   const { activeRole, token } = useAuthStore(); 
-  
+  const router = useRouter();
   const primaryColor = '#1976D2';
 
   return (
@@ -91,6 +89,14 @@ export default function TabLayout() {
           href: undefined, 
           tabBarItemStyle: undefined,
           tabBarIcon: ({ color }) => <Feather size={24} name="user" color={color} />,
+        }}
+        listeners={{
+          tabPress: (e) => {
+            if (!token) {
+              e.preventDefault();
+              router.push('/login');
+            }
+          },
         }}
       />
     </Tabs>

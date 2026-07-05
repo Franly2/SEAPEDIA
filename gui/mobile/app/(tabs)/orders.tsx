@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -83,19 +84,19 @@ export default function OrdersScreen() {
       <View style={[styles.container, styles.center]}>
         <Feather name="shield-off" size={64} color="#EF4444" />
         <Text style={styles.errorTitle}>Akses Dibatasi</Text>
-        <Text style={{ color: '#6B7280', marginTop: 8 }}>Halaman ini hanya untuk Pembeli dan Penjual.</Text>
+        <Text style={{ color: Colors.textMuted, marginTop: 8 }}>Halaman ini hanya untuk Pembeli dan Penjual.</Text>
       </View>
     );
   }
 
-  if (isLoading) return <View style={[styles.container, styles.center]}><ActivityIndicator size="large" color="#3B82F6" /></View>;
+  if (isLoading) return <View style={[styles.container, styles.center]}><ActivityIndicator size="large" color={Colors.primary} /></View>;
 
   const isBuyer = activeRole === 'BUYER';
 
   const renderHeader = () => (
     <View style={styles.header}>
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Feather name="chevron-left" size={24} color="#1F2937" />
+        <Feather name="chevron-left" size={24} color={Colors.secondary} />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>
         {isBuyer ? 'Riwayat Pesanan' : 'Pesanan Masuk'}
@@ -114,8 +115,8 @@ export default function OrdersScreen() {
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Feather name="inbox" size={48} color="#D1D5DB" />
-            <Text style={{ color: '#9CA3AF', marginTop: 12 }}>Belum ada pesanan.</Text>
+            <Feather name="inbox" size={48} color={Colors.border} />
+            <Text style={{ color: Colors.textMuted, marginTop: 12 }}>Belum ada pesanan.</Text>
           </View>
         }
         renderItem={({ item }) => {
@@ -125,14 +126,14 @@ export default function OrdersScreen() {
             <TouchableOpacity 
               activeOpacity={0.9} 
               onPress={() => toggleExpand(item.id)} 
-              style={[styles.card, isExpanded && { borderColor: '#3B82F6', borderWidth: 1.5 }]}
+              style={[styles.card, isExpanded && { borderColor: Colors.primary, borderWidth: 1.5 }]}
             >
               <View style={styles.cardHeader}>
                 <View style={styles.entityNameContainer}>
                   <Feather 
                     name={isBuyer ? "briefcase" : "user"} 
                     size={14} 
-                    color="#4B5563" 
+                    color={Colors.textMuted} 
                   /> 
                   <Text style={styles.entityName}>
                     {isBuyer ? item.store?.name : (item.buyer?.fullName || item.buyer?.username)}
@@ -143,7 +144,7 @@ export default function OrdersScreen() {
                   <View style={styles.statusBadge}>
                     <Text style={styles.statusText}>{item.status.replace(/_/g, ' ')}</Text>
                   </View>
-                  <Feather name={isExpanded ? "chevron-up" : "chevron-down"} size={16} color="#9CA3AF" />
+                  <Feather name={isExpanded ? "chevron-up" : "chevron-down"} size={16} color={Colors.textMuted} />
                 </View>
               </View>
 
@@ -214,7 +215,7 @@ export default function OrdersScreen() {
                   disabled={processingId === item.id}
                 >
                   {processingId === item.id ? (
-                    <ActivityIndicator size="small" color="#FFF" />
+                    <ActivityIndicator size="small" color={Colors.surface} />
                   ) : (
                     <Text style={styles.processButtonText}>Proses Pesanan (Siap Dikirim)</Text>
                   )}
@@ -229,47 +230,47 @@ export default function OrdersScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' }, 
+  container: { flex: 1, backgroundColor: Colors.background }, 
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   
   list: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 60, maxWidth: 600, alignSelf: 'center', width: '100%' },
   
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
-  backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 }, 
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
+  backButton: { padding: 8, backgroundColor: Colors.surface, borderRadius: 8, borderWidth: 1, borderColor: Colors.border }, 
+  headerTitle: { fontSize: 20, fontWeight: '800', color: Colors.secondary },
   
-  errorTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 16 }, 
+  errorTitle: { fontSize: 18, fontWeight: 'bold', color: Colors.secondary, marginTop: 16 }, 
   
-  emptyState: { alignItems: 'center', justifyContent: 'center', padding: 40, backgroundColor: '#FFF', borderRadius: 16, borderWidth: 1, borderColor: '#D1D5DB', borderStyle: 'dashed', marginTop: 20 },
+  emptyState: { alignItems: 'center', justifyContent: 'center', padding: 40, backgroundColor: Colors.surface, borderRadius: 16, borderWidth: 1, borderColor: Colors.border, borderStyle: 'dashed', marginTop: 20 },
   
-  card: { backgroundColor: '#FFF', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#E5E7EB' }, 
+  card: { backgroundColor: Colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border, elevation: 2, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 }, 
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   entityNameContainer: { flexDirection: 'row', alignItems: 'center' },
-  entityName: { fontSize: 14, fontWeight: 'bold', color: '#374151', marginLeft: 6 }, 
+  entityName: { fontSize: 14, fontWeight: 'bold', color: Colors.secondary, marginLeft: 6 }, 
   
   statusContainer: { flexDirection: 'row', alignItems: 'center' },
-  statusBadge: { backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, marginRight: 8 }, 
-  statusText: { fontSize: 10, fontWeight: 'bold', color: '#D97706' },
+  statusBadge: { backgroundColor: Colors.primaryLight, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, marginRight: 8 }, 
+  statusText: { fontSize: 10, fontWeight: 'bold', color: Colors.primary },
   
-  divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 12 }, 
-  itemName: { fontSize: 13, color: '#4B5563', marginBottom: 4 },
+  divider: { height: 1, backgroundColor: Colors.border, marginVertical: 12 }, 
+  itemName: { fontSize: 13, color: Colors.textMuted, marginBottom: 4 },
   
   expandedContainer: { marginTop: 4 },
-  detailTitle: { fontSize: 13, fontWeight: 'bold', color: '#374151', marginBottom: 8 },
-  detailBox: { backgroundColor: '#F9FAFB', padding: 12, borderRadius: 10, marginBottom: 12, borderWidth: 1, borderColor: '#F3F4F6' },
-  detailLabel: { fontSize: 11, color: '#6B7280', marginBottom: 2 },
-  detailValue: { fontSize: 13, color: '#1F2937', fontWeight: '500', marginBottom: 8 },
+  detailTitle: { fontSize: 13, fontWeight: 'bold', color: Colors.secondary, marginBottom: 8 },
+  detailBox: { backgroundColor: Colors.background, padding: 12, borderRadius: 10, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
+  detailLabel: { fontSize: 11, color: Colors.textMuted, marginBottom: 2 },
+  detailValue: { fontSize: 13, color: Colors.secondary, fontWeight: '600', marginBottom: 8 },
   
   breakdownRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  breakdownLabel: { fontSize: 12, color: '#6B7280' },
-  breakdownValue: { fontSize: 12, color: '#374151', fontWeight: '500' },
+  breakdownLabel: { fontSize: 12, color: Colors.textMuted },
+  breakdownValue: { fontSize: 12, color: Colors.secondary, fontWeight: '600' },
   breakdownLabelDiscount: { fontSize: 12, color: '#059669' },
   breakdownValueDiscount: { fontSize: 12, color: '#059669', fontWeight: 'bold' },
 
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, 
-  totalLabel: { fontSize: 13, color: '#6B7280' }, 
-  totalValue: { fontSize: 16, fontWeight: '900', color: '#E11D48' },
+  totalLabel: { fontSize: 13, color: Colors.textMuted, fontWeight: '600' }, 
+  totalValue: { fontSize: 16, fontWeight: '900', color: Colors.primary },
   
-  processButton: { backgroundColor: '#10B981', paddingVertical: 12, borderRadius: 10, alignItems: 'center', marginTop: 16 },
-  processButtonText: { color: '#FFF', fontWeight: 'bold', fontSize: 14 }
+  processButton: { backgroundColor: Colors.primary, paddingVertical: 12, borderRadius: 10, alignItems: 'center', marginTop: 16 },
+  processButtonText: { color: Colors.surface, fontWeight: 'bold', fontSize: 14 }
 });

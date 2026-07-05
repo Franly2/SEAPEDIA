@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -38,7 +39,7 @@ export default function ProductDetailScreen() {
           setProduct(data);
         }
       } catch (error) {
-        console.error('Gagal memuat detail produk:', error);
+        console.error(error);
       } finally {
         setIsLoading(false);
       }
@@ -129,7 +130,7 @@ export default function ProductDetailScreen() {
   if (isLoading) {
     return (
       <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color="#1D4ED8" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -137,7 +138,7 @@ export default function ProductDetailScreen() {
   if (!product) {
     return (
       <View style={[styles.container, styles.center]}>
-        <Feather name="alert-triangle" size={48} color="#9CA3AF" />
+        <Feather name="alert-triangle" size={48} color={Colors.textMuted} />
         <Text style={styles.errorText}>Produk tidak ditemukan.</Text>
         <TouchableOpacity style={styles.backButtonError} onPress={() => router.back()}>
           <Text style={styles.backButtonErrorText}>Kembali</Text>
@@ -150,10 +151,9 @@ export default function ProductDetailScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
-        {/* Header sekarang berada di dalam ScrollView agar ikut terscroll bersama halaman */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Feather name="chevron-left" size={24} color="#1F2937" />
+            <Feather name="chevron-left" size={24} color={Colors.secondary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Detail Produk</Text>
           <View style={{ width: 40 }} /> 
@@ -164,7 +164,7 @@ export default function ProductDetailScreen() {
             <Image source={{ uri: product.imageUrl }} style={styles.productImage} />
           ) : (
             <View style={styles.placeholderImage}>
-              <Feather name="box" size={64} color="#9CA3AF" />
+              <Feather name="box" size={64} color={Colors.border} />
             </View>
           )}
         </View>
@@ -178,7 +178,7 @@ export default function ProductDetailScreen() {
 
         <View style={styles.metaSection}>
           <View style={styles.storeBadge}>
-            <Feather name="briefcase" size={16} color="#4B5563" />
+            <Feather name="briefcase" size={16} color={Colors.secondary} />
             <Text style={styles.storeName}>{product.store.name}</Text>
           </View>
           <View style={styles.stockBadge}>
@@ -195,24 +195,23 @@ export default function ProductDetailScreen() {
           
       </ScrollView>
 
-      {/* Bottom Bar tetap fixed di bawah */}
       <View style={styles.bottomBar}>
         <View style={styles.bottomBarContent}>
           <TouchableOpacity 
             style={[
               styles.actionButton, 
-              (isAddingToCart || product.stock < 1) && { opacity: 0.7, backgroundColor: '#9CA3AF' }
+              (isAddingToCart || product.stock < 1) && { opacity: 0.7, backgroundColor: Colors.border }
             ]} 
             activeOpacity={0.9}
             onPress={handleAddToCart}
             disabled={isAddingToCart || product.stock < 1}
           >
             {isAddingToCart ? (
-              <ActivityIndicator size="small" color="#FFF" />
+              <ActivityIndicator size="small" color={Colors.surface} />
             ) : (
               <>
-                <Feather name="shopping-cart" size={20} color="#FFF" />
-                <Text style={styles.actionButtonText}>
+                <Feather name="shopping-cart" size={20} color={product.stock < 1 ? Colors.textMuted : Colors.secondary} />
+                <Text style={[styles.actionButtonText, product.stock < 1 && { color: Colors.textMuted }]}>
                   {product.stock < 1 ? 'Stok Habis' : 'Tambah ke Keranjang'}
                 </Text>
               </>
@@ -225,42 +224,42 @@ export default function ProductDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' }, 
+  container: { flex: 1, backgroundColor: Colors.background }, 
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   
   content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 120, width: '100%', maxWidth: 600, alignSelf: 'center' },
   
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
-  backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 },
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
+  backButton: { padding: 8, backgroundColor: Colors.surface, borderRadius: 8, borderWidth: 1, borderColor: Colors.border },
+  headerTitle: { fontSize: 20, fontWeight: '900', color: Colors.secondary },
   
-  imageContainer: { width: '100%', aspectRatio: 1, backgroundColor: '#FFF', borderRadius: 16, overflow: 'hidden', marginBottom: 20, borderWidth: 1, borderColor: '#E5E7EB' },
+  imageContainer: { width: '100%', aspectRatio: 1, backgroundColor: Colors.surface, borderRadius: 24, overflow: 'hidden', marginBottom: 24, borderWidth: 1, borderColor: Colors.border, elevation: 4, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12 },
   productImage: { width: '100%', height: '100%', resizeMode: 'cover' },
-  placeholderImage: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F3F4F6' },
+  placeholderImage: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.background },
   
   infoSection: { marginBottom: 16 },
-  productPrice: { fontSize: 28, fontWeight: '900', color: '#E11D48', marginBottom: 8 },
-  productName: { fontSize: 20, color: '#1F2937', fontWeight: 'bold', lineHeight: 28 },
+  productPrice: { fontSize: 32, fontWeight: '900', color: Colors.primary, marginBottom: 8 },
+  productName: { fontSize: 22, color: Colors.secondary, fontWeight: '800', lineHeight: 30 },
   
-  divider: { height: 1, backgroundColor: '#E5E7EB', marginVertical: 16 },
+  divider: { height: 1, backgroundColor: Colors.border, marginVertical: 20 },
   
   metaSection: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  storeBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F3F4F6', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
-  storeName: { fontSize: 14, fontWeight: '700', color: '#4B5563', marginLeft: 8 },
-  stockBadge: { backgroundColor: '#EFF6FF', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
-  stockText: { color: '#1D4ED8', fontWeight: '800', fontSize: 13 },
+  storeBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.surface, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: Colors.border },
+  storeName: { fontSize: 14, fontWeight: '800', color: Colors.secondary, marginLeft: 8 },
+  stockBadge: { backgroundColor: Colors.primaryLight, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12 },
+  stockText: { color: Colors.primary, fontWeight: '900', fontSize: 13 },
   
   descriptionSection: { marginBottom: 20 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#374151', marginBottom: 12 },
-  productDescription: { fontSize: 15, color: '#4B5563', lineHeight: 24 },
+  sectionTitle: { fontSize: 18, fontWeight: '900', color: Colors.secondary, marginBottom: 12 },
+  productDescription: { fontSize: 15, color: Colors.textMuted, lineHeight: 26 },
   
-  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#FFF', borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingVertical: 16, paddingHorizontal: 20 },
+  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: Colors.surface, borderTopWidth: 1, borderTopColor: Colors.border, paddingVertical: 16, paddingHorizontal: 20 },
   bottomBarContent: { width: '100%', maxWidth: 600, alignSelf: 'center' },
   
-  actionButton: { backgroundColor: '#10B981', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 14, borderRadius: 12 },
-  actionButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold', marginLeft: 8 },
+  actionButton: { backgroundColor: Colors.primary, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 16, borderRadius: 14 },
+  actionButtonText: { color: Colors.secondary, fontSize: 16, fontWeight: '900', marginLeft: 8 },
   
-  errorText: { fontSize: 16, color: '#4B5563', marginTop: 16, marginBottom: 24 },
-  backButtonError: { backgroundColor: '#1D4ED8', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 8 },
-  backButtonErrorText: { color: '#FFF', fontWeight: 'bold' }
+  errorText: { fontSize: 16, color: Colors.textMuted, marginTop: 16, marginBottom: 24 },
+  backButtonError: { backgroundColor: Colors.secondary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
+  backButtonErrorText: { color: Colors.surface, fontWeight: 'bold' }
 });

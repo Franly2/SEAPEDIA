@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -65,14 +66,14 @@ export default function CartScreen() {
   if (!token || activeRole !== 'BUYER') {
     return (
       <View style={[styles.container, styles.center]}>
-        <Feather name="shopping-cart" size={64} color="#9CA3AF" />
+        <Feather name="shopping-cart" size={64} color={Colors.textMuted} />
         <Text style={styles.errorTitle}>Akses Ditolak</Text>
         <Text style={styles.errorText}>Silakan login sebagai Pembeli (BUYER) untuk membuka keranjang.</Text>
       </View>
     );
   }
 
-  if (isLoading) return <View style={[styles.container, styles.center]}><ActivityIndicator size="large" color="#3B82F6" /></View>;
+  if (isLoading) return <View style={[styles.container, styles.center]}><ActivityIndicator size="large" color={Colors.primary} /></View>;
 
   return (
     <View style={styles.container}>
@@ -80,7 +81,7 @@ export default function CartScreen() {
         
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Feather name="chevron-left" size={24} color="#1F2937" />
+            <Feather name="chevron-left" size={24} color={Colors.secondary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Keranjang Belanja</Text>
           <View style={{ width: 40 }} /> 
@@ -88,7 +89,7 @@ export default function CartScreen() {
         
         {!cartData || cartData.items.length === 0 ? (
           <View style={styles.emptyBox}>
-            <Feather name="shopping-cart" size={56} color="#D1D5DB" />
+            <Feather name="shopping-cart" size={56} color={Colors.border} />
             <Text style={styles.emptyText}>Keranjangmu masih kosong.</Text>
             <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/')}>
               <Text style={styles.primaryButtonText}>Mulai Belanja</Text>
@@ -97,7 +98,7 @@ export default function CartScreen() {
         ) : (
           <View>
             <View style={styles.storeBadge}>
-              <Feather name="briefcase" size={18} color="#1D4ED8" />
+              <Feather name="briefcase" size={18} color={Colors.primary} />
               <Text style={styles.storeName}>Toko: {cartData.storeName}</Text>
             </View>
 
@@ -105,9 +106,9 @@ export default function CartScreen() {
               <View key={item.id} style={styles.cartItem}>
                 <View style={styles.imagePlaceholder}>
                   {item.product.imageUrl ? (
-                     <Image source={{ uri: item.product.imageUrl }} style={styles.image} />
+                      <Image source={{ uri: item.product.imageUrl }} style={styles.image} />
                   ) : (
-                     <Feather name="box" size={32} color="#9CA3AF" />
+                      <Feather name="box" size={32} color={Colors.textMuted} />
                   )}
                 </View>
                 <View style={styles.itemDetails}>
@@ -117,11 +118,11 @@ export default function CartScreen() {
                   <View style={styles.actionRow}>
                     <View style={styles.qtyBox}>
                       <TouchableOpacity onPress={() => updateQuantity(item.id, item.quantity - 1)} style={styles.qtyBtn}>
-                        <Feather name="minus" size={16} color="#4B5563" />
+                        <Feather name="minus" size={16} color={Colors.secondary} />
                       </TouchableOpacity>
                       <Text style={styles.qtyText}>{item.quantity}</Text>
                       <TouchableOpacity onPress={() => updateQuantity(item.id, item.quantity + 1)} style={styles.qtyBtn}>
-                        <Feather name="plus" size={16} color="#4B5563" />
+                        <Feather name="plus" size={16} color={Colors.secondary} />
                       </TouchableOpacity>
                     </View>
                     <TouchableOpacity onPress={() => removeItem(item.id)} style={styles.deleteBtn}>
@@ -153,45 +154,45 @@ export default function CartScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  container: { flex: 1, backgroundColor: Colors.background },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   
   content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 120, width: '100%', maxWidth: 600, alignSelf: 'center' },
   
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
-  backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 }, 
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
+  backButton: { padding: 8, backgroundColor: Colors.surface, borderRadius: 8, borderWidth: 1, borderColor: Colors.border }, 
+  headerTitle: { fontSize: 20, fontWeight: '800', color: Colors.secondary },
   
-  errorTitle: { fontSize: 20, fontWeight: 'bold', color: '#1F2937', marginTop: 16, marginBottom: 8 },
-  errorText: { fontSize: 14, color: '#6B7280', textAlign: 'center' },
+  errorTitle: { fontSize: 20, fontWeight: 'bold', color: Colors.secondary, marginTop: 16, marginBottom: 8 },
+  errorText: { fontSize: 14, color: Colors.textMuted, textAlign: 'center' },
   
-  emptyBox: { alignItems: 'center', padding: 40, backgroundColor: '#FFF', borderRadius: 16, borderWidth: 1, borderColor: '#D1D5DB', borderStyle: 'dashed', marginTop: 20 },
-  emptyText: { marginTop: 16, marginBottom: 24, color: '#6B7280', fontSize: 15 },
+  emptyBox: { alignItems: 'center', padding: 40, backgroundColor: Colors.surface, borderRadius: 16, borderWidth: 1, borderColor: Colors.border, borderStyle: 'dashed', marginTop: 20 },
+  emptyText: { marginTop: 16, marginBottom: 24, color: Colors.textMuted, fontSize: 15 },
   
-  primaryButton: { backgroundColor: '#3B82F6', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 10 },
-  primaryButtonText: { color: '#FFF', fontWeight: 'bold' },
+  primaryButton: { backgroundColor: Colors.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 10 },
+  primaryButtonText: { color: Colors.surface, fontWeight: 'bold' },
   
-  storeBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#DBEAFE', padding: 12, borderRadius: 10, marginBottom: 16 },
-  storeName: { marginLeft: 8, fontSize: 14, fontWeight: 'bold', color: '#1D4ED8' },
+  storeBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primaryLight, padding: 12, borderRadius: 10, marginBottom: 16 },
+  storeName: { marginLeft: 8, fontSize: 14, fontWeight: 'bold', color: Colors.secondary },
   
-  cartItem: { flexDirection: 'row', backgroundColor: '#FFF', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#E5E7EB', marginBottom: 12 },
-  imagePlaceholder: { width: 80, height: 80, backgroundColor: '#F3F4F6', borderRadius: 10, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+  cartItem: { flexDirection: 'row', backgroundColor: Colors.surface, padding: 16, borderRadius: 16, borderWidth: 1, borderColor: Colors.border, marginBottom: 12 },
+  imagePlaceholder: { width: 80, height: 80, backgroundColor: Colors.background, borderRadius: 10, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
   image: { width: '100%', height: '100%' },
   itemDetails: { flex: 1, marginLeft: 16 },
-  itemName: { fontSize: 15, fontWeight: '600', color: '#374151', marginBottom: 4 },
-  itemPrice: { fontSize: 16, fontWeight: '900', color: '#E11D48', marginBottom: 12 },
+  itemName: { fontSize: 15, fontWeight: '600', color: Colors.secondary, marginBottom: 4 },
+  itemPrice: { fontSize: 16, fontWeight: '900', color: Colors.primary, marginBottom: 12 },
   
   actionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  qtyBox: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8 },
-  qtyBtn: { padding: 8, backgroundColor: '#F9FAFB', borderRadius: 8 },
-  qtyText: { paddingHorizontal: 16, fontWeight: 'bold', fontSize: 14 },
+  qtyBox: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: Colors.border, borderRadius: 8 },
+  qtyBtn: { padding: 8, backgroundColor: Colors.background, borderRadius: 8 },
+  qtyText: { paddingHorizontal: 16, fontWeight: 'bold', fontSize: 14, color: Colors.secondary },
   deleteBtn: { padding: 8, backgroundColor: '#FEE2E2', borderRadius: 8 },
   
-  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#FFF', borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingVertical: 16, paddingHorizontal: 20 },
+  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: Colors.surface, borderTopWidth: 1, borderTopColor: Colors.border, paddingVertical: 16, paddingHorizontal: 20 },
   bottomBarContent: { width: '100%', maxWidth: 600, alignSelf: 'center', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   summaryBox: { flex: 1, marginRight: 16 },
-  summaryLabel: { fontSize: 12, color: '#6B7280', fontWeight: '600', marginBottom: 2 },
-  summaryValue: { fontSize: 18, fontWeight: '900', color: '#1F2937' },
-  checkoutButton: { backgroundColor: '#10B981', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 10, minWidth: 140, alignItems: 'center' },
-  checkoutText: { color: '#FFF', fontSize: 15, fontWeight: 'bold' }
+  summaryLabel: { fontSize: 12, color: Colors.textMuted, fontWeight: '600', marginBottom: 2 },
+  summaryValue: { fontSize: 18, fontWeight: '900', color: Colors.secondary },
+  checkoutButton: { backgroundColor: Colors.primary, paddingHorizontal: 32, paddingVertical: 14, borderRadius: 10, minWidth: 140, alignItems: 'center' },
+  checkoutText: { color: Colors.surface, fontSize: 15, fontWeight: 'bold' }
 });

@@ -1,4 +1,4 @@
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -98,7 +98,7 @@ export default function WalletScreen() {
   if (isLoading) {
     return (
       <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color="#10B981" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -107,7 +107,7 @@ export default function WalletScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="chevron-left" size={24} color="#1F2937" />
+          <Feather name="chevron-left" size={24} color={Colors.secondary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Dompet Pembeli</Text>
         <View style={{ width: 40 }} />
@@ -127,13 +127,14 @@ export default function WalletScreen() {
             keyboardType="numeric"
             value={topupAmount}
             onChangeText={(text) => setTopupAmount(text.replace(/[^0-9]/g, ''))}
+            placeholderTextColor={Colors.textMuted}
           />
           <TouchableOpacity 
-            style={[styles.primaryButton, isToppingUp && { opacity: 0.7 }]} 
+            style={[styles.primaryButton, (!topupAmount || isToppingUp) && { opacity: 0.7, backgroundColor: Colors.textMuted }]} 
             onPress={handleTopUp}
             disabled={isToppingUp || !topupAmount}
           >
-            {isToppingUp ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={styles.primaryButtonText}>Isi Saldo</Text>}
+            {isToppingUp ? <ActivityIndicator size="small" color={Colors.surface} /> : <Text style={styles.primaryButtonText}>Isi Saldo</Text>}
           </TouchableOpacity>
         </View>
       </View>
@@ -141,14 +142,14 @@ export default function WalletScreen() {
       <Text style={styles.sectionTitle}>Riwayat Transaksi</Text>
       {history.length === 0 ? (
         <View style={styles.emptyBox}>
-          <IconSymbol name="doc.text.magnifyingglass" size={48} color="#D1D5DB" />
+          <Feather name="file-text" size={48} color={Colors.border} />
           <Text style={styles.emptyText}>Belum ada riwayat transaksi.</Text>
         </View>
       ) : (
         history.map((trx) => (
           <View key={trx.id} style={styles.historyItem}>
             <View style={[styles.iconWrapper, { backgroundColor: trx.type === 'TOP_UP' ? '#D1FAE5' : '#FEE2E2' }]}>
-              <IconSymbol name={trx.type === 'TOP_UP' ? "arrow.down.left" : "arrow.up.right"} size={20} color={trx.type === 'TOP_UP' ? "#059669" : "#DC2626"} />
+              <Feather name={trx.type === 'TOP_UP' ? "arrow-down-left" : "arrow-up-right"} size={20} color={trx.type === 'TOP_UP' ? "#059669" : "#DC2626"} />
             </View>
             <View style={styles.historyInfo}>
               <Text style={styles.historyDesc} numberOfLines={1}>{trx.description}</Text>
@@ -165,28 +166,35 @@ export default function WalletScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
-  center: { justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, backgroundColor: Colors.background },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 60, width: '100%', maxWidth: 600, alignSelf: 'center' },
+  
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
-  backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 },
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
-  card: { backgroundColor: '#FFF', padding: 24, borderRadius: 16, borderWidth: 1, borderColor: '#E5E7EB', marginBottom: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-  cardSubtitle: { fontSize: 14, color: '#6B7280', marginBottom: 4 },
-  balanceText: { fontSize: 32, fontWeight: '800', color: '#10B981' },
-  divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 16 },
-  label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },
+  backButton: { padding: 8, backgroundColor: Colors.surface, borderRadius: 8, borderWidth: 1, borderColor: Colors.border },
+  headerTitle: { fontSize: 20, fontWeight: '900', color: Colors.secondary },
+  
+  card: { backgroundColor: Colors.surface, padding: 24, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, marginBottom: 24, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 2 },
+  cardSubtitle: { fontSize: 14, color: Colors.textMuted, marginBottom: 8, fontWeight: '600' },
+  balanceText: { fontSize: 36, fontWeight: '900', color: Colors.primary },
+  
+  divider: { height: 1, backgroundColor: Colors.border, marginVertical: 20 },
+  
+  label: { fontSize: 14, fontWeight: '800', color: Colors.secondary, marginBottom: 12 },
   topupRow: { flexDirection: 'row', alignItems: 'center' },
-  input: { flex: 1, backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: '#1F2937', marginRight: 12 },
-  primaryButton: { backgroundColor: '#10B981', paddingHorizontal: 20, paddingVertical: 14, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-  primaryButtonText: { color: '#FFF', fontSize: 14, fontWeight: 'bold' },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', marginBottom: 16 },
-  emptyBox: { alignItems: 'center', padding: 32, backgroundColor: '#FFF', borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: '#D1D5DB' },
-  emptyText: { marginTop: 12, color: '#9CA3AF', fontSize: 14 },
-  historyItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: '#F3F4F6' },
-  iconWrapper: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  input: { flex: 1, backgroundColor: Colors.background, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: Colors.secondary, marginRight: 12 },
+  primaryButton: { backgroundColor: Colors.primary, paddingHorizontal: 24, paddingVertical: 16, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+  primaryButtonText: { color: Colors.surface, fontSize: 15, fontWeight: '900' },
+  
+  sectionTitle: { fontSize: 18, fontWeight: '900', color: Colors.secondary, marginBottom: 16 },
+  
+  emptyBox: { alignItems: 'center', padding: 40, backgroundColor: Colors.surface, borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: Colors.border },
+  emptyText: { marginTop: 16, color: Colors.textMuted, fontSize: 14, fontWeight: '500' },
+  
+  historyItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.surface, padding: 16, borderRadius: 16, marginBottom: 12, borderWidth: 1, borderColor: Colors.border, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.02, shadowRadius: 4, elevation: 1 },
+  iconWrapper: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginRight: 16 },
   historyInfo: { flex: 1, marginRight: 8 },
-  historyDesc: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 4 },
-  historyDate: { fontSize: 12, color: '#9CA3AF' },
-  historyAmount: { fontSize: 15, fontWeight: 'bold' },
+  historyDesc: { fontSize: 15, fontWeight: '800', color: Colors.secondary, marginBottom: 4 },
+  historyDate: { fontSize: 12, color: Colors.textMuted, fontWeight: '500' },
+  historyAmount: { fontSize: 16, fontWeight: '900' },
 });

@@ -1,8 +1,9 @@
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function AddProductScreen() {
   const router = useRouter();
@@ -79,96 +80,102 @@ export default function AddProductScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="chevron-left" size={24} color="#1F2937" />
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Feather name="chevron-left" size={24} color={Colors.secondary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Tambah Produk Baru</Text>
+          <View style={{ width: 40 }} /> 
+        </View>
+
+        <View style={styles.card}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Nama Produk <Text style={styles.required}>*</Text></Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Contoh: Kopi Susu Gula Aren 250ml"
+              value={formData.name}
+              onChangeText={(text) => setFormData({ ...formData, name: text })}
+              placeholderTextColor={Colors.textMuted}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Deskripsi Produk <Text style={styles.required}>*</Text></Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Jelaskan detail produkmu di sini..."
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+              value={formData.description}
+              onChangeText={(text) => setFormData({ ...formData, description: text })}
+              placeholderTextColor={Colors.textMuted}
+            />
+          </View>
+
+          <View style={styles.row}>
+            <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
+              <Text style={styles.label}>Harga (Rp) <Text style={styles.required}>*</Text></Text>
+              <TextInput
+                style={styles.input}
+                placeholder="0"
+                keyboardType="numeric"
+                value={formData.price}
+                onChangeText={(text) => setFormData({ ...formData, price: text.replace(/[^0-9]/g, '') })}
+                placeholderTextColor={Colors.textMuted}
+              />
+            </View>
+
+            <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
+              <Text style={styles.label}>Stok <Text style={styles.required}>*</Text></Text>
+              <TextInput
+                style={styles.input}
+                placeholder="0"
+                keyboardType="numeric"
+                value={formData.stock}
+                onChangeText={(text) => setFormData({ ...formData, stock: text.replace(/[^0-9]/g, '') })}
+                placeholderTextColor={Colors.textMuted}
+              />
+            </View>
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>URL Gambar <Text style={styles.optional}>(Opsional)</Text></Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Contoh: https://picsum.photos/200"
+              value={formData.imageUrl}
+              onChangeText={(text) => setFormData({ ...formData, imageUrl: text })}
+              autoCapitalize="none"
+              placeholderTextColor={Colors.textMuted}
+            />
+            <Text style={styles.helperText}>Masukkan tautan (link) gambar produk. Biarkan kosong jika tidak ada.</Text>
+          </View>
+        </View>
+
+        <TouchableOpacity 
+          style={[styles.submitButton, isLoading && { opacity: 0.7, backgroundColor: Colors.border }]} 
+          onPress={handleSaveProduct}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color={Colors.surface} />
+          ) : (
+            <Text style={styles.submitButtonText}>Simpan Produk</Text>
+          )}
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Tambah Produk Baru</Text>
-        <View style={{ width: 24 }} /> 
-      </View>
-
-      <View style={styles.card}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Nama Produk <Text style={styles.required}>*</Text></Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Contoh: Kopi Susu Gula Aren 250ml"
-            value={formData.name}
-            onChangeText={(text) => setFormData({ ...formData, name: text })}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Deskripsi Produk <Text style={styles.required}>*</Text></Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Jelaskan detail produkmu di sini..."
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-            value={formData.description}
-            onChangeText={(text) => setFormData({ ...formData, description: text })}
-          />
-        </View>
-
-        <View style={styles.row}>
-          <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
-            <Text style={styles.label}>Harga (Rp) <Text style={styles.required}>*</Text></Text>
-            <TextInput
-              style={styles.input}
-              placeholder="0"
-              keyboardType="numeric"
-              value={formData.price}
-              onChangeText={(text) => setFormData({ ...formData, price: text.replace(/[^0-9]/g, '') })}
-            />
-          </View>
-
-          <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
-            <Text style={styles.label}>Stok <Text style={styles.required}>*</Text></Text>
-            <TextInput
-              style={styles.input}
-              placeholder="0"
-              keyboardType="numeric"
-              value={formData.stock}
-              onChangeText={(text) => setFormData({ ...formData, stock: text.replace(/[^0-9]/g, '') })}
-            />
-          </View>
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>URL Gambar <Text style={styles.optional}>(Opsional)</Text></Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Contoh: https://picsum.photos/200"
-            value={formData.imageUrl}
-            onChangeText={(text) => setFormData({ ...formData, imageUrl: text })}
-            autoCapitalize="none"
-          />
-          <Text style={styles.helperText}>Masukkan tautan (link) gambar produk. Biarkan kosong jika tidak ada.</Text>
-        </View>
-      </View>
-
-      <TouchableOpacity 
-        style={[styles.submitButton, isLoading && { opacity: 0.7 }]} 
-        onPress={handleSaveProduct}
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <ActivityIndicator color="#FFF" />
-        ) : (
-          <Text style={styles.submitButtonText}>Simpan Produk</Text>
-        )}
-      </TouchableOpacity>
-
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: Colors.background,
   },
   content: {
     padding: 20,
@@ -186,25 +193,27 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.surface,
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: '800',
-    color: '#1F2937',
+    fontWeight: '900',
+    color: Colors.secondary,
   },
   card: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.surface,
     padding: 24,
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.border,
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
-    shadowRadius: 8,
+    shadowRadius: 12,
     elevation: 2,
   },
   inputGroup: {
@@ -215,51 +224,47 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
+    fontSize: 13,
+    fontWeight: '700',
+    color: Colors.secondary,
     marginBottom: 8,
   },
   required: {
     color: '#DC2626',
   },
   optional: {
-    color: '#9CA3AF',
+    color: Colors.textMuted,
     fontWeight: 'normal',
     fontSize: 12,
   },
   input: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.background,
     borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 10,
+    borderColor: Colors.border,
+    borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
     fontSize: 15,
-    color: '#1F2937',
+    color: Colors.secondary,
   },
   textArea: {
-    minHeight: 100,
+    minHeight: 120,
   },
   helperText: {
     fontSize: 12,
-    color: '#6B7280',
+    color: Colors.textMuted,
     marginTop: 6,
+    fontWeight: '500',
   },
   submitButton: {
-    backgroundColor: '#10B981', 
+    backgroundColor: Colors.primary, 
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: 'center',
-    shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
   },
   submitButtonText: {
-    color: '#FFF',
+    color: Colors.surface,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '900',
   },
 });

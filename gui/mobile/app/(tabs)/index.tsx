@@ -1,12 +1,14 @@
-
 import { Product, ProductGrid } from '@/components/ui/ProductGrid';
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
+import { Feather } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { jwtDecode } from 'jwt-decode';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
-  const { token, fullName, username, activeRole } = useAuthStore();
+  const { token, fullName, activeRole } = useAuthStore();
   const router = useRouter();
   const api_address = process.env.EXPO_PUBLIC_API_IP_ADDRESS;
   
@@ -15,14 +17,12 @@ export default function HomeScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+
   const getUserIdFromToken = () => {
     if (!token) return null;
     try {
-      if (typeof atob !== 'undefined') {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        return payload.sub || payload.id || null;
-      }
-      return null;
+      const payload: any = jwtDecode(token);
+      return payload.sub || payload.id || null;
     } catch (e) {
       return null;
     }
@@ -74,67 +74,96 @@ export default function HomeScreen() {
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
-      <View style={styles.heroSection}>
-        <Text style={styles.title}>SEAPEDIA</Text>
-        <Text style={styles.heroDescription}>
-          Jelajahi ribuan produk dari berbagai toko di seluruh Indonesia. Belanja aman, pengiriman cepat, dalam satu platform terintegrasi.
-        </Text>
+      
+      <View style={[styles.heroSection, { backgroundColor: Colors.secondary }]}>
+        <View style={styles.heroContent}>
+          <Text style={[styles.heroBadge, { color: Colors.secondary, backgroundColor: Colors.primary }]}>
+          SEAPEDIA
+          </Text>
+          <Text style={styles.title}>Belanja Cerdas,{'\n'}Pengiriman Cepat.</Text>
+        </View>
+        <Feather name="box" size={80} color="#1E293B" style={styles.heroIconBg} />
+      </View>
+
+      <View style={styles.featuresRow}>
+        <View style={styles.featureItem}>
+          <View style={[styles.featureIconBox, { backgroundColor: Colors.primaryLight }]}>
+            <Feather name="shield" size={18} color={Colors.primary} />
+          </View>
+          <Text style={styles.featureText}>Transaksi Aman</Text>
+        </View>
+        <View style={styles.featureItem}>
+          <View style={[styles.featureIconBox, { backgroundColor: Colors.primaryLight }]}>
+            <Feather name="truck" size={18} color={Colors.primary} />
+          </View>
+          <Text style={styles.featureText}>SLA Terjamin</Text>
+        </View>
+        <View style={styles.featureItem}>
+          <View style={[styles.featureIconBox, { backgroundColor: Colors.primaryLight }]}>
+            <Feather name="tag" size={18} color={Colors.primary} />
+          </View>
+          <Text style={styles.featureText}>Banyak Promo</Text>
+        </View>
       </View>
       
       {token ? (
         <View style={styles.welcomeBox}>
-           <Text style={styles.text}>Halo, <Text style={styles.bold}>{fullName}</Text>!</Text>
-           <View style={styles.roleBadge}>
-             <Text style={styles.roleBadgeText}>{activeRole}</Text>
+           <View>
+             <Text style={styles.welcomeGreeting}>Selamat datang kembali,</Text>
+             <Text style={[styles.welcomeName, { color: Colors.secondary }]}>{fullName}</Text>
+           </View>
+           <View style={[styles.roleBadge, { backgroundColor: Colors.primary }]}>
+             <Feather name="user-check" size={12} color={Colors.secondary} style={{ marginRight: 4 }} />
+             <Text style={[styles.roleBadgeText, { color: Colors.secondary }]}>{activeRole}</Text>
            </View>
         </View>
       ) : (
         <View style={styles.guestBox}>
-          <Text style={styles.guestText}>Masuk atau daftar untuk mulai bertransaksi dan membuka toko.</Text>
-          <TouchableOpacity onPress={() => router.push('/profile')} style={styles.guestButton}>
-            <Text style={styles.guestButtonText}>Masuk Akun</Text>
+          <View style={styles.guestTextContainer}>
+            <Text style={styles.guestTitle}>Belum Punya Akun?</Text>
+            <Text style={styles.guestText}>Daftar sekarang untuk mulai bertransaksi atau buka tokomu sendiri.</Text>
+          </View>
+          <TouchableOpacity onPress={() => router.push('/login')} style={[styles.guestButton, { backgroundColor: Colors.secondary }]} activeOpacity={0.8}>
+            <Text style={styles.guestButtonText}>Masuk</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      <View style={[styles.reviewBanner, hasReviewed && styles.reviewBannerSuccess]}>
+      <View style={[styles.reviewBanner, hasReviewed ? styles.reviewBannerSuccess : { borderColor: Colors.primaryLight, backgroundColor: '#FFF' }]}>
         {hasReviewed ? (
-          <>
-            <Text style={[styles.reviewBannerTitle, { color: '#065F46' }]}>Terima Kasih!</Text>
-            <Text style={[styles.reviewBannerText, { color: '#047857' }]}>
-              Ulasanmu sangat berarti bagi pengembangan SEAPEDIA.
-            </Text>
-            <TouchableOpacity 
-              style={[styles.reviewButton, { backgroundColor: '#059669' }]} 
-              onPress={() => router.push('/reviews')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.reviewButtonText}>Lihat Ulasan Pengguna Lain</Text>
+          <View style={styles.reviewBannerContent}>
+            <View style={styles.reviewTextWrap}>
+              <Text style={[styles.reviewBannerTitle, { color: '#059669' }]}>Terima Kasih!</Text>
+              <Text style={styles.reviewBannerText}>Ulasanmu membantu kami menjadi lebih baik.</Text>
+            </View>
+            <TouchableOpacity style={[styles.reviewButton, { backgroundColor: '#10B981' }]} onPress={() => router.push('/reviews')}>
+              <Text style={styles.reviewButtonText}>Lihat Ulasan</Text>
             </TouchableOpacity>
-          </>
+          </View>
         ) : (
-          <>
-            <Text style={styles.reviewBannerTitle}>Bantu kami berkembang!</Text>
-            <Text style={styles.reviewBannerText}>Bagaimana pengalamanmu menggunakan aplikasi SEAPEDIA?</Text>
-            <TouchableOpacity 
-              style={styles.reviewButton} 
-              onPress={() => router.push('/reviews')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.reviewButtonText}>Tulis Ulasan Aplikasi</Text>
+          <View style={styles.reviewBannerContent}>
+            <View style={styles.reviewTextWrap}>
+              <Text style={[styles.reviewBannerTitle, { color: Colors.secondary }]}>Bantu Kami Berkembang</Text>
+              <Text style={styles.reviewBannerText}>Bagikan pengalamanmu menggunakan SEAPEDIA.</Text>
+            </View>
+            <TouchableOpacity style={[styles.reviewButton, { backgroundColor: Colors.primary }]} onPress={() => router.push('/reviews')}>
+              <Text style={[styles.reviewButtonText, { color: Colors.secondary }]}>Tulis Ulasan</Text>
             </TouchableOpacity>
-          </>
+          </View>
         )}
       </View>
 
-      <Text style={styles.sectionTitle}>Eksplorasi Katalog</Text>
+      <View style={styles.headerTitleRow}>
+        <Text style={[styles.sectionTitle, { color: Colors.secondary }]}>Eksplorasi Katalog</Text>
+        <Text style={styles.subtitleCount}>{products.length} Produk</Text>
+      </View>
     </View>
   );
 
   if (isLoading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#1976D2" />
+        <ActivityIndicator size="large" color="#F59E0B" />
       </View>
     );
   }
@@ -158,163 +187,248 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#F8FAFC',
   },
   pageWrapper: {
     flex: 1,
-    width: '85%', 
-    maxWidth: 1400, 
+    width: '90%', 
+    maxWidth: 1200, 
     alignSelf: 'center',
-    paddingTop: 40,
+    paddingTop: 24,
   },
   headerContainer: {
     marginBottom: 16,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '800', 
-    color: '#1E3A8A', 
+  
+  heroSection: {
+    borderRadius: 20,
+    padding: 24,
     marginBottom: 20,
+    overflow: 'hidden',
+    position: 'relative',
+    elevation: 4,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+  },
+  heroContent: {
+    position: 'relative',
+    zIndex: 2,
+  },
+  heroBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 1,
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '900', 
+    color: '#FFFFFF', 
+    marginBottom: 8,
+    lineHeight: 34,
     letterSpacing: -0.5,
   },
-  card: {
-    backgroundColor: '#FFF',
-    padding: 20,
-    borderRadius: 16, 
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-    width: '100%',
-    marginBottom: 20,
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2, 
-  },
-  text: {
-    fontSize: 15,
-    color: '#4B5563',
-    marginBottom: 8,
+  heroDescription: {
+    fontSize: 14,
+    color: '#94A3B8',
     lineHeight: 22,
+    maxWidth: '80%',
   },
-  bold: {
-    fontWeight: '700',
-    color: '#1F2937',
+  heroIconBg: {
+    position: 'absolute',
+    right: -20,
+    bottom: -20,
+    opacity: 0.5,
+    zIndex: 1,
+    transform: [{ rotate: '-15deg' }]
   },
-  reviewBanner: {
+
+  featuresRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 24,
-    backgroundColor: '#EFF6FF',
-    padding: 24,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
-    width: '100%',
+    borderColor: '#F1F5F9',
+  },
+  featureItem: {
     alignItems: 'center',
+    flex: 1,
+  },
+  featureIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  featureText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#475569',
+  },
+
+  welcomeBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  welcomeGreeting: {
+    fontSize: 12,
+    color: '#64748B',
+    marginBottom: 4,
+  },
+  welcomeName: {
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  roleBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  roleBadgeText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+
+  guestBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFF7ED',
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#FFEDD5',
+  },
+  guestTextContainer: {
+    flex: 1,
+    marginRight: 16,
+  },
+  guestTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#9A3412',
+    marginBottom: 4,
+  },
+  guestText: {
+    fontSize: 12,
+    color: '#C2410C',
+    lineHeight: 18,
+  },
+  guestButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  guestButtonText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+
+  categorySection: {
+    marginBottom: 24,
+  },
+  categoryScroll: {
+    paddingVertical: 8,
+  },
+  categoryCard: {
+    alignItems: 'center',
+    marginRight: 16,
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    width: 80,
+  },
+  categoryIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  categoryText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#475569',
+  },
+
+  reviewBanner: {
+    marginBottom: 32,
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 1,
   },
   reviewBannerSuccess: {
     backgroundColor: '#ECFDF5',
     borderColor: '#A7F3D0',
   },
+  reviewBannerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  reviewTextWrap: {
+    flex: 1,
+    marginRight: 16,
+  },
   reviewBannerTitle: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: '#1E40AF',
-    marginBottom: 6,
+    fontSize: 15,
+    fontWeight: '800',
+    marginBottom: 4,
   },
   reviewBannerText: {
-    fontSize: 14,
-    color: '#3B82F6',
-    textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 20,
+    fontSize: 12,
+    color: '#64748B',
+    lineHeight: 18,
   },
   reviewButton: {
-    backgroundColor: '#2563EB',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 10,
-    width: '100%', 
-    alignItems: 'center',
   },
   reviewButtonText: {
-    color: '#FFF',
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+
+  headerTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginTop: 12,
-    marginBottom: 16,
+    fontWeight: '900',
+    letterSpacing: -0.5,
   },
-  heroSection: {
-    marginBottom: 24,
-    backgroundColor: '#FFF',
-    padding: 20,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  subtitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#3B82F6',
-    marginBottom: 8,
-  },
-  heroDescription: {
+  subtitleCount: {
     fontSize: 13,
-    color: '#6B7280',
-    lineHeight: 20,
-  },
-  welcomeBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginBottom: 20,
-  },
-  roleBadge: {
-    backgroundColor: '#DBEAFE',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  roleBadgeText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#1D4ED8',
-  },
-  guestBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FEF2F2',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#FEE2E2',
-  },
-  guestText: {
-    flex: 1,
-    fontSize: 12,
-    color: '#991B1B',
-    marginRight: 12,
-  },
-  guestButton: {
-    backgroundColor: '#DC2626',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  guestButtonText: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
+    color: '#64748B',
+    fontWeight: '600',
+  }
 });

@@ -17,7 +17,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (isAuthLoading) return;
 
-    const privatePages = ['orders', 'profile', 'checkout', 'dashboard', 'seller', 'add-product', 'edit-product', 'buyer'];
+    const privatePages = ['orders', 'profile', 'checkout', 'dashboard', 'seller', 'add-product', 'edit-product', 'buyer', 'driver'];
     const isProtectedRoute = segments.some(segment => privatePages.includes(segment));
     
     const cleanPath = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
@@ -35,7 +35,7 @@ export default function RootLayout() {
     if (token && activeRole) {
       
       if (activeRole === 'SELLER') {
-        const sellerForbidden = ['index', 'cart', 'checkout', 'buyer'];
+        const sellerForbidden = ['index', 'cart', 'checkout', 'buyer', 'driver'];
         
         const isForbiddenForSeller = segments.some(segment => sellerForbidden.includes(segment)) || pathname === '/';
         
@@ -45,8 +45,19 @@ export default function RootLayout() {
         }
       } 
       
-      else if (activeRole === 'BUYER' || activeRole === 'DRIVER') {
-        const buyerForbidden = ['seller', 'add-product', 'edit-product'];
+      else if (activeRole === 'DRIVER') {
+        const driverForbidden = ['seller', 'add-product', 'edit-product', 'cart', 'checkout', 'buyer', 'index'];
+        
+        const isForbiddenForDriver = segments.some(segment => driverForbidden.includes(segment)) || pathname === '/';
+        
+        if (isForbiddenForDriver) {
+          router.replace('/driver');
+          return;
+        }
+      }
+      
+      else if (activeRole === 'BUYER') {
+        const buyerForbidden = ['seller', 'add-product', 'edit-product', 'driver'];
         const isForbiddenForBuyer = segments.some(segment => buyerForbidden.includes(segment));
         
         if (isForbiddenForBuyer) {

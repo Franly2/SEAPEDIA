@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -132,7 +133,7 @@ export default function AddressScreen() {
   if (isLoading) {
     return (
       <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color="#3B82F6" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -141,7 +142,7 @@ export default function AddressScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="chevron-left" size={24} color="#1F2937" />
+          <Feather name="chevron-left" size={24} color={Colors.secondary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Alamat Pengiriman</Text>
         <View style={{ width: 40 }} />
@@ -165,6 +166,7 @@ export default function AddressScreen() {
               placeholder="Contoh: Rumah Utama"
               value={formData.label}
               onChangeText={(text) => setFormData({ ...formData, label: text })}
+              placeholderTextColor={Colors.textMuted}
             />
           </View>
           
@@ -178,6 +180,7 @@ export default function AddressScreen() {
               textAlignVertical="top"
               value={formData.addressLine}
               onChangeText={(text) => setFormData({ ...formData, addressLine: text })}
+              placeholderTextColor={Colors.textMuted}
             />
           </View>
 
@@ -186,22 +189,22 @@ export default function AddressScreen() {
               <Text style={styles.outlineButtonText}>Batal</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.primaryButton, { flex: 1 }]} onPress={handleSave} disabled={isSaving}>
-              {isSaving ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={styles.primaryButtonText}>Simpan</Text>}
+              {isSaving ? <ActivityIndicator size="small" color={Colors.surface} /> : <Text style={styles.primaryButtonText}>Simpan</Text>}
             </TouchableOpacity>
           </View>
         </View>
       ) : (
         <TouchableOpacity style={styles.addButton} onPress={() => setIsFormVisible(true)}>
-          <Feather name="plus" size={20} color="#3B82F6" />
+          <Feather name="plus" size={20} color={Colors.primary} />
           <Text style={styles.addButtonText}> Tambah Alamat Baru</Text>
         </TouchableOpacity>
       )}
 
       <View style={styles.listContainer}>
-        <Text style={styles.listSectionTitle}>Daftar Alamat Tersimpan</Text>
-        {addresses.length === 0 && !isFormVisible ? (
+        <Text style={styles.listSectionTitle}>Daftar Alamat</Text>
+        {addresses.length === 0 && !isFormVisible ? ( 
           <View style={styles.emptyBox}>
-            <Feather name="map" size={48} color="#D1D5DB" />
+            <Feather name="map" size={48} color={Colors.border} />
             <Text style={styles.emptyText}>Belum ada alamat tersimpan.</Text>
           </View>
         ) : (
@@ -233,8 +236,7 @@ export default function AddressScreen() {
               <Text style={styles.addressLine}>{addr.addressLine}</Text>
               
               <View style={styles.clickHint}>
-                 <Text style={styles.clickHintText}>Ketuk untuk mengedit</Text>
-                 <Feather name="chevron-right" size={14} color="#9CA3AF" />
+                 <Feather name="chevron-right" size={14} color={Colors.textMuted} />
               </View>
             </TouchableOpacity>
           ))
@@ -245,43 +247,44 @@ export default function AddressScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  container: { flex: 1, backgroundColor: Colors.background },
   center: { justifyContent: 'center', alignItems: 'center' },
   content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 60, width: '100%', maxWidth: 600, alignSelf: 'center' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
-  backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 },
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
   
-  card: { backgroundColor: '#FFF', padding: 20, borderRadius: 16, borderWidth: 1, borderColor: '#BFDBFE', marginBottom: 24 },
-  cardHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#1E3A8A' },
-  deleteFormBtn: { padding: 8, backgroundColor: '#FEE2E2', borderRadius: 6 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
+  backButton: { padding: 8, backgroundColor: Colors.surface, borderRadius: 8, borderWidth: 1, borderColor: Colors.border },
+  headerTitle: { fontSize: 20, fontWeight: '900', color: Colors.secondary },
+  
+  card: { backgroundColor: Colors.surface, padding: 24, borderRadius: 16, borderWidth: 1, borderColor: Colors.border, marginBottom: 24, elevation: 2, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 },
+  cardHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  cardTitle: { fontSize: 16, fontWeight: '900', color: Colors.secondary },
+  deleteFormBtn: { padding: 8, backgroundColor: '#FEE2E2', borderRadius: 8 },
   inputGroup: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '600', color: '#4B5563', marginBottom: 8 },
-  input: { backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: '#1F2937' },
-  textArea: { minHeight: 80 },
-  actionRow: { flexDirection: 'row', marginTop: 8 },
-  outlineButton: { alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, backgroundColor: '#FFF' },
-  outlineButtonText: { color: '#4B5563', fontSize: 14, fontWeight: 'bold' },
-  primaryButton: { backgroundColor: '#3B82F6', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 10 },
-  primaryButtonText: { color: '#FFF', fontSize: 14, fontWeight: 'bold' },
+  label: { fontSize: 13, fontWeight: '700', color: Colors.secondary, marginBottom: 8 },
+  input: { backgroundColor: Colors.background, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: Colors.secondary },
+  textArea: { minHeight: 100 },
+  actionRow: { flexDirection: 'row', marginTop: 12 },
+  outlineButton: { alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, backgroundColor: Colors.surface },
+  outlineButtonText: { color: Colors.textMuted, fontSize: 15, fontWeight: '700' },
+  primaryButton: { backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderRadius: 12 },
+  primaryButtonText: { color: Colors.surface, fontSize: 15, fontWeight: '900' },
 
-  addButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#BFDBFE', borderStyle: 'dashed', paddingVertical: 16, borderRadius: 12, marginBottom: 24 },
-  addButtonText: { color: '#3B82F6', fontSize: 15, fontWeight: '600' },
+  addButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.primaryLight, borderWidth: 1, borderColor: 'rgba(245, 158, 11, 0.2)', borderStyle: 'dashed', paddingVertical: 18, borderRadius: 16, marginBottom: 28 },
+  addButtonText: { color: Colors.primary, fontSize: 15, fontWeight: '800' },
   
   listContainer: { marginTop: 8 },
-  listSectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#374151', marginBottom: 12 },
-  emptyBox: { alignItems: 'center', padding: 32, backgroundColor: '#FFF', borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: '#D1D5DB' },
-  emptyText: { marginTop: 12, color: '#9CA3AF', fontSize: 14 },
+  listSectionTitle: { fontSize: 18, fontWeight: '900', color: Colors.secondary, marginBottom: 16 },
+  emptyBox: { alignItems: 'center', padding: 32, backgroundColor: Colors.surface, borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: Colors.border },
+  emptyText: { marginTop: 12, color: Colors.textMuted, fontSize: 14, fontWeight: '500' },
   
-  addressCard: { backgroundColor: '#FFF', padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: '#E5E7EB' },
-  addressCardActive: { borderColor: '#3B82F6', backgroundColor: '#EFF6FF' },
-  addressHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  labelBadge: { backgroundColor: '#F3F4F6', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 },
-  labelText: { fontSize: 12, fontWeight: 'bold', color: '#4B5563' },
+  addressCard: { backgroundColor: Colors.surface, padding: 18, borderRadius: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border, elevation: 1, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
+  addressCardActive: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight, borderWidth: 1.5 },
+  addressHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  labelBadge: { backgroundColor: Colors.background, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: Colors.border },
+  labelText: { fontSize: 12, fontWeight: '800', color: Colors.secondary },
   actionIcons: { flexDirection: 'row', alignItems: 'center' },
-  iconButton: { padding: 6, backgroundColor: '#FEE2E2', borderRadius: 6 },
-  addressLine: { fontSize: 14, color: '#374151', lineHeight: 22, marginBottom: 12 },
-  clickHint: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', borderTopWidth: 1, borderTopColor: '#F3F4F6', paddingTop: 8 },
-  clickHintText: { fontSize: 11, color: '#9CA3AF', fontStyle: 'italic', marginRight: 4 }
+  iconButton: { padding: 6, backgroundColor: '#FEE2E2', borderRadius: 8 },
+  addressLine: { fontSize: 14, color: Colors.textMuted, lineHeight: 22, marginBottom: 16 },
+  clickHint: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', borderTopWidth: 1, borderTopColor: Colors.background, paddingTop: 12 },
+  clickHintText: { fontSize: 12, color: Colors.textMuted, fontStyle: 'italic', marginRight: 4, fontWeight: '500' }
 });

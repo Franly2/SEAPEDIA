@@ -1,4 +1,5 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
@@ -101,7 +102,7 @@ export default function DriverScreen() {
       <View style={[styles.container, styles.center]}>
         <IconSymbol name="car.fill" size={64} color="#EF4444" />
         <Text style={styles.errorTitle}>Akses Dibatasi</Text>
-        <Text style={{ color: '#6B7280', marginTop: 8 }}>Halaman ini khusus untuk Mitra Pengemudi (Driver).</Text>
+        <Text style={{ color: Colors.textMuted, marginTop: 8 }}>Halaman ini khusus untuk Mitra Pengemudi (Driver).</Text>
       </View>
     );
   }
@@ -130,17 +131,17 @@ export default function DriverScreen() {
 
       {activeTab === 'HISTORY' && (
         <View style={styles.earningsBanner}>
-          <IconSymbol name="banknote.fill" size={32} color="#D97706" />
+          <IconSymbol name="banknote.fill" size={32} color={Colors.primary} />
           <View style={{ marginLeft: 16 }}>
-            <Text style={{ color: '#9CA3AF', fontSize: 12 }}>Total Pendapatan Bersih</Text>
-            <Text style={{ color: '#FFF', fontSize: 24, fontWeight: 'bold' }}>{formatRupiah(earnings.totalPendapatan)}</Text>
-            <Text style={{ color: '#D1D5DB', fontSize: 12 }}>Dari {earnings.totalJobs} pengiriman selesai</Text>
+            <Text style={{ color: Colors.primaryLight, fontSize: 12 }}>Total Pendapatan Bersih</Text>
+            <Text style={{ color: Colors.surface, fontSize: 24, fontWeight: '900' }}>{formatRupiah(earnings.totalPendapatan)}</Text>
+            <Text style={{ color: Colors.border, fontSize: 12 }}>Dari {earnings.totalJobs} pengiriman selesai</Text>
           </View>
         </View>
       )}
 
       {isLoading ? (
-        <View style={styles.center}><ActivityIndicator size="large" color="#3B82F6" /></View>
+        <View style={styles.center}><ActivityIndicator size="large" color={Colors.primary} /></View>
       ) : (
         <FlatList
           data={jobs}
@@ -148,7 +149,7 @@ export default function DriverScreen() {
           contentContainerStyle={styles.list}
           ListEmptyComponent={
             <View style={styles.center}>
-              <Text style={{ color: '#9CA3AF' }}>Tidak ada paket di kategori ini.</Text>
+              <Text style={{ color: Colors.textMuted }}>Tidak ada paket di kategori ini.</Text>
             </View>
           }
           renderItem={({ item }) => {
@@ -182,11 +183,11 @@ export default function DriverScreen() {
 
                 {activeTab === 'AVAILABLE' && (
                   <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: '#3B82F6' }]}
+                    style={[styles.actionButton, { backgroundColor: Colors.primary }]}
                     onPress={() => handleTakeJob(orderData.id)}
                     disabled={processingId === orderData.id}
                   >
-                    {processingId === orderData.id ? <ActivityIndicator color="#FFF" /> : <Text style={styles.actionText}>Ambil Pekerjaan</Text>}
+                    {processingId === orderData.id ? <ActivityIndicator color={Colors.surface} /> : <Text style={styles.actionText}>Ambil Pekerjaan</Text>}
                   </TouchableOpacity>
                 )}
 
@@ -196,7 +197,7 @@ export default function DriverScreen() {
                     onPress={() => handleCompleteJob(orderData.id)}
                     disabled={processingId === orderData.id}
                   >
-                    {processingId === orderData.id ? <ActivityIndicator color="#FFF" /> : <Text style={styles.actionText}>Selesaikan Pengiriman</Text>}
+                    {processingId === orderData.id ? <ActivityIndicator color={Colors.surface} /> : <Text style={styles.actionText}>Selesaikan Pengiriman</Text>}
                   </TouchableOpacity>
                 )}
               </View>
@@ -209,36 +210,36 @@ export default function DriverScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  container: { flex: 1, backgroundColor: Colors.background },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, backgroundColor: '#FFF' },
-  headerTitle: { fontSize: 24, fontWeight: '900', color: '#1F2937' },
-  errorTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 16 },
+  header: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, backgroundColor: Colors.surface, elevation: 2, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, zIndex: 10 },
+  headerTitle: { fontSize: 24, fontWeight: '900', color: Colors.secondary, letterSpacing: -0.5 },
+  errorTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 16, color: Colors.secondary },
   
-  tabContainer: { flexDirection: 'row', backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
-  tabButton: { flex: 1, paddingVertical: 14, alignItems: 'center', borderBottomWidth: 2, borderBottomColor: 'transparent' },
-  tabButtonActive: { borderBottomColor: '#3B82F6' },
-  tabText: { fontSize: 13, fontWeight: '600', color: '#9CA3AF' },
-  tabTextActive: { color: '#3B82F6' },
+  tabContainer: { flexDirection: 'row', backgroundColor: Colors.surface, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  tabButton: { flex: 1, paddingVertical: 14, alignItems: 'center', borderBottomWidth: 3, borderBottomColor: 'transparent' },
+  tabButtonActive: { borderBottomColor: Colors.primary },
+  tabText: { fontSize: 13, fontWeight: '700', color: Colors.textMuted },
+  tabTextActive: { color: Colors.primary, fontWeight: '900' },
 
-  earningsBanner: { backgroundColor: '#1F2937', margin: 16, borderRadius: 12, padding: 20, flexDirection: 'row', alignItems: 'center' },
+  earningsBanner: { backgroundColor: Colors.secondary, margin: 16, borderRadius: 16, padding: 20, flexDirection: 'row', alignItems: 'center', elevation: 4, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12 },
 
   list: { padding: 16, maxWidth: 600, alignSelf: 'center', width: '100%' },
-  card: { backgroundColor: '#FFF', padding: 16, borderRadius: 12, marginBottom: 16, borderWidth: 1, borderColor: '#E5E7EB', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
+  card: { backgroundColor: Colors.surface, padding: 20, borderRadius: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 2 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  storeName: { fontSize: 15, fontWeight: 'bold', color: '#374151' },
-  badge: { backgroundColor: '#DBEAFE', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
-  badgeText: { color: '#1D4ED8', fontSize: 10, fontWeight: 'bold' },
+  storeName: { fontSize: 15, fontWeight: '900', color: Colors.secondary },
+  badge: { backgroundColor: Colors.primaryLight, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
+  badgeText: { color: Colors.primary, fontSize: 11, fontWeight: 'bold' },
   
-  divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 12 },
-  sectionLabel: { fontSize: 11, color: '#6B7280', marginBottom: 4 },
-  buyerName: { fontSize: 14, fontWeight: '600', color: '#1F2937', marginBottom: 2 },
-  addressText: { fontSize: 13, color: '#4B5563', lineHeight: 18 },
+  divider: { height: 1, backgroundColor: Colors.border, marginVertical: 16 },
+  sectionLabel: { fontSize: 12, color: Colors.textMuted, marginBottom: 6, fontWeight: '600' },
+  buyerName: { fontSize: 15, fontWeight: '800', color: Colors.secondary, marginBottom: 4 },
+  addressText: { fontSize: 14, color: Colors.textMuted, lineHeight: 22 },
   
   footerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  feeLabel: { fontSize: 13, color: '#6B7280' },
-  feeValue: { fontSize: 18, fontWeight: '900', color: '#059669' },
+  feeLabel: { fontSize: 13, color: Colors.textMuted, fontWeight: '600' },
+  feeValue: { fontSize: 20, fontWeight: '900', color: '#059669' },
   
-  actionButton: { paddingVertical: 12, borderRadius: 8, alignItems: 'center' },
-  actionText: { color: '#FFF', fontWeight: 'bold', fontSize: 14 },
+  actionButton: { paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
+  actionText: { color: Colors.surface, fontWeight: '900', fontSize: 14 },
 });

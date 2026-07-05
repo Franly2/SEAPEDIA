@@ -1,6 +1,8 @@
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -14,7 +16,6 @@ interface Review {
 
 export default function ReviewsScreen() {
   const router = useRouter();
-  const primaryColor = '#3B82F6'; 
   const api_address = process.env.EXPO_PUBLIC_API_IP_ADDRESS;
 
   const { token, fullName } = useAuthStore();
@@ -22,11 +23,8 @@ export default function ReviewsScreen() {
   const getUserIdFromToken = () => {
     if (!token) return null;
     try {
-      if (typeof atob !== 'undefined') {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        return payload.sub || payload.id || null;
-      }
-      return null;
+      const payload: any = jwtDecode(token);
+      return payload.sub || payload.id || null;
     } catch (e) {
       return null;
     }
@@ -173,7 +171,7 @@ export default function ReviewsScreen() {
               key={star} 
               name="star" 
               size={14} 
-              color={star <= item.rating ? "#F59E0B" : "#D1D5DB"} 
+              color={star <= item.rating ? Colors.primary : Colors.border} 
               style={{ marginRight: 2 }}
             />
           ))}
@@ -187,7 +185,7 @@ export default function ReviewsScreen() {
     <View>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Feather name="chevron-left" size={24} color="#1F2937" />
+          <Feather name="chevron-left" size={24} color={Colors.secondary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Ulasan Aplikasi</Text>
         <View style={{ width: 40 }} />
@@ -197,7 +195,7 @@ export default function ReviewsScreen() {
         <View style={[styles.formContainer, { alignItems: 'center', paddingVertical: 40 }]}>
           <Feather name="check-circle" size={56} color="#10B981" />
           <Text style={[styles.formTitle, { marginTop: 16, marginBottom: 8, textAlign: 'center' }]}>Terima Kasih!</Text>
-          <Text style={{ textAlign: 'center', color: '#6B7280', fontSize: 14 }}>
+          <Text style={{ textAlign: 'center', color: Colors.textMuted, fontSize: 14 }}>
             Kamu sudah membagikan pengalamanmu. Ulasanmu sangat berarti bagi pengembangan SEAPEDIA.
           </Text>
           <View style={styles.divider} />
@@ -215,6 +213,7 @@ export default function ReviewsScreen() {
               value={name}
               onChangeText={setName}
               editable={!token}
+              placeholderTextColor={Colors.textMuted}
             />
           </View>
 
@@ -222,11 +221,11 @@ export default function ReviewsScreen() {
             <Text style={styles.label}>Rating Aplikasi</Text>
             <View style={styles.ratingSelector}>
               {[1, 2, 3, 4, 5].map((star) => (
-                <TouchableOpacity key={star} onPress={() => setRating(star)} activeOpacity={0.7} style={{ padding: 6 }}>
+                <TouchableOpacity key={star} onPress={() => setRating(star)} activeOpacity={0.7} style={{ padding: 8 }}>
                   <Feather 
                     name="star" 
-                    size={32} 
-                    color={star <= rating ? "#F59E0B" : "#D1D5DB"} 
+                    size={36} 
+                    color={star <= rating ? Colors.primary : Colors.border} 
                   />
                 </TouchableOpacity>
               ))}
@@ -243,6 +242,7 @@ export default function ReviewsScreen() {
               multiline
               numberOfLines={4}
               textAlignVertical="top"
+              placeholderTextColor={Colors.textMuted}
             />
           </View>
 
@@ -253,7 +253,7 @@ export default function ReviewsScreen() {
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              <ActivityIndicator size="small" color="#FFF" />
+              <ActivityIndicator size="small" color={Colors.surface} />
             ) : (
               <Text style={styles.primaryButtonText}>Kirim Ulasan</Text>
             )}
@@ -269,7 +269,7 @@ export default function ReviewsScreen() {
   if (isLoading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={primaryColor} />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -285,7 +285,7 @@ export default function ReviewsScreen() {
         ListHeaderComponent={headerElement}
         ListEmptyComponent={
           <View style={styles.emptyBox}>
-            <Feather name="message-square" size={48} color="#D1D5DB" />
+            <Feather name="message-square" size={48} color={Colors.border} />
             <Text style={styles.emptyText}>Belum ada ulasan. Jadilah yang pertama!</Text>
           </View>
         }
@@ -295,42 +295,41 @@ export default function ReviewsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
-  
+  container: { flex: 1, backgroundColor: Colors.background },
   content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 60, width: '100%', maxWidth: 600, alignSelf: 'center' },
   
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
-  backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 },
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
+  backButton: { padding: 8, backgroundColor: Colors.surface, borderRadius: 8, borderWidth: 1, borderColor: Colors.border },
+  headerTitle: { fontSize: 20, fontWeight: '900', color: Colors.secondary },
   
-  formContainer: { backgroundColor: '#FFF', padding: 20, borderRadius: 16, borderWidth: 1, borderColor: '#BFDBFE', marginBottom: 24 },
-  formTitle: { fontSize: 16, fontWeight: 'bold', color: '#1E3A8A', marginBottom: 16 },
+  formContainer: { backgroundColor: Colors.surface, padding: 24, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, marginBottom: 24, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 2 },
+  formTitle: { fontSize: 18, fontWeight: '900', color: Colors.secondary, marginBottom: 16 },
   
   inputGroup: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '600', color: '#4B5563', marginBottom: 8 },
-  input: { backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: '#1F2937' },
-  inputDisabled: { backgroundColor: '#E5E7EB', color: '#9CA3AF' },
-  textArea: { minHeight: 100 },
+  label: { fontSize: 13, fontWeight: '700', color: Colors.secondary, marginBottom: 8 },
+  input: { backgroundColor: Colors.background, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: Colors.secondary },
+  inputDisabled: { backgroundColor: Colors.border, color: Colors.textMuted },
+  textArea: { minHeight: 120 },
   
-  ratingSelector: { flexDirection: 'row', justifyContent: 'center', backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, paddingVertical: 12 },
+  ratingSelector: { flexDirection: 'row', justifyContent: 'center', backgroundColor: Colors.background, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingVertical: 14 },
   
-  primaryButton: { backgroundColor: '#3B82F6', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 10, marginTop: 8 },
-  primaryButtonText: { color: '#FFF', fontSize: 14, fontWeight: 'bold' },
+  primaryButton: { backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderRadius: 12, marginTop: 8 },
+  primaryButtonText: { color: Colors.surface, fontSize: 15, fontWeight: '900' },
   
-  divider: { height: 1, backgroundColor: '#E5E7EB', marginVertical: 24, width: '100%' },
+  divider: { height: 1, backgroundColor: Colors.border, marginVertical: 24, width: '100%' },
   
-  emptyBox: { alignItems: 'center', padding: 32, backgroundColor: '#FFF', borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: '#D1D5DB' },
-  emptyText: { marginTop: 12, color: '#9CA3AF', fontSize: 14, textAlign: 'center' },
+  emptyBox: { alignItems: 'center', padding: 32, backgroundColor: Colors.surface, borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: Colors.border },
+  emptyText: { marginTop: 12, color: Colors.textMuted, fontSize: 14, textAlign: 'center', fontWeight: '500' },
   
-  reviewCard: { backgroundColor: '#FFF', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', marginBottom: 12 },
-  myReviewCard: { backgroundColor: '#EFF6FF', borderColor: '#3B82F6' },
-  reviewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  reviewerName: { fontSize: 14, fontWeight: 'bold', color: '#1F2937' },
+  reviewCard: { backgroundColor: Colors.surface, padding: 20, borderRadius: 16, borderWidth: 1, borderColor: Colors.border, marginBottom: 16, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 1 },
+  myReviewCard: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
+  reviewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  reviewerName: { fontSize: 15, fontWeight: '900', color: Colors.secondary },
   
-  myReviewBadge: { backgroundColor: '#DBEAFE', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, marginLeft: 8 },
-  myReviewBadgeText: { fontSize: 10, fontWeight: 'bold', color: '#1D4ED8' },
+  myReviewBadge: { backgroundColor: Colors.primary, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, marginLeft: 8 },
+  myReviewBadgeText: { fontSize: 10, fontWeight: 'bold', color: Colors.surface },
   
-  reviewDate: { fontSize: 12, color: '#9CA3AF' },
-  starRow: { flexDirection: 'row', marginBottom: 8 },
-  reviewComment: { fontSize: 14, color: '#4B5563', lineHeight: 22 },
+  reviewDate: { fontSize: 12, color: Colors.textMuted, fontWeight: '500' },
+  starRow: { flexDirection: 'row', marginBottom: 12 },
+  reviewComment: { fontSize: 14, color: Colors.secondary, lineHeight: 24 },
 });

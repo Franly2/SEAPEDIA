@@ -1,10 +1,11 @@
+import { Product, ProductGrid } from '@/components/ui/ProductGrid';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
+import { Feather } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
-import { Product, ProductGrid } from '@/components/ui/ProductGrid';
 
 export default function SellerDashboardScreen() {
   const { token, activeRole, roles } = useAuthStore();
@@ -151,7 +152,7 @@ export default function SellerDashboardScreen() {
   if (!token) {
     return (
       <View style={[styles.container, styles.center]}>
-        <IconSymbol name="lock.shield.fill" size={64} color="#9CA3AF" />
+        <Feather name="lock" size={64} color={Colors.textMuted} />
         <Text style={styles.errorTitle}>Akses Ditolak</Text>
         <Text style={styles.errorText}>Silakan masuk (login) terlebih dahulu.</Text>
       </View>
@@ -163,7 +164,9 @@ export default function SellerDashboardScreen() {
     return (
       <View style={[styles.container, styles.center]}>
         <View style={styles.upgradeCard}>
-          <IconSymbol name="bag.fill" size={56} color="#D97706" />
+          <View style={[styles.iconWrapper, { backgroundColor: Colors.primaryLight, marginBottom: 20 }]}>
+             <Feather name="briefcase" size={32} color={Colors.primary} />
+          </View>
           {hasSellerRole ? (
             <>
               <Text style={styles.upgradeTitle}>Salah Peran Aktif</Text>
@@ -186,7 +189,7 @@ export default function SellerDashboardScreen() {
                 onPress={handleUpgradeToSeller}
                 disabled={isUpgrading}
               >
-                {isUpgrading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.primaryButtonText}>Tingkatkan Jadi Penjual</Text>}
+                {isUpgrading ? <ActivityIndicator color={Colors.surface} /> : <Text style={styles.primaryButtonText}>Tingkatkan Jadi Penjual</Text>}
               </TouchableOpacity>
             </>
           )}
@@ -198,7 +201,7 @@ export default function SellerDashboardScreen() {
   if (isLoading) {
     return (
       <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color="#D97706" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -207,8 +210,8 @@ export default function SellerDashboardScreen() {
     if (!store) {
       return (
         <View style={styles.card}>
-          <View style={[styles.iconWrapper, { backgroundColor: '#FEF3C7', marginBottom: 16 }]}>
-            <IconSymbol name="storefront.fill" size={32} color="#D97706" />
+          <View style={[styles.iconWrapper, { backgroundColor: Colors.primaryLight, marginBottom: 16 }]}>
+            <IconSymbol name="storefront.fill" size={32} color={Colors.primary} />
           </View>
           <Text style={styles.title}>Mulai Berjualan di SEAPEDIA</Text>
           <Text style={styles.subtitle}>Buat identitas tokomu sekarang dan jangkau lebih banyak pembeli.</Text>
@@ -219,6 +222,7 @@ export default function SellerDashboardScreen() {
               placeholder="Contoh: Toko Elektronik Jaya"
               value={newStoreName}
               onChangeText={setNewStoreName}
+              placeholderTextColor={Colors.textMuted}
             />
           </View>
           <TouchableOpacity style={styles.primaryButton} activeOpacity={0.8} onPress={handleCreateStore}>
@@ -233,8 +237,8 @@ export default function SellerDashboardScreen() {
         <Text style={styles.pageHeader}>Dasbor Penjual</Text>
         <View style={styles.card}>
           <View style={styles.storeHeader}>
-            <View style={[styles.iconWrapper, { backgroundColor: '#FEF3C7' }]}>
-              <IconSymbol name="building.2.fill" size={28} color="#D97706" />
+            <View style={[styles.iconWrapper, { backgroundColor: Colors.primaryLight }]}>
+              <IconSymbol name="building.2.fill" size={28} color={Colors.primary} />
             </View>
             <View style={styles.storeInfo}>
               {isEditing ? (
@@ -243,6 +247,7 @@ export default function SellerDashboardScreen() {
                   value={editStoreName}
                   onChangeText={setEditStoreName}
                   autoFocus
+                  placeholderTextColor={Colors.textMuted}
                 />
               ) : (
                 <Text style={styles.storeName}>{store.name}</Text>
@@ -261,7 +266,7 @@ export default function SellerDashboardScreen() {
             </View>
           ) : (
             <TouchableOpacity style={styles.outlineButton} onPress={() => setIsEditing(true)}>
-              <IconSymbol name="pencil" size={16} color="#D97706" />
+              <IconSymbol name="pencil" size={16} color={Colors.primary} />
               <Text style={styles.outlineButtonText}> Edit Nama Toko</Text>
             </TouchableOpacity>
           )}
@@ -270,7 +275,7 @@ export default function SellerDashboardScreen() {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Etalase Produkku</Text>
           <TouchableOpacity style={styles.addButton} onPress={() => router.push('/seller/add-product')}>
-            <IconSymbol name="plus" size={16} color="#FFF" />
+            <IconSymbol name="plus" size={16} color={Colors.surface} />
             <Text style={styles.addButtonText}>Tambah Produk</Text>
           </TouchableOpacity>
         </View>
@@ -303,42 +308,42 @@ export default function SellerDashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  container: { flex: 1, backgroundColor: Colors.background },
   pageWrapper: { 
     flex: 1, 
     width: '100%', 
-    maxWidth: 800,
+    maxWidth: 1200,
     alignSelf: 'center',
     paddingHorizontal: 20,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
   },
   center: { justifyContent: 'center', alignItems: 'center', padding: 20 },
-  errorTitle: { fontSize: 20, fontWeight: 'bold', color: '#1F2937', marginTop: 16, marginBottom: 8 },
-  errorText: { fontSize: 14, color: '#6B7280', textAlign: 'center', lineHeight: 22 },
-  pageHeader: { fontSize: 24, fontWeight: '800', color: '#1F2937', marginBottom: 20 },
-  card: { backgroundColor: '#FFF', padding: 24, borderRadius: 16, borderWidth: 1, borderColor: '#E5E7EB', marginBottom: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2, alignItems: 'flex-start' },
-  iconWrapper: { width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 20, fontWeight: 'bold', color: '#1F2937', marginBottom: 8 },
-  subtitle: { fontSize: 14, color: '#6B7280', marginBottom: 24, lineHeight: 20 },
+  errorTitle: { fontSize: 20, fontWeight: '900', color: Colors.secondary, marginTop: 16, marginBottom: 8 },
+  errorText: { fontSize: 14, color: Colors.textMuted, textAlign: 'center', lineHeight: 22 },
+  pageHeader: { fontSize: 24, fontWeight: '900', color: Colors.secondary, marginBottom: 20, letterSpacing: -0.5 },
+  card: { backgroundColor: Colors.surface, padding: 24, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, marginBottom: 24, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 2, alignItems: 'flex-start' },
+  iconWrapper: { width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center' },
+  title: { fontSize: 20, fontWeight: '900', color: Colors.secondary, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: Colors.textMuted, marginBottom: 24, lineHeight: 22 },
   inputContainer: { width: '100%', marginBottom: 24 },
-  label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },
-  input: { width: '100%', backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: '#1F2937' },
-  editInput: { backgroundColor: '#F3F4F6', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, fontSize: 16, fontWeight: 'bold', color: '#1F2937', marginBottom: 4 },
-  primaryButton: { backgroundColor: '#D97706', width: '100%', paddingVertical: 14, borderRadius: 10, alignItems: 'center' },
-  primaryButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  label: { fontSize: 13, fontWeight: '700', color: Colors.secondary, marginBottom: 8 },
+  input: { width: '100%', backgroundColor: Colors.background, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: Colors.secondary },
+  editInput: { backgroundColor: Colors.background, borderWidth: 1, borderColor: Colors.border, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 16, fontWeight: 'bold', color: Colors.secondary, marginBottom: 4 },
+  primaryButton: { backgroundColor: Colors.primary, width: '100%', paddingVertical: 16, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  primaryButtonText: { color: Colors.surface, fontSize: 15, fontWeight: '900' },
   storeHeader: { flexDirection: 'row', alignItems: 'center', width: '100%', marginBottom: 20 },
   storeInfo: { marginLeft: 16, flex: 1 },
-  storeName: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', marginBottom: 4 },
-  storeId: { fontSize: 12, color: '#9CA3AF' },
-  outlineButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%', paddingVertical: 12, borderWidth: 1, borderColor: '#D97706', borderRadius: 10, backgroundColor: '#FFFBEB' },
-  outlineButtonText: { color: '#D97706', fontSize: 14, fontWeight: 'bold' },
+  storeName: { fontSize: 20, fontWeight: '900', color: Colors.secondary, marginBottom: 4 },
+  storeId: { fontSize: 13, color: Colors.textMuted, fontWeight: '600' },
+  outlineButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%', paddingVertical: 14, borderWidth: 1, borderColor: 'rgba(245, 158, 11, 0.3)', borderRadius: 12, backgroundColor: Colors.primaryLight },
+  outlineButtonText: { color: Colors.primary, fontSize: 14, fontWeight: '800' },
   actionRow: { flexDirection: 'row', width: '100%' },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937' },
-  addButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#10B981', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 },
-  addButtonText: { color: '#FFF', fontSize: 13, fontWeight: 'bold', marginLeft: 4 },
+  sectionTitle: { fontSize: 18, fontWeight: '900', color: Colors.secondary },
+  addButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primary, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10 },
+  addButtonText: { color: Colors.surface, fontSize: 13, fontWeight: 'bold', marginLeft: 6 },
   
-  upgradeCard: { backgroundColor: '#FFF', padding: 32, borderRadius: 20, borderWidth: 1, borderColor: '#FDE68A', alignItems: 'center', width: '100%', maxWidth: 400, shadowColor: '#D97706', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 4 },
-  upgradeTitle: { fontSize: 22, fontWeight: '800', color: '#92400E', marginTop: 20, marginBottom: 12, textAlign: 'center' },
-  upgradeText: { fontSize: 15, color: '#78350F', textAlign: 'center', lineHeight: 24, marginBottom: 32 }
+  upgradeCard: { backgroundColor: Colors.surface, padding: 32, borderRadius: 24, borderWidth: 1, borderColor: Colors.border, alignItems: 'center', width: '100%', maxWidth: 450, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.05, shadowRadius: 24, elevation: 4 },
+  upgradeTitle: { fontSize: 22, fontWeight: '900', color: Colors.secondary, marginBottom: 12, textAlign: 'center' },
+  upgradeText: { fontSize: 14, color: Colors.textMuted, textAlign: 'center', lineHeight: 22, marginBottom: 32, paddingHorizontal: 10 }
 });

@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -144,7 +145,7 @@ export default function CheckoutScreen() {
     }
   };
 
-  if (isLoading) return <View style={[styles.container, styles.center]}><ActivityIndicator size="large" color="#3B82F6" /></View>;
+  if (isLoading) return <View style={[styles.container, styles.center]}><ActivityIndicator size="large" color={Colors.primary} /></View>;
 
   return (
     <View style={styles.container}>
@@ -152,7 +153,7 @@ export default function CheckoutScreen() {
         
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Feather name="chevron-left" size={24} color="#1F2937" />
+            <Feather name="chevron-left" size={24} color={Colors.secondary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Checkout Pesanan</Text>
           <View style={{ width: 40 }} />
@@ -161,7 +162,7 @@ export default function CheckoutScreen() {
         <Text style={styles.sectionTitle}>Alamat Pengiriman</Text>
         {addresses.length === 0 ? (
           <TouchableOpacity style={styles.addButton} onPress={() => router.push('/buyer/address')}>
-            <Feather name="plus" size={20} color="#3B82F6" />
+            <Feather name="plus" size={20} color={Colors.primary} />
             <Text style={styles.addButtonText}> Tambah Alamat Baru</Text>
           </TouchableOpacity>
         ) : (
@@ -177,7 +178,7 @@ export default function CheckoutScreen() {
                   <View style={styles.labelBadge}>
                     <Text style={styles.labelText}>{addr.label}</Text>
                   </View>
-                  <View style={styles.radioCircle}>
+                  <View style={[styles.radioCircle, selectedAddressId === addr.id && { borderColor: Colors.primary }]}>
                     {selectedAddressId === addr.id && <View style={styles.radioInnerCircle} />}
                   </View>
                 </View>
@@ -202,10 +203,10 @@ export default function CheckoutScreen() {
             >
               <View style={styles.cardHeader}>
                 <View style={styles.methodHeaderLeft}>
-                  <Feather name={method.icon as any} size={18} color={deliveryMethod === method.id ? '#3B82F6' : '#6B7280'} style={{marginRight: 8}}/>
-                  <Text style={[styles.methodNameText, deliveryMethod === method.id && {color: '#1D4ED8'}]}>{method.name}</Text>
+                  <Feather name={method.icon as any} size={18} color={deliveryMethod === method.id ? Colors.primary : Colors.textMuted} style={{marginRight: 8}}/>
+                  <Text style={[styles.methodNameText, deliveryMethod === method.id && {color: Colors.secondary}]}>{method.name}</Text>
                 </View>
-                <View style={styles.radioCircle}>
+                <View style={[styles.radioCircle, deliveryMethod === method.id && { borderColor: Colors.primary }]}>
                   {deliveryMethod === method.id && <View style={styles.radioInnerCircle} />}
                 </View>
               </View>
@@ -226,13 +227,14 @@ export default function CheckoutScreen() {
               value={discountInput}
               onChangeText={setDiscountInput}
               autoCapitalize="characters"
+              placeholderTextColor={Colors.textMuted}
             />
             <TouchableOpacity 
-              style={[styles.applyBtn, (!discountInput || isValidatingDiscount) && { opacity: 0.7 }]} 
+              style={[styles.applyBtn, (!discountInput || isValidatingDiscount) && { opacity: 0.7, backgroundColor: Colors.textMuted }]} 
               onPress={handleApplyDiscount}
               disabled={!discountInput || isValidatingDiscount}
             >
-              {isValidatingDiscount ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={styles.applyBtnText}>Terapkan</Text>}
+              {isValidatingDiscount ? <ActivityIndicator size="small" color={Colors.surface} /> : <Text style={styles.applyBtnText}>Terapkan</Text>}
             </TouchableOpacity>
           </View>
 
@@ -320,7 +322,7 @@ export default function CheckoutScreen() {
               <Text style={styles.bottomBarLabel}>Total Pembayaran</Text>
               <Text style={styles.bottomBarTotal}>{formatRupiah(finalTotal)}</Text>
            </View>
-          <TouchableOpacity style={[styles.payButton, (!isBalanceSufficient || cartData?.items.length === 0) && { backgroundColor: '#9CA3AF' }]} onPress={handleProcessCheckout} disabled={!isBalanceSufficient || cartData?.items.length === 0 || isProcessing}>
+          <TouchableOpacity style={[styles.payButton, (!isBalanceSufficient || cartData?.items.length === 0) && { backgroundColor: Colors.textMuted }]} onPress={handleProcessCheckout} disabled={!isBalanceSufficient || cartData?.items.length === 0 || isProcessing}>
             {isProcessing ? <ActivityIndicator color="#FFF" /> : <Text style={styles.payButtonText}>Bayar Sekarang</Text>}
           </TouchableOpacity>
         </View>
@@ -330,68 +332,68 @@ export default function CheckoutScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' }, 
+  container: { flex: 1, backgroundColor: Colors.background }, 
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   
   content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 120, width: '100%', maxWidth: 600, alignSelf: 'center' },
   
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
-  backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 }, 
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
+  backButton: { padding: 8, backgroundColor: Colors.surface, borderRadius: 8, borderWidth: 1, borderColor: Colors.border }, 
+  headerTitle: { fontSize: 20, fontWeight: '900', color: Colors.secondary },
   
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#374151', marginBottom: 12, marginTop: 8 },
+  sectionTitle: { fontSize: 16, fontWeight: '900', color: Colors.secondary, marginBottom: 12, marginTop: 8 },
   
-  addButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#BFDBFE', borderStyle: 'dashed', paddingVertical: 16, borderRadius: 12, marginBottom: 20 },
-  addButtonText: { color: '#3B82F6', fontSize: 15, fontWeight: '600' },
+  addButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.primaryLight, borderWidth: 1, borderColor: 'rgba(245, 158, 11, 0.2)', borderStyle: 'dashed', paddingVertical: 16, borderRadius: 12, marginBottom: 20 },
+  addButtonText: { color: Colors.primary, fontSize: 15, fontWeight: '800' },
   
   listContainer: { marginBottom: 20 },
-  selectionCard: { backgroundColor: '#FFF', padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: '#E5E7EB' },
-  selectionCardActive: { borderColor: '#3B82F6', backgroundColor: '#EFF6FF' },
+  selectionCard: { backgroundColor: Colors.surface, padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border, elevation: 1, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
+  selectionCardActive: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight, borderWidth: 1.5 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  labelBadge: { backgroundColor: '#F3F4F6', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 },
-  labelText: { fontSize: 12, fontWeight: 'bold', color: '#4B5563' },
-  cardDescText: { fontSize: 14, color: '#374151', lineHeight: 22 },
+  labelBadge: { backgroundColor: Colors.background, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: Colors.border },
+  labelText: { fontSize: 12, fontWeight: '800', color: Colors.secondary },
+  cardDescText: { fontSize: 14, color: Colors.textMuted, lineHeight: 22 },
   
-  radioCircle: { height: 20, width: 20, borderRadius: 10, borderWidth: 2, borderColor: '#3B82F6', alignItems: 'center', justifyContent: 'center' },
-  radioInnerCircle: { height: 10, width: 10, borderRadius: 5, backgroundColor: '#3B82F6' },
+  radioCircle: { height: 22, width: 22, borderRadius: 11, borderWidth: 2, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
+  radioInnerCircle: { height: 12, width: 12, borderRadius: 6, backgroundColor: Colors.primary },
   
   methodHeaderLeft: { flexDirection: 'row', alignItems: 'center' },
-  methodNameText: { fontSize: 15, fontWeight: 'bold', color: '#374151' },
+  methodNameText: { fontSize: 15, fontWeight: '800', color: Colors.secondary },
   methodFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
-  methodDescText: { fontSize: 13, color: '#6B7280' },
-  methodPriceText: { fontSize: 14, fontWeight: '800', color: '#1F2937' },
+  methodDescText: { fontSize: 13, color: Colors.textMuted },
+  methodPriceText: { fontSize: 14, fontWeight: '900', color: Colors.secondary },
 
-  staticCard: { backgroundColor: '#FFF', borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', padding: 16, marginBottom: 20 },
+  staticCard: { backgroundColor: Colors.surface, borderRadius: 16, borderWidth: 1, borderColor: Colors.border, padding: 20, marginBottom: 24, elevation: 1, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
   
   discountInputRow: { flexDirection: 'row' },
-  input: { flex: 1, backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: '#1F2937', marginRight: 8 },
-  applyBtn: { backgroundColor: '#3B82F6', paddingHorizontal: 20, justifyContent: 'center', borderRadius: 10 },
-  applyBtnText: { color: '#FFF', fontWeight: 'bold', fontSize: 14 },
+  input: { flex: 1, backgroundColor: Colors.background, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: Colors.secondary, marginRight: 8 },
+  applyBtn: { backgroundColor: Colors.primary, paddingHorizontal: 24, justifyContent: 'center', borderRadius: 12 },
+  applyBtnText: { color: Colors.surface, fontWeight: '900', fontSize: 14 },
   
-  activeDiscountBadge: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#D1FAE5', padding: 12, borderRadius: 10, marginTop: 12, borderWidth: 1, borderColor: '#A7F3D0' },
+  activeDiscountBadge: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#D1FAE5', padding: 14, borderRadius: 12, marginTop: 16, borderWidth: 1, borderColor: '#A7F3D0' },
   discountBadgeLeft: { flexDirection: 'row', alignItems: 'center' },
-  activeDiscountText: { marginLeft: 8, color: '#065F46', fontWeight: 'bold', fontSize: 13 },
+  activeDiscountText: { marginLeft: 8, color: '#065F46', fontWeight: '800', fontSize: 13 },
   discountBadgeRight: { flexDirection: 'row', alignItems: 'center' },
   discountAmountText: { color: '#065F46', fontWeight: '900', fontSize: 14, marginRight: 12 },
-  removeDiscountBtn: { width: 24, height: 24, borderRadius: 12, backgroundColor: '#EF4444', justifyContent: 'center', alignItems: 'center' },
+  removeDiscountBtn: { width: 26, height: 26, borderRadius: 13, backgroundColor: '#EF4444', justifyContent: 'center', alignItems: 'center' },
 
-  costRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }, 
-  costLabel: { fontSize: 14, color: '#6B7280' }, 
-  costValue: { fontSize: 14, fontWeight: '600', color: '#1F2937' }, 
-  costLabelDiscount: { fontSize: 14, color: '#059669', fontWeight: 'bold' }, 
+  costRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }, 
+  costLabel: { fontSize: 14, color: Colors.textMuted, fontWeight: '500' }, 
+  costValue: { fontSize: 14, fontWeight: '700', color: Colors.secondary }, 
+  costLabelDiscount: { fontSize: 14, color: '#059669', fontWeight: '800' }, 
   costValueDiscount: { fontSize: 14, fontWeight: '900', color: '#059669' },
-  costLabelBold: { fontSize: 15, fontWeight: 'bold', color: '#1F2937' }, 
-  totalValue: { fontSize: 20, fontWeight: '900', color: '#E11D48' }, 
-  divider: { height: 1, backgroundColor: '#E5E7EB', marginVertical: 14 },
+  costLabelBold: { fontSize: 15, fontWeight: '900', color: Colors.secondary }, 
+  totalValue: { fontSize: 20, fontWeight: '900', color: Colors.primary }, 
+  divider: { height: 1, backgroundColor: Colors.border, marginVertical: 16 },
   
-  walletStatusCard: { borderRadius: 12, borderWidth: 1, padding: 16, marginBottom: 20 },
-  errorText: { color: '#DC2626', fontSize: 12, marginTop: 6, fontStyle: 'italic', fontWeight: '500' },
+  walletStatusCard: { borderRadius: 16, borderWidth: 1, padding: 20, marginBottom: 24 },
+  errorText: { color: '#DC2626', fontSize: 13, marginTop: 8, fontStyle: 'italic', fontWeight: '600' },
   
-  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#FFF', borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingVertical: 16, paddingHorizontal: 20 },
+  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: Colors.surface, borderTopWidth: 1, borderTopColor: Colors.border, paddingVertical: 16, paddingHorizontal: 20 },
   bottomBarContent: { width: '100%', maxWidth: 600, alignSelf: 'center', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   bottomBarTextContainer: { flex: 1, marginRight: 16 },
-  bottomBarLabel: { fontSize: 12, color: '#6B7280', fontWeight: '600', marginBottom: 2 },
-  bottomBarTotal: { fontSize: 18, fontWeight: '900', color: '#E11D48' },
-  payButton: { backgroundColor: '#10B981', paddingVertical: 14, paddingHorizontal: 32, borderRadius: 10, alignItems: 'center', minWidth: 160 }, 
-  payButtonText: { color: '#FFF', fontSize: 15, fontWeight: 'bold' }
+  bottomBarLabel: { fontSize: 12, color: Colors.textMuted, fontWeight: '700', marginBottom: 2 },
+  bottomBarTotal: { fontSize: 20, fontWeight: '900', color: Colors.primary },
+  payButton: { backgroundColor: Colors.primary, paddingVertical: 16, paddingHorizontal: 32, borderRadius: 14, alignItems: 'center', minWidth: 160 }, 
+  payButtonText: { color: Colors.surface, fontSize: 15, fontWeight: '900' }
 });

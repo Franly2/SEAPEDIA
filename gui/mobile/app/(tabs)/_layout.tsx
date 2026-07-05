@@ -1,4 +1,5 @@
 import { HapticTab } from '@/components/haptic-tab';
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
 import { Tabs, useRouter } from 'expo-router';
@@ -7,18 +8,31 @@ import React from 'react';
 export default function TabLayout() {
   const { activeRole, token } = useAuthStore(); 
   const router = useRouter();
-  const primaryColor = '#1976D2';
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: primaryColor,
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.textMuted,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          elevation: 5, 
+          backgroundColor: Colors.surface,
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
+          borderTopColor: Colors.border,
+          height: 65, 
+          paddingBottom: 10,
+          paddingTop: 8,
+          elevation: 12,
+          shadowColor: Colors.secondary, 
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.05,
+          shadowRadius: 12,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '700',
+          marginTop: 4,
         }
       }}>
       
@@ -28,7 +42,7 @@ export default function TabLayout() {
           title: 'Beranda',
           href: (activeRole === 'SELLER' || activeRole === 'DRIVER') ? null : undefined,
           tabBarItemStyle: (activeRole === 'SELLER' || activeRole === 'DRIVER') ? { display: 'none' } : undefined,
-          tabBarIcon: ({ color }) => <Feather size={24} name="home" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={22} name="home" color={color} />,
         }}
       />
 
@@ -38,7 +52,7 @@ export default function TabLayout() {
           title: 'Toko Saya',
           href: activeRole === 'SELLER' ? undefined : null, 
           tabBarItemStyle: activeRole === 'SELLER' ? undefined : { display: 'none' },
-          tabBarIcon: ({ color }) => <Feather size={24} name="briefcase" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={22} name="briefcase" color={color} />,
         }}
       />
 
@@ -48,7 +62,7 @@ export default function TabLayout() {
           title: 'Keranjang',
           href: activeRole === 'BUYER' ? undefined : null,
           tabBarItemStyle: activeRole === 'BUYER' ? undefined : { display: 'none' },
-          tabBarIcon: ({ color }) => <Feather size={24} name="shopping-cart" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={22} name="shopping-cart" color={color} />,
         }}
       />
       
@@ -58,7 +72,7 @@ export default function TabLayout() {
           title: 'Pesanan',
           href: (activeRole === 'BUYER' || activeRole === 'SELLER') ? undefined : null,
           tabBarItemStyle: (activeRole === 'BUYER' || activeRole === 'SELLER') ? undefined : { display: 'none' },
-          tabBarIcon: ({ color }) => <Feather size={24} name="shopping-bag" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={22} name="shopping-bag" color={color} />,
         }}
       />
 
@@ -68,7 +82,7 @@ export default function TabLayout() {
           title: 'Driver',
           href: activeRole === 'DRIVER' ? undefined : null,
           tabBarItemStyle: activeRole === 'DRIVER' ? undefined : { display: 'none' },
-          tabBarIcon: ({ color }) => <Feather size={24} name="truck" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={22} name="truck" color={color} />,
         }}
       />
 
@@ -78,7 +92,7 @@ export default function TabLayout() {
           title: 'Admin',
           href: activeRole === 'ADMIN' ? undefined : null,
           tabBarItemStyle: activeRole === 'ADMIN' ? undefined : { display: 'none' },
-          tabBarIcon: ({ color }) => <Feather size={24} name="bar-chart-2" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={22} name="bar-chart-2" color={color} />,
         }}
       />
 
@@ -88,7 +102,7 @@ export default function TabLayout() {
           title: token ? 'Profil' : 'Login',
           href: undefined, 
           tabBarItemStyle: undefined,
-          tabBarIcon: ({ color }) => <Feather size={24} name="user" color={color} />,
+          tabBarIcon: ({ color }) => <Feather size={22} name="user" color={color} />,
         }}
         listeners={{
           tabPress: (e) => {

@@ -1,8 +1,9 @@
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function EditProductScreen() {
   const { id } = useLocalSearchParams(); 
@@ -138,72 +139,109 @@ export default function EditProductScreen() {
   if (isLoading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#D97706" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="chevron-left" size={24} color="#1F2937" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit Produk</Text>
-        
-        <TouchableOpacity onPress={handleDeleteProduct} style={styles.deleteButtonHeader}>
-          <Feather name="trash-2" size={16} color="#DC2626" />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.card}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Nama Produk</Text>
-          <TextInput style={styles.input} value={formData.name} onChangeText={(text) => setFormData({ ...formData, name: text })} />
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Feather name="chevron-left" size={24} color={Colors.secondary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Edit Produk</Text>
+          
+          <TouchableOpacity onPress={handleDeleteProduct} style={styles.deleteButtonHeader} disabled={isDeleting}>
+            {isDeleting ? <ActivityIndicator size="small" color="#DC2626" /> : <Feather name="trash-2" size={18} color="#DC2626" />}
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Deskripsi Produk</Text>
-          <TextInput style={[styles.input, styles.textArea]} multiline numberOfLines={4} textAlignVertical="top" value={formData.description} onChangeText={(text) => setFormData({ ...formData, description: text })} />
-        </View>
-
-        <View style={styles.row}>
-          <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
-            <Text style={styles.label}>Harga (Rp)</Text>
-            <TextInput style={styles.input} keyboardType="numeric" value={formData.price} onChangeText={(text) => setFormData({ ...formData, price: text.replace(/[^0-9]/g, '') })} />
+        <View style={styles.card}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Nama Produk</Text>
+            <TextInput 
+              style={styles.input} 
+              value={formData.name} 
+              onChangeText={(text) => setFormData({ ...formData, name: text })} 
+              placeholderTextColor={Colors.textMuted}
+            />
           </View>
-          <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
-            <Text style={styles.label}>Stok</Text>
-            <TextInput style={styles.input} keyboardType="numeric" value={formData.stock} onChangeText={(text) => setFormData({ ...formData, stock: text.replace(/[^0-9]/g, '') })} />
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Deskripsi Produk</Text>
+            <TextInput 
+              style={[styles.input, styles.textArea]} 
+              multiline 
+              numberOfLines={4} 
+              textAlignVertical="top" 
+              value={formData.description} 
+              onChangeText={(text) => setFormData({ ...formData, description: text })} 
+              placeholderTextColor={Colors.textMuted}
+            />
+          </View>
+
+          <View style={styles.row}>
+            <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
+              <Text style={styles.label}>Harga (Rp)</Text>
+              <TextInput 
+                style={styles.input} 
+                keyboardType="numeric" 
+                value={formData.price} 
+                onChangeText={(text) => setFormData({ ...formData, price: text.replace(/[^0-9]/g, '') })} 
+                placeholderTextColor={Colors.textMuted}
+              />
+            </View>
+            <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
+              <Text style={styles.label}>Stok</Text>
+              <TextInput 
+                style={styles.input} 
+                keyboardType="numeric" 
+                value={formData.stock} 
+                onChangeText={(text) => setFormData({ ...formData, stock: text.replace(/[^0-9]/g, '') })} 
+                placeholderTextColor={Colors.textMuted}
+              />
+            </View>
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>URL Gambar</Text>
+            <TextInput 
+              style={styles.input} 
+              value={formData.imageUrl} 
+              onChangeText={(text) => setFormData({ ...formData, imageUrl: text })} 
+              autoCapitalize="none" 
+              placeholderTextColor={Colors.textMuted}
+            />
           </View>
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>URL Gambar</Text>
-          <TextInput style={styles.input} value={formData.imageUrl} onChangeText={(text) => setFormData({ ...formData, imageUrl: text })} autoCapitalize="none" />
-        </View>
-      </View>
-
-      <TouchableOpacity style={[styles.submitButton, isSaving && { opacity: 0.7 }]} onPress={handleUpdateProduct} disabled={isSaving}>
-        {isSaving ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitButtonText}>Simpan Perubahan</Text>}
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity 
+          style={[styles.submitButton, isSaving && { opacity: 0.7, backgroundColor: Colors.border }]} 
+          onPress={handleUpdateProduct} 
+          disabled={isSaving}
+        >
+          {isSaving ? <ActivityIndicator color={Colors.surface} /> : <Text style={styles.submitButtonText}>Simpan Perubahan</Text>}
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  container: { flex: 1, backgroundColor: Colors.background },
   content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 60, width: '100%', maxWidth: 600, alignSelf: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
-  backButton: { padding: 8, backgroundColor: '#F3F4F6', borderRadius: 8 },
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937' },
+  backButton: { padding: 8, backgroundColor: Colors.surface, borderRadius: 8, borderWidth: 1, borderColor: Colors.border },
+  headerTitle: { fontSize: 20, fontWeight: '900', color: Colors.secondary },
   deleteButtonHeader: { padding: 10, backgroundColor: '#FEE2E2', borderRadius: 8 },
-  card: { backgroundColor: '#FFF', padding: 24, borderRadius: 16, borderWidth: 1, borderColor: '#E5E7EB', marginBottom: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  card: { backgroundColor: Colors.surface, padding: 24, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, marginBottom: 24, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 2 },
   inputGroup: { marginBottom: 20 },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
-  label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },
-  input: { backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: '#1F2937' },
-  textArea: { minHeight: 100 },
-  submitButton: { backgroundColor: '#D97706', width: '100%', paddingVertical: 16, borderRadius: 12, alignItems: 'center' },
-  submitButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  label: { fontSize: 13, fontWeight: '700', color: Colors.secondary, marginBottom: 8 },
+  input: { backgroundColor: Colors.background, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: Colors.secondary },
+  textArea: { minHeight: 120 },
+  submitButton: { backgroundColor: Colors.primary, width: '100%', paddingVertical: 16, borderRadius: 14, alignItems: 'center' },
+  submitButtonText: { color: Colors.surface, fontSize: 16, fontWeight: '900' },
 });

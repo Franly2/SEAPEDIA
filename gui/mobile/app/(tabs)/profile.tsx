@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -47,7 +48,6 @@ export default function ProfileScreen() {
     else Alert.alert(title, message);
   };
 
-  // --- LOGIKA BARU: Fungsi untuk mengeksekusi API upgrade-role ---
   const executeUpgradeRole = async (targetRole: 'BUYER' | 'SELLER' | 'DRIVER' | 'ADMIN') => {
     setIsSwitching(true);
     try {
@@ -63,7 +63,6 @@ export default function ProfileScreen() {
       const data = await response.json();
 
       if (response.ok) {
-        // Jika berhasil di-upgrade di DB, langsung switch role untuk mendapatkan token JWT baru
         await handleSwitchRole(targetRole);
       } else {
         showAlert('Gagal', data.message || `Gagal mengaktifkan peran ${targetRole}.`);
@@ -75,21 +74,17 @@ export default function ProfileScreen() {
     }
   };
 
-  // --- LOGIKA BARU: Wrapper saat tombol role ditekan ---
   const handleRolePress = (targetRole: 'BUYER' | 'SELLER' | 'DRIVER' | 'ADMIN') => {
     if (activeRole === targetRole) return;
 
-    // Cek apakah user sudah memiliki role ini di dalam tokennya
     if (roles && roles.includes(targetRole)) {
       handleSwitchRole(targetRole);
     } else {
-      // Jika belum punya, cegah upgrade ke ADMIN sesuai aturan backend
       if (targetRole === 'ADMIN') {
         showAlert('Akses Ditolak', 'Peran Admin tidak dapat ditambahkan secara otomatis.');
         return;
       }
 
-      // Tampilkan konfirmasi untuk mendaftar peran baru
       const confirmMessage = `Anda belum memiliki peran ${targetRole}. Apakah Anda ingin mengaktifkan peran ini pada akun Anda sekarang?`;
       
       if (Platform.OS === 'web') {
@@ -177,21 +172,21 @@ export default function ProfileScreen() {
       <View style={styles.profileCard}>
         <View style={styles.avatarContainer}>
           <View style={styles.avatarCircle}>
-             <Feather name="user" size={40} color="#6B7280" />
+             <Feather name="user" size={40} color={Colors.textMuted} />
           </View>
         </View>
         <Text style={styles.fullName}>{fullName || 'Pengguna SEAPEDIA'}</Text>
         <Text style={styles.username}>@{username || 'guest'}</Text>
         
         <View style={styles.roleBadge}>
-          <Feather name="shield" size={14} color="#1D4ED8" />
+          <Feather name="shield" size={14} color={Colors.secondary} />
           <Text style={styles.roleText}>Peran Aktif: {activeRole || 'GUEST'}</Text>
         </View>
       </View>
 
       <View style={styles.sectionHeaderRow}>
          <Text style={styles.sectionTitle}>Beralih Peran Aktif</Text>
-         {isSwitching && <ActivityIndicator size="small" color="#3B82F6" />}
+         {isSwitching && <ActivityIndicator size="small" color={Colors.primary} />}
       </View>
       
       <View style={styles.roleSelectorContainer}>
@@ -213,13 +208,13 @@ export default function ProfileScreen() {
               disabled={isSwitching || isActive}
               activeOpacity={0.7}
             >
-              <Feather name={roleOption.icon as any} size={20} color={isActive ? '#1D4ED8' : '#4B5563'} />
+              <Feather name={roleOption.icon as any} size={20} color={isActive ? Colors.primary : Colors.textMuted} />
               <Text style={[styles.roleCardText, isActive && styles.roleCardTextActive]}>
                 {roleOption.name}
               </Text>
 
               {!roles?.includes(roleOption.id) && roleOption.id !== 'ADMIN' && (
-                <Feather name="plus-circle" size={16} color="#9CA3AF" style={{ marginRight: 8 }} />
+                <Feather name="plus-circle" size={16} color={Colors.textMuted} style={{ marginRight: 8 }} />
               )}
 
               {isActive && (
@@ -232,7 +227,7 @@ export default function ProfileScreen() {
 
       <View style={styles.sectionHeaderRow}>
          <Text style={styles.sectionTitle}>Ringkasan Finansial</Text>
-         {isLoading && <ActivityIndicator size="small" color="#1D4ED8" />}
+         {isLoading && <ActivityIndicator size="small" color={Colors.primary} />}
       </View>
       
       <View style={styles.financialContainer}>
@@ -285,7 +280,7 @@ export default function ProfileScreen() {
             >
               <Feather name="credit-card" size={20} color="#10B981" style={{ width: 24 }} />
               <Text style={styles.menuText}>Dompet Pembeli (Top Up & Riwayat)</Text>
-              <Feather name="chevron-right" size={18} color="#D1D5DB" />
+              <Feather name="chevron-right" size={18} color={Colors.border} />
             </TouchableOpacity>
             
             <View style={styles.divider} />
@@ -294,9 +289,9 @@ export default function ProfileScreen() {
               style={styles.menuItem} 
               onPress={() => router.push('/buyer/address')}
             >
-              <Feather name="map-pin" size={20} color="#3B82F6" style={{ width: 24 }} />
+              <Feather name="map-pin" size={20} color={Colors.primary} style={{ width: 24 }} />
               <Text style={styles.menuText}>Daftar Alamat Pengiriman</Text>
-              <Feather name="chevron-right" size={18} color="#D1D5DB" />
+              <Feather name="chevron-right" size={18} color={Colors.border} />
             </TouchableOpacity>
 
             <View style={styles.divider} />
@@ -314,38 +309,38 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  container: { flex: 1, backgroundColor: Colors.background },
   content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 60, width: '100%', maxWidth: 600, alignSelf: 'center' },
   
-  profileCard: { alignItems: 'center', backgroundColor: '#FFF', padding: 24, borderRadius: 16, borderWidth: 1, borderColor: '#E5E7EB', marginBottom: 24 },
+  profileCard: { alignItems: 'center', backgroundColor: Colors.surface, padding: 24, borderRadius: 16, borderWidth: 1, borderColor: Colors.border, marginBottom: 24, elevation: 2, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 },
   avatarContainer: { marginBottom: 12 },
-  avatarCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#E5E7EB' },
-  fullName: { fontSize: 20, fontWeight: '800', color: '#1F2937', marginBottom: 4 },
-  username: { fontSize: 14, color: '#6B7280', marginBottom: 12 },
-  roleBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#DBEAFE', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
-  roleText: { marginLeft: 6, fontSize: 12, fontWeight: 'bold', color: '#1D4ED8' },
+  avatarCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: Colors.background, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: Colors.border },
+  fullName: { fontSize: 20, fontWeight: '900', color: Colors.secondary, marginBottom: 4 },
+  username: { fontSize: 14, color: Colors.textMuted, marginBottom: 12 },
+  roleBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primaryLight, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
+  roleText: { marginLeft: 6, fontSize: 12, fontWeight: 'bold', color: Colors.secondary },
   
   sectionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingHorizontal: 4 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#374151', marginTop: 8 },
+  sectionTitle: { fontSize: 16, fontWeight: '900', color: Colors.secondary, marginTop: 8 },
   
   roleSelectorContainer: { marginBottom: 24 },
-  roleCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', marginBottom: 8 },
-  roleCardActive: { borderColor: '#3B82F6', backgroundColor: '#EFF6FF' },
-  roleCardText: { flex: 1, marginLeft: 12, fontSize: 14, fontWeight: '600', color: '#4B5563' },
-  roleCardTextActive: { color: '#1D4ED8', fontWeight: 'bold' },
-  activeIndicatorDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#3B82F6' },
+  roleCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.surface, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: Colors.border, marginBottom: 8 },
+  roleCardActive: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  roleCardText: { flex: 1, marginLeft: 12, fontSize: 14, fontWeight: '600', color: Colors.textMuted },
+  roleCardTextActive: { color: Colors.secondary, fontWeight: '900' },
+  activeIndicatorDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.primary },
   
-  financialContainer: { backgroundColor: '#FFF', borderRadius: 16, borderWidth: 1, borderColor: '#E5E7EB', padding: 16, marginBottom: 8 },
+  financialContainer: { backgroundColor: Colors.surface, borderRadius: 16, borderWidth: 1, borderColor: Colors.border, padding: 16, marginBottom: 8 },
   financialRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
   financialIconWrapper: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#D1FAE5', justifyContent: 'center', alignItems: 'center', marginRight: 16 },
   financialInfo: { flex: 1 },
-  financialLabel: { fontSize: 12, color: '#6B7280', marginBottom: 4, fontWeight: '500' },
-  financialValue: { fontSize: 16, fontWeight: '800', color: '#1F2937' },
+  financialLabel: { fontSize: 12, color: Colors.textMuted, marginBottom: 4, fontWeight: '600' },
+  financialValue: { fontSize: 16, fontWeight: '900', color: Colors.secondary },
   
-  divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 8 },
-  disclaimerText: { fontSize: 11, color: '#9CA3AF', fontStyle: 'italic', marginBottom: 24, paddingHorizontal: 4 },
+  divider: { height: 1, backgroundColor: Colors.border, marginVertical: 8 },
+  disclaimerText: { fontSize: 11, color: Colors.textMuted, fontStyle: 'italic', marginBottom: 24, paddingHorizontal: 4 },
   
-  menuContainer: { backgroundColor: '#FFF', borderRadius: 16, borderWidth: 1, borderColor: '#E5E7EB', paddingHorizontal: 16, marginBottom: 20 },
+  menuContainer: { backgroundColor: Colors.surface, borderRadius: 16, borderWidth: 1, borderColor: Colors.border, paddingHorizontal: 16, marginBottom: 20 },
   menuItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16 },
-  menuText: { flex: 1, fontSize: 15, fontWeight: '600', color: '#374151', marginLeft: 12 }
+  menuText: { flex: 1, fontSize: 15, fontWeight: '700', color: Colors.secondary, marginLeft: 12 }
 });

@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -19,8 +20,6 @@ export default function LoginScreen() {
   const api_address = process.env.EXPO_PUBLIC_API_IP_ADDRESS;
   const router = useRouter();
   const { login } = useAuthStore(); 
-
-  const primaryColor = '#3B82F6'; 
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -119,7 +118,7 @@ export default function LoginScreen() {
       <View style={styles.container}>
         <View style={[styles.content, { flex: 1, justifyContent: 'center' }]}>
           <View style={[styles.card, { alignItems: 'center', paddingVertical: 40 }]}>
-            <Feather name="users" size={64} color={primaryColor} />
+            <Feather name="users" size={64} color={Colors.primary} />
             <Text style={[styles.title, { marginTop: 24, textAlign: 'center' }]}>Pilih Peran</Text>
             <Text style={[styles.subtitle, { textAlign: 'center', marginBottom: 32 }]}>
               Akun ini memiliki beberapa peran aktif. Silakan pilih peran yang ingin kamu gunakan di sesi ini.
@@ -132,7 +131,7 @@ export default function LoginScreen() {
             ) : null}
 
             {isSwitchingRole ? (
-              <ActivityIndicator size="large" color={primaryColor} style={{ marginTop: 20 }} />
+              <ActivityIndicator size="large" color={Colors.primary} style={{ marginTop: 20 }} />
             ) : (
               pendingRoleData.roles.map((role: string) => (
                 <TouchableOpacity 
@@ -165,7 +164,7 @@ export default function LoginScreen() {
         
         <View style={styles.headerSection}>
           <View style={styles.logoWrapper}>
-            <Feather name="shopping-bag" size={48} color={primaryColor} />
+            <Feather name="shopping-bag" size={48} color={Colors.primary} />
           </View>
           <Text style={styles.brandTitle}>SELAMAT DATANG DI</Text>
           <Text style={styles.title}>SEAPEDIA</Text>
@@ -180,7 +179,7 @@ export default function LoginScreen() {
               value={username}
               placeholder="Masukkan username"
               autoCapitalize="none"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={Colors.textMuted}
               editable={!successMessage && !isLoading}
             />
           </View>
@@ -193,7 +192,7 @@ export default function LoginScreen() {
               value={password}
               placeholder="••••••••"
               secureTextEntry
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={Colors.textMuted}
               editable={!successMessage && !isLoading}
             />
           </View>
@@ -213,7 +212,7 @@ export default function LoginScreen() {
 
           {isLoading ? (
             <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color={primaryColor} />
+              <ActivityIndicator size="large" color={Colors.primary} />
             </View>
           ) : (
             !successMessage && (
@@ -232,7 +231,7 @@ export default function LoginScreen() {
           <View style={styles.loginLinkContainer}>
             <Text style={styles.loginLinkText}>Belum punya akun? </Text>
             <TouchableOpacity onPress={() => router.replace('/register')}>
-              <Text style={[styles.loginLinkHighlight, { color: primaryColor }]}>Daftar di sini</Text>
+              <Text style={[styles.loginLinkHighlight, { color: Colors.primary }]}>Daftar di sini</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -246,39 +245,39 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
-  content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 60, paddingBottom: 40, width: '100%', maxWidth: 600, alignSelf: 'center', flexGrow: 1, justifyContent: 'center' },
+  container: { flex: 1, backgroundColor: Colors.background },
+  content: { padding: 20, paddingTop: Platform.OS === 'ios' ? 60 : 60, paddingBottom: 40, width: '100%', maxWidth: 500, alignSelf: 'center', flexGrow: 1, justifyContent: 'center' },
   
   headerSection: { marginBottom: 32, alignItems: 'center' },
-  logoWrapper: { marginBottom: 16, backgroundColor: '#EFF6FF', padding: 16, borderRadius: 24 },
-  brandTitle: { fontSize: 12, fontWeight: '700', color: '#6B7280', letterSpacing: 2, marginBottom: 4 },
-  title: { fontSize: 32, fontWeight: '900', color: '#1F2937', letterSpacing: -0.5 },
-  subtitle: { fontSize: 14, color: '#6B7280', lineHeight: 22 },
+  logoWrapper: { marginBottom: 16, backgroundColor: Colors.primaryLight, padding: 16, borderRadius: 24 },
+  brandTitle: { fontSize: 12, fontWeight: '700', color: Colors.textMuted, letterSpacing: 2, marginBottom: 4 },
+  title: { fontSize: 32, fontWeight: '900', color: Colors.secondary, letterSpacing: -0.5 },
+  subtitle: { fontSize: 14, color: Colors.textMuted, lineHeight: 22 },
   
-  card: { backgroundColor: '#FFF', padding: 24, borderRadius: 16, borderWidth: 1, borderColor: '#E5E7EB', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 },
+  card: { backgroundColor: Colors.surface, padding: 24, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, elevation: 4, shadowColor: Colors.secondary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12 },
   
   inputGroup: { marginBottom: 20 },
-  label: { fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 8 },
-  input: { backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: '#1F2937' },
+  label: { fontSize: 13, fontWeight: '700', color: Colors.secondary, marginBottom: 8 },
+  input: { backgroundColor: Colors.background, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: Colors.secondary },
   
-  errorContainer: { backgroundColor: '#FEF2F2', padding: 12, borderRadius: 8, marginBottom: 20, borderWidth: 1, borderColor: '#FCA5A5' },
+  errorContainer: { backgroundColor: '#FEF2F2', padding: 12, borderRadius: 10, marginBottom: 20, borderWidth: 1, borderColor: '#FCA5A5' },
   errorText: { color: '#DC2626', fontSize: 13, fontWeight: '600', textAlign: 'center' },
   
-  successContainer: { backgroundColor: '#F0FDF4', padding: 16, borderRadius: 8, marginBottom: 20, borderWidth: 1, borderColor: '#86EFAC', alignItems: 'center' },
+  successContainer: { backgroundColor: '#F0FDF4', padding: 16, borderRadius: 10, marginBottom: 20, borderWidth: 1, borderColor: '#86EFAC', alignItems: 'center' },
   successText: { color: '#059669', fontSize: 14, fontWeight: '700', textAlign: 'center' },
   
   loaderContainer: { height: 54, justifyContent: 'center', alignItems: 'center', marginVertical: 10 },
   
-  primaryButton: { backgroundColor: '#3B82F6', alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderRadius: 12, marginTop: 8 },
-  primaryButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  primaryButton: { backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderRadius: 12, marginTop: 8 },
+  primaryButtonText: { color: Colors.surface, fontSize: 16, fontWeight: '900' },
   
-  outlineButton: { alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 12, backgroundColor: '#FFF', marginTop: 12 },
-  outlineButtonText: { color: '#4B5563', fontSize: 15, fontWeight: '600' },
+  outlineButton: { alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, backgroundColor: Colors.surface, marginTop: 12 },
+  outlineButtonText: { color: Colors.textMuted, fontSize: 15, fontWeight: '700' },
   
-  loginLinkContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24, paddingTop: 20, borderTopWidth: 1, borderTopColor: '#F3F4F6' },
-  loginLinkText: { fontSize: 14, color: '#6B7280' },
-  loginLinkHighlight: { fontSize: 14, fontWeight: 'bold' },
+  loginLinkContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24, paddingTop: 20, borderTopWidth: 1, borderTopColor: Colors.border },
+  loginLinkText: { fontSize: 14, color: Colors.textMuted },
+  loginLinkHighlight: { fontSize: 14, fontWeight: '800' },
   
   footer: { marginTop: 40, alignItems: 'center' },
-  footerText: { fontSize: 12, color: '#9CA3AF' }
+  footerText: { fontSize: 12, color: Colors.textMuted }
 });

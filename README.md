@@ -1,7 +1,7 @@
 # SEAPEDIA - Marketplace  
 
  **Web App (Live):** [Kunjungi SEAPEDIA Live](https://seapedia-delta.vercel.app/)
- **Mobile App (Android):** [Download SEAPEDIA .apk (Android)](https://github.com/Franly2/SEAPEDIA/releases/tag/v1.0.0)
+ **download mobile apk** : https://expo.dev/artifacts/eas/DSUGCCUvG9NsAdMbjGFM33FAT9INIrbgk9dmHH7kmLI.apk
 
 Selamat datang di repositori resmi **SEAPEDIA**, platform marketplace yang dirancang buat mempertemukan Pembeli, Penjual, Kurir , dan Admin dalam satu ekosistem yang terintegrasi.
 
